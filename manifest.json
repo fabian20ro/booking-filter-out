@@ -1,0 +1,18 @@
+
+{
+  "manifest_version": 3,
+  "name": "Booking Animal Filter",
+  "version": "1.0",
+  "description": "Filter Booking properties that forbid animals",
+  "icons": {
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.booking.com/searchresults*"],
+      "js": ["content.js"],
+      "css": ["style.css"]
+    }
+  ],
+  "permissions": ["storage"]
+}
