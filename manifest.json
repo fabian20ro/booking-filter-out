@@ -1,7 +1,7 @@
 
 {
   "manifest_version": 3,
-  "name": "Booking Animal Filter",
+  "name": "Filter Booking.com results for Hotels that forbid Animals",
   "version": "1.0",
   "description": "Filter for Booking.com properties that forbid animals",
   "icons": {
