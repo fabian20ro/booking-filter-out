@@ -74,11 +74,14 @@ function insertControlPanel() {
         hoverList.style.display = 'none';
     });
 
+    const copyBtn = createButton('Copy non-excluded hotels', 'copy-non-excluded-btn', copyNonExcludedHotels);
+
     panel.appendChild(statusText);
     panel.appendChild(saveBtn);
     panel.appendChild(hoverList);
     panel.appendChild(filterBtn);
     panel.appendChild(clearBtn);
+    panel.appendChild(copyBtn);
 
     document.body.appendChild(panel);
 }
@@ -136,6 +139,21 @@ function filterOutAnimalFriendlyProperties() {
     }
 
     showMessage('Dimmed saved hotels.');
+}
+
+function copyNonExcludedHotels() {
+    const saved = new Set(JSON.parse(localStorage.getItem('animalFriendlyList') || '[]'));
+    const visibleNames = extractVisibleHotelNames();
+    const nonExcluded = visibleNames.filter(name => !saved.has(name));
+
+    if (nonExcluded.length === 0) {
+        showMessage('No non-excluded hotels to copy.');
+        return;
+    }
+
+    navigator.clipboard.writeText(nonExcluded.join('\n')).then(() => {
+        showMessage(`Copied ${nonExcluded.length} hotel names to clipboard.`);
+    });
 }
 
 function clearAnimalFriendlyList() {
