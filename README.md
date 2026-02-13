@@ -5,7 +5,7 @@ Click add visible hotels.
 Change filter.
 Click Exclude added hotels and the added hotels become grayed out.
 
-This is a Chrome extension. 
+This is a Chrome extension.
 To use it:
 1. git clone this project.
 2. go to Chromium extension tab
