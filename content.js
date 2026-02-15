@@ -3,6 +3,7 @@ function createButton(text, id, onClick, symbol = null) {
     button.textContent = symbol || text;
     button.id = id;
     button.title = text;
+    button.setAttribute('aria-label', text);
     button.addEventListener('click', onClick);
     return button;
 }
@@ -41,10 +42,10 @@ function insertControlPanel() {
     statusText.id = 'hotel-list-status';
     updateHotelListCount();
 
-    const saveBtn = createButton('Add visible hotels', 'save-animals-btn', saveAnimalFriendlyProperties, '+');
-    const filterBtn = createButton('Exclude added hotels', 'filter-animals-btn', filterOutAnimalFriendlyProperties, '⊘');
-    const clearBtn = createButton('Clear hotel filter list', 'clear-animals-btn', clearAnimalFriendlyList, 'x');
-    const copyBtn = createButton('Copy non-excluded hotels', 'copy-non-excluded-btn', copyNonExcludedHotels, '⧉');
+    const saveBtn = createButton('Add visible hotels', 'save-animals-btn', saveAnimalFriendlyProperties, '➕');
+    const filterBtn = createButton('Exclude added hotels', 'filter-animals-btn', filterOutAnimalFriendlyProperties, '🔍');
+    const clearBtn = createButton('Clear hotel filter list', 'clear-animals-btn', clearAnimalFriendlyList, '🧹');
+    const copyBtn = createButton('Copy non-excluded hotels', 'copy-non-excluded-btn', copyNonExcludedHotels, '📋');
 
     const hoverList = document.createElement('div');
     hoverList.id = 'hover-hotel-list';
@@ -60,11 +61,11 @@ function insertControlPanel() {
     });
 
     topRow.appendChild(statusText);
-    topRow.appendChild(clearBtn);
 
     bottomRow.appendChild(saveBtn);
     bottomRow.appendChild(filterBtn);
     bottomRow.appendChild(copyBtn);
+    bottomRow.appendChild(clearBtn);
 
     panel.appendChild(topRow);
     panel.appendChild(bottomRow);
@@ -77,7 +78,7 @@ function updateHotelListCount() {
     const saved = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
     const status = document.getElementById('hotel-list-status');
     if (status) {
-        status.textContent = `${saved.length} hotels saved`;
+        status.textContent = `${saved.length} saved`;
     }
 }
 
