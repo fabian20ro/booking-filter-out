@@ -1,9 +1,8 @@
-function createButton(text, id, onClick) {
+function createButton(text, id, onClick, symbol = null) {
     const button = document.createElement('button');
-    button.textContent = text;
+    button.textContent = symbol || text;
     button.id = id;
-    button.style.margin = '5px';
-    button.style.cursor = 'pointer';
+    button.title = text;
     button.addEventListener('click', onClick);
     return button;
 }
@@ -31,38 +30,24 @@ function showMessage(message) {
 function insertControlPanel() {
     const panel = document.createElement('div');
     panel.id = 'animal-filter-panel';
-    panel.style.position = 'fixed';
-    panel.style.top = '10px';
-    panel.style.right = '10px';
-    panel.style.zIndex = '10000';
-    panel.style.background = '#fff';
-    panel.style.border = '1px solid #ccc';
-    panel.style.padding = '10px';
-    panel.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
-    panel.style.borderRadius = '6px';
+
+    const topRow = document.createElement('div');
+    topRow.className = 'panel-row panel-row-top';
+
+    const bottomRow = document.createElement('div');
+    bottomRow.className = 'panel-row panel-row-bottom';
 
     const statusText = document.createElement('div');
     statusText.id = 'hotel-list-status';
-    statusText.style.marginBottom = '10px';
     updateHotelListCount();
 
-    const saveBtn = createButton('Add visible hotels', 'save-animals-btn', saveAnimalFriendlyProperties);
-    const filterBtn = createButton('Exclude added hotels', 'filter-animals-btn', filterOutAnimalFriendlyProperties);
-    const clearBtn = createButton('Clear hotel filter list', 'clear-animals-btn', clearAnimalFriendlyList);
+    const saveBtn = createButton('Add visible hotels', 'save-animals-btn', saveAnimalFriendlyProperties, '+');
+    const filterBtn = createButton('Exclude added hotels', 'filter-animals-btn', filterOutAnimalFriendlyProperties, '⊘');
+    const clearBtn = createButton('Clear hotel filter list', 'clear-animals-btn', clearAnimalFriendlyList, 'x');
+    const copyBtn = createButton('Copy non-excluded hotels', 'copy-non-excluded-btn', copyNonExcludedHotels, '⧉');
 
     const hoverList = document.createElement('div');
     hoverList.id = 'hover-hotel-list';
-    hoverList.style.display = 'none';
-    hoverList.style.position = 'absolute';
-    hoverList.style.top = '100%';
-    hoverList.style.right = '0';
-    hoverList.style.backgroundColor = '#f9f9f9';
-    hoverList.style.border = '1px solid #ccc';
-    hoverList.style.padding = '10px';
-    hoverList.style.maxHeight = '200px';
-    hoverList.style.overflowY = 'auto';
-    hoverList.style.width = '250px';
-    hoverList.style.fontSize = '12px';
 
     saveBtn.addEventListener('mouseenter', () => {
         const saved = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
@@ -70,18 +55,20 @@ function insertControlPanel() {
         hoverList.style.display = 'block';
     });
 
-    saveBtn.addEventListener('mouseleave', () => {
+    panel.addEventListener('mouseleave', () => {
         hoverList.style.display = 'none';
     });
 
-    const copyBtn = createButton('Copy non-excluded hotels', 'copy-non-excluded-btn', copyNonExcludedHotels);
+    topRow.appendChild(statusText);
+    topRow.appendChild(clearBtn);
 
-    panel.appendChild(statusText);
-    panel.appendChild(saveBtn);
+    bottomRow.appendChild(saveBtn);
+    bottomRow.appendChild(filterBtn);
+    bottomRow.appendChild(copyBtn);
+
+    panel.appendChild(topRow);
+    panel.appendChild(bottomRow);
     panel.appendChild(hoverList);
-    panel.appendChild(filterBtn);
-    panel.appendChild(clearBtn);
-    panel.appendChild(copyBtn);
 
     document.body.appendChild(panel);
 }
@@ -90,7 +77,7 @@ function updateHotelListCount() {
     const saved = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
     const status = document.getElementById('hotel-list-status');
     if (status) {
-        status.textContent = `Hotels in list: ${saved.length}`;
+        status.textContent = `${saved.length} hotels saved`;
     }
 }
 

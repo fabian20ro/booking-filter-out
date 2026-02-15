@@ -1,23 +1,86 @@
 
 #animal-filter-panel {
   position: fixed;
-  top: 100px;
-  right: 20px;
-  background-color: white;
-  padding: 10px;
-  border: 2px solid #888;
-  border-radius: 8px;
-  z-index: 9999;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  top: 18px;
+  right: 18px;
+  z-index: 10000;
+  min-width: 380px;
+  padding: 12px;
+  background: #efefef;
+  border: 1px solid #d6dbe7;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(31, 71, 161, 0.12);
+}
+
+#animal-filter-panel .panel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#animal-filter-panel .panel-row-top {
+  margin-bottom: 12px;
+}
+
+#hotel-list-status {
+  flex: 1;
+  min-height: 48px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #1f67ff;
+  border-radius: 18px;
+  background: #f7f9ff;
+  color: #1f67ff;
+  font-size: 17px;
+  line-height: 1;
 }
 
 #animal-filter-panel button {
-  display: block;
-  padding: 6px 12px;
-  margin-bottom: 5px;
-  font-size: 14px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 2px solid #1f67ff;
+  border-radius: 18px;
+  background: #f7f9ff;
+  color: #1f67ff;
+  font-size: 22px;
+  line-height: 1;
   cursor: pointer;
-  border: 1px solid #555;
-  background-color: #f0f0f0;
-  border-radius: 4px;
+  transition: transform 0.12s ease, background-color 0.12s ease;
+}
+
+#animal-filter-panel button:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+#clear-animals-btn {
+  flex: 0 0 64px;
+}
+
+#animal-filter-panel .panel-row-bottom button {
+  flex: 1;
+}
+
+#hover-hotel-list {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #c8d7ff;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #163680;
+  font-size: 12px;
+  box-shadow: 0 8px 16px rgba(31, 71, 161, 0.12);
+}
+
+#hover-hotel-list ul {
+  margin: 0;
+  padding-left: 16px;
 }
