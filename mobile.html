@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking.com Hotel Filter — Mobile Install</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f5f7fb;
+    color: #1a1a2e;
+    line-height: 1.5;
+    padding: 20px 16px 40px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 22px;
+    color: #003580;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    color: #555;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #d6dbe7;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  }
+  .card h2 {
+    font-size: 16px;
+    color: #003580;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h2 .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: #003580;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .copy-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #003580;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .copy-btn:active { background: #00224e; }
+  .copy-btn.copied { background: #0a8f3c; }
+  ol { padding-left: 20px; }
+  ol li { margin-bottom: 8px; font-size: 14px; }
+  ol li strong { color: #003580; }
+  .tab-row {
+    display: flex;
+    gap: 0;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #d6dbe7;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #777;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab.active { color: #003580; border-bottom-color: #003580; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .preview {
+    margin-top: 16px;
+    padding: 12px;
+    background: #f0f4ff;
+    border: 1px dashed #a0b4e0;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #444;
+    text-align: center;
+  }
+  .preview span { font-size: 24px; display: block; margin-bottom: 4px; }
+  .usage-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .usage-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 6px 8px;
+    background: #f0f4ff;
+    border-radius: 8px;
+  }
+  .usage-item .icon { font-size: 18px; }
+  .error-msg {
+    padding: 12px;
+    background: #fff0f0;
+    border: 1px solid #ffcccc;
+    border-radius: 8px;
+    color: #c00;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Booking.com Hotel Filter</h1>
+<p class="subtitle">Filter out hotels from search results — works on mobile, no extension needed.</p>
+
+<div class="card">
+  <h2><span class="num">1</span> Copy the bookmarklet</h2>
+  <p style="font-size:14px;margin-bottom:12px;color:#555;">
+    Tap the button below to copy a small script to your clipboard.
+  </p>
+  <button class="copy-btn" id="copy-btn" disabled>Loading...</button>
+</div>
+
+<div class="card">
+  <h2><span class="num">2</span> Create the bookmark</h2>
+  <div class="tab-row">
+    <button class="tab active" data-tab="ios">iOS Safari</button>
+    <button class="tab" data-tab="android">Android Chrome</button>
+    <button class="tab" data-tab="firefox">Firefox</button>
+  </div>
+  <div id="ios" class="tab-content active">
+    <ol>
+      <li>Open <strong>any page</strong> in Safari</li>
+      <li>Tap the <strong>Share</strong> button (square with arrow)</li>
+      <li>Tap <strong>Add Bookmark</strong> and save it</li>
+      <li>Open <strong>Bookmarks</strong> (book icon) and find it</li>
+      <li>Tap <strong>Edit</strong>, then tap the bookmark</li>
+      <li><strong>Clear the URL</strong> field and <strong>paste</strong> the copied code</li>
+      <li>Rename it to <strong>"Hotel Filter"</strong> and save</li>
+    </ol>
+  </div>
+  <div id="android" class="tab-content">
+    <ol>
+      <li>Open <strong>any page</strong> in Chrome</li>
+      <li>Tap the <strong>&#8942;</strong> menu &gt; <strong>Bookmark</strong> (star icon)</li>
+      <li>Tap <strong>&#8942;</strong> menu again &gt; <strong>Bookmarks</strong></li>
+      <li>Find the bookmark, tap <strong>&#8942;</strong> next to it &gt; <strong>Edit</strong></li>
+      <li><strong>Clear the URL</strong> field and <strong>paste</strong> the copied code</li>
+      <li>Rename it to <strong>"Hotel Filter"</strong> and save</li>
+    </ol>
+  </div>
+  <div id="firefox" class="tab-content">
+    <ol>
+      <li>Open <strong>any page</strong> in Firefox</li>
+      <li>Tap the <strong>&#8942;</strong> menu &gt; <strong>Bookmark this page</strong></li>
+      <li>Go to <strong>Bookmarks</strong> in the menu</li>
+      <li>Long-press the bookmark &gt; <strong>Edit</strong></li>
+      <li><strong>Clear the URL</strong> field and <strong>paste</strong> the copied code</li>
+      <li>Rename it to <strong>"Hotel Filter"</strong> and save</li>
+    </ol>
+  </div>
+</div>
+
+<div class="card">
+  <h2><span class="num">3</span> Use it</h2>
+  <ol>
+    <li>Go to <strong>booking.com</strong> and search for a location</li>
+    <li>Open your <strong>bookmarks</strong> and tap <strong>"Hotel Filter"</strong></li>
+    <li>A toolbar appears at the bottom of the screen</li>
+  </ol>
+  <div class="usage-grid">
+    <div class="usage-item"><span class="icon">&#10133;</span> Save visible hotels</div>
+    <div class="usage-item"><span class="icon">&#128269;</span> Dim saved hotels</div>
+    <div class="usage-item"><span class="icon">&#128203;</span> Copy the rest</div>
+    <div class="usage-item"><span class="icon">&#129529;</span> Clear the list</div>
+  </div>
+  <div class="preview">
+    <span>&#10133; &#128269; &#128203; &#129529;</span>
+    The toolbar appears at the bottom of your screen. Tap the badge to see saved hotel names.
+  </div>
+</div>
+
+<script>
+(function () {
+  var copyBtn = document.getElementById('copy-btn');
+
+  // Fetch the bookmarklet source from the same directory
+  fetch('bookmarklet.js')
+    .then(function (r) { return r.text(); })
+    .then(function (code) {
+      var bookmarklet = 'javascript:' + encodeURIComponent(code);
+      copyBtn.textContent = 'Copy bookmarklet to clipboard';
+      copyBtn.disabled = false;
+      copyBtn.addEventListener('click', function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(bookmarklet).then(onCopied, fallback);
+        } else {
+          fallback();
+        }
+        function fallback() {
+          var ta = document.createElement('textarea');
+          ta.value = bookmarklet;
+          ta.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:80px;z-index:9999;font-size:12px';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          try {
+            document.execCommand('copy');
+            ta.remove();
+            onCopied();
+          } catch (e) {
+            copyBtn.textContent = 'Select all text above & copy manually';
+          }
+        }
+        function onCopied() {
+          copyBtn.textContent = 'Copied!';
+          copyBtn.classList.add('copied');
+          setTimeout(function () {
+            copyBtn.textContent = 'Copy bookmarklet to clipboard';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        }
+      });
+    })
+    .catch(function () {
+      copyBtn.textContent = 'Error loading bookmarklet';
+      copyBtn.insertAdjacentHTML('afterend',
+        '<div class="error-msg" style="margin-top:10px">Could not load bookmarklet.js. If you opened this file directly, try serving it from a web server or GitHub Pages instead.</div>');
+    });
+
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
