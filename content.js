@@ -125,12 +125,14 @@ function saveAnimalFriendlyProperties() {
 }
 
 function filterOutAnimalFriendlyProperties() {
-    const saved = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
+    // ⚡ Bolt: Convert array to Set for O(1) lookups instead of O(m) includes() checks.
+    // Reduces overall complexity from O(n*m) to O(n) during DOM iteration.
+    const savedSet = new Set(JSON.parse(localStorage.getItem('animalFriendlyList') || '[]'));
     const cards = getPropertyElements();
 
     for (const card of cards) {
         const titleElement = card.querySelector('[data-testid="title"]');
-        if (titleElement && saved.includes(titleElement.textContent.trim())) {
+        if (titleElement && savedSet.has(titleElement.textContent.trim())) {
             card.style.opacity = '0.2';
         }
     }

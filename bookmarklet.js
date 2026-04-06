@@ -52,10 +52,12 @@
     }
 
     function filterSaved() {
-        var saved = getSaved();
+        // ⚡ Bolt: Convert array to Set for O(1) lookups instead of O(m) indexOf() checks.
+        // Reduces overall complexity from O(n*m) to O(n) during DOM iteration.
+        var savedSet = new Set(getSaved());
         getPropertyElements().forEach(function (card) {
             var t = card.querySelector('[data-testid="title"]');
-            if (t && saved.indexOf(t.textContent.trim()) !== -1) {
+            if (t && savedSet.has(t.textContent.trim())) {
                 card.style.opacity = '0.2';
             }
         });
