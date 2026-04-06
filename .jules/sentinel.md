@@ -1,0 +1,4 @@
+## 2025-04-06 - [High] DOM-Based XSS in UI rendering
+**Vulnerability:** Found an XSS vulnerability where user-generated text (hotel titles scraped from the booking website) was being stored in `localStorage` and then directly rendered as an HTML string using `.innerHTML` when hovered/clicked on the extensions panel. If an attacker managed to place a malicious title like `<script>alert('xss')</script>` on the booking list (or otherwise tampered with `localStorage`), the script would execute in the context of the page/extension.
+**Learning:** Never trust scraped text content, even if it comes from legitimate websites. Appending text via `.innerHTML` directly creates opportunities for XSS.
+**Prevention:** Instead of string interpolation with `.innerHTML`, always construct HTML elements dynamically using `document.createElement('tag')` and set their text content via `.textContent`. This automatically escapes unsafe inputs.

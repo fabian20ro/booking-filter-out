@@ -54,7 +54,20 @@ function insertControlPanel() {
 
     const showHoverList = () => {
         const saved = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
-        hoverList.innerHTML = saved.length ? '<ul>' + saved.map(name => `<li>${name}</li>`).join('') + '</ul>' : '<i>No hotels saved</i>';
+        hoverList.innerHTML = '';
+        if (saved.length) {
+            const ul = document.createElement('ul');
+            saved.forEach(name => {
+                const li = document.createElement('li');
+                li.textContent = name;
+                ul.appendChild(li);
+            });
+            hoverList.appendChild(ul);
+        } else {
+            const i = document.createElement('i');
+            i.textContent = 'No hotels saved';
+            hoverList.appendChild(i);
+        }
         hoverList.style.display = 'block';
     };
 
