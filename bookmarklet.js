@@ -133,9 +133,20 @@
         listVisible = !listVisible;
         if (listVisible) {
             var saved = getSaved();
-            hoverList.innerHTML = saved.length
-                ? '<ul>' + saved.map(function (n) { return '<li>' + n + '</li>'; }).join('') + '</ul>'
-                : '<i>No hotels saved</i>';
+            hoverList.innerHTML = '';
+            if (saved.length) {
+                var ul = document.createElement('ul');
+                saved.forEach(function (n) {
+                    var li = document.createElement('li');
+                    li.textContent = n;
+                    ul.appendChild(li);
+                });
+                hoverList.appendChild(ul);
+            } else {
+                var i = document.createElement('i');
+                i.textContent = 'No hotels saved';
+                hoverList.appendChild(i);
+            }
             hoverList.style.display = 'block';
         } else {
             hoverList.style.display = 'none';
