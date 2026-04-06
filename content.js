@@ -21,6 +21,8 @@ function showMessage(message) {
     msgBox.style.borderRadius = '5px';
     msgBox.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
     msgBox.style.zIndex = '10001';
+    msgBox.setAttribute('role', 'status');
+    msgBox.setAttribute('aria-live', 'polite');
     document.body.appendChild(msgBox);
 
     setTimeout(() => {
@@ -50,10 +52,17 @@ function insertControlPanel() {
     const hoverList = document.createElement('div');
     hoverList.id = 'hover-hotel-list';
 
-    saveBtn.addEventListener('mouseenter', () => {
+    const showHoverList = () => {
         const saved = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
         hoverList.innerHTML = saved.length ? '<ul>' + saved.map(name => `<li>${name}</li>`).join('') + '</ul>' : '<i>No hotels saved</i>';
         hoverList.style.display = 'block';
+    };
+
+    saveBtn.addEventListener('mouseenter', showHoverList);
+    saveBtn.addEventListener('focus', showHoverList);
+
+    saveBtn.addEventListener('blur', () => {
+        hoverList.style.display = 'none';
     });
 
     panel.addEventListener('mouseleave', () => {
