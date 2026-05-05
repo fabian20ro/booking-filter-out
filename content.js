@@ -1,166 +1,218 @@
-function createButton(text, id, onClick, symbol = null) {
-    const button = document.createElement('button');
-    button.textContent = symbol || text;
-    button.id = id;
-    button.title = text;
-    button.setAttribute('aria-label', text);
-    button.addEventListener('click', onClick);
-    return button;
-}
+(function () {
+    if (window.__bookingFilterInit) return;
+    window.__bookingFilterInit = true;
 
-function showMessage(message) {
-    const msgBox = document.createElement('div');
-    msgBox.textContent = message;
-    msgBox.style.position = 'fixed';
-    msgBox.style.top = '20px';
-    msgBox.style.left = '50%';
-    msgBox.style.transform = 'translateX(-50%)';
-    msgBox.style.background = '#444';
-    msgBox.style.color = '#fff';
-    msgBox.style.padding = '10px 20px';
-    msgBox.style.borderRadius = '5px';
-    msgBox.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-    msgBox.style.zIndex = '10001';
-    msgBox.setAttribute('role', 'status');
-    msgBox.setAttribute('aria-live', 'polite');
-    document.body.appendChild(msgBox);
-
-    setTimeout(() => {
-        document.body.removeChild(msgBox);
-    }, 3000);
-}
-
-function insertControlPanel() {
-    const panel = document.createElement('div');
-    panel.id = 'animal-filter-panel';
-
-    const topRow = document.createElement('div');
-    topRow.className = 'panel-row panel-row-top';
-
-    const bottomRow = document.createElement('div');
-    bottomRow.className = 'panel-row panel-row-bottom';
-
-    const statusText = document.createElement('div');
-    statusText.id = 'hotel-list-status';
-    updateHotelListCount();
-
-    const saveBtn = createButton('Add visible hotels', 'save-animals-btn', saveAnimalFriendlyProperties, '➕');
-    const filterBtn = createButton('Exclude added hotels', 'filter-animals-btn', filterOutAnimalFriendlyProperties, '🔍');
-    const clearBtn = createButton('Clear hotel filter list', 'clear-animals-btn', clearAnimalFriendlyList, '🧹');
-    const copyBtn = createButton('Copy non-excluded hotels', 'copy-non-excluded-btn', copyNonExcludedHotels, '📋');
-
-    const hoverList = document.createElement('div');
-    hoverList.id = 'hover-hotel-list';
-
-    const showHoverList = () => {
-        const saved = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
-        hoverList.innerHTML = saved.length ? '<ul>' + saved.map(name => `<li>${name}</li>`).join('') + '</ul>' : '<i>No hotels saved</i>';
-        hoverList.style.display = 'block';
+    var SELECTORS = {
+        propertyCard: '[data-testid="property-card"]',
+        title: '[data-testid="title"]'
     };
 
-    saveBtn.addEventListener('mouseenter', showHoverList);
-    saveBtn.addEventListener('focus', showHoverList);
+    var STORAGE_KEY = 'animalFriendlyList';
 
-    saveBtn.addEventListener('blur', () => {
-        hoverList.style.display = 'none';
-    });
-
-    panel.addEventListener('mouseleave', () => {
-        hoverList.style.display = 'none';
-    });
-
-    topRow.appendChild(statusText);
-
-    bottomRow.appendChild(saveBtn);
-    bottomRow.appendChild(filterBtn);
-    bottomRow.appendChild(copyBtn);
-    bottomRow.appendChild(clearBtn);
-
-    panel.appendChild(topRow);
-    panel.appendChild(bottomRow);
-    panel.appendChild(hoverList);
-
-    document.body.appendChild(panel);
-}
-
-function updateHotelListCount() {
-    const saved = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
-    const status = document.getElementById('hotel-list-status');
-    if (status) {
-        status.textContent = `${saved.length} saved`;
-    }
-}
-
-function getPropertyElements() {
-    return [...document.querySelectorAll('[data-testid="property-card"]')];
-}
-
-function extractVisibleHotelNames() {
-    const cards = getPropertyElements();
-    const names = [];
-
-    for (const card of cards) {
-        const titleElement = card.querySelector('[data-testid="title"]');
-        if (titleElement) {
-            names.push(titleElement.textContent.trim());
+    function createCore() {
+        function getSavedList() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            } catch (e) {
+                return [];
+            }
         }
-    }
 
-    return names;
-}
-
-function saveAnimalFriendlyProperties() {
-    const existing = new Set(JSON.parse(localStorage.getItem('animalFriendlyList') || '[]'));
-    const newNames = extractVisibleHotelNames();
-
-    for (const name of newNames) {
-        existing.add(name);
-    }
-
-    const merged = Array.from(existing);
-    localStorage.setItem('animalFriendlyList', JSON.stringify(merged));
-    updateHotelListCount();
-
-    showMessage(`Saved ${newNames.length} hotel names.`);
-}
-
-function filterOutAnimalFriendlyProperties() {
-    // ⚡ Bolt: Convert array to Set for O(1) lookups instead of O(m) includes() checks.
-    // Reduces overall complexity from O(n*m) to O(n) during DOM iteration.
-    const savedSet = new Set(JSON.parse(localStorage.getItem('animalFriendlyList') || '[]'));
-    const cards = getPropertyElements();
-
-    for (const card of cards) {
-        const titleElement = card.querySelector('[data-testid="title"]');
-        if (titleElement && savedSet.has(titleElement.textContent.trim())) {
-            card.style.opacity = '0.2';
+        function setSavedList(list) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
         }
+
+        function getPropertyCards() {
+            return Array.prototype.slice.call(document.querySelectorAll(SELECTORS.propertyCard));
+        }
+
+        function getHotelNameFromCard(card) {
+            var titleElement = card.querySelector(SELECTORS.title);
+            return titleElement ? titleElement.textContent.trim() : '';
+        }
+
+        function getVisibleHotelNames() {
+            var cards = getPropertyCards();
+            var names = [];
+            cards.forEach(function (card) {
+                var name = getHotelNameFromCard(card);
+                if (name) names.push(name);
+            });
+            return names;
+        }
+
+        function mergeSavedWithVisible() {
+            var mergedMap = Object.create(null);
+            getSavedList().forEach(function (name) { mergedMap[name] = true; });
+            getVisibleHotelNames().forEach(function (name) { mergedMap[name] = true; });
+
+            var merged = Object.keys(mergedMap);
+            setSavedList(merged);
+            return { savedCount: merged.length, addedCount: getVisibleHotelNames().length };
+        }
+
+        function dimSavedHotels() {
+            var savedMap = Object.create(null);
+            getSavedList().forEach(function (name) { savedMap[name] = true; });
+            getPropertyCards().forEach(function (card) {
+                var name = getHotelNameFromCard(card);
+                if (name && savedMap[name]) card.style.opacity = '0.2';
+            });
+        }
+
+        function clearSavedList() {
+            localStorage.removeItem(STORAGE_KEY);
+        }
+
+        function getNonExcludedVisibleHotels() {
+            var savedMap = Object.create(null);
+            getSavedList().forEach(function (name) { savedMap[name] = true; });
+            return getVisibleHotelNames().filter(function (name) { return !savedMap[name]; });
+        }
+
+        return {
+            getSavedList: getSavedList,
+            mergeSavedWithVisible: mergeSavedWithVisible,
+            dimSavedHotels: dimSavedHotels,
+            clearSavedList: clearSavedList,
+            getNonExcludedVisibleHotels: getNonExcludedVisibleHotels
+        };
     }
 
-    showMessage('Dimmed saved hotels.');
-}
+    function createUI(core) {
+        function showMessage(message) {
+            var old = document.getElementById('bf-toast');
+            if (old && old.parentNode) old.parentNode.removeChild(old);
 
-function copyNonExcludedHotels() {
-    const saved = new Set(JSON.parse(localStorage.getItem('animalFriendlyList') || '[]'));
-    const visibleNames = extractVisibleHotelNames();
-    const nonExcluded = visibleNames.filter(name => !saved.has(name));
+            var msgBox = document.createElement('div');
+            msgBox.id = 'bf-toast';
+            msgBox.textContent = message;
+            msgBox.style.position = 'fixed';
+            msgBox.style.top = '20px';
+            msgBox.style.left = '50%';
+            msgBox.style.transform = 'translateX(-50%)';
+            msgBox.style.background = '#444';
+            msgBox.style.color = '#fff';
+            msgBox.style.padding = '10px 20px';
+            msgBox.style.borderRadius = '5px';
+            msgBox.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+            msgBox.style.zIndex = '10001';
+            msgBox.setAttribute('role', 'status');
+            msgBox.setAttribute('aria-live', 'polite');
+            document.body.appendChild(msgBox);
 
-    if (nonExcluded.length === 0) {
-        showMessage('No non-excluded hotels to copy.');
-        return;
+            setTimeout(function () {
+                if (msgBox.parentNode) msgBox.parentNode.removeChild(msgBox);
+            }, 3000);
+        }
+
+        function createButton(text, id, onClick, symbol) {
+            var button = document.createElement('button');
+            button.textContent = symbol || text;
+            button.id = id;
+            button.title = text;
+            button.setAttribute('aria-label', text);
+            button.addEventListener('click', onClick);
+            return button;
+        }
+
+        function renderSavedList(hoverList) {
+            var saved = core.getSavedList();
+            hoverList.innerHTML = saved.length ? '<ul>' + saved.map(function (name) { return '<li>' + name + '</li>'; }).join('') + '</ul>' : '<i>No hotels saved</i>';
+        }
+
+        function updateHotelListCount() {
+            var status = document.getElementById('hotel-list-status');
+            if (status) status.textContent = core.getSavedList().length + ' saved';
+        }
+
+        function copyText(text, onDone, onFail) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(onDone, onFail);
+                return;
+            }
+
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.top = '-2000px';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                document.execCommand('copy');
+                onDone();
+            } catch (e) {
+                onFail();
+            }
+            if (ta.parentNode) ta.parentNode.removeChild(ta);
+        }
+
+        function insertControlPanel() {
+            if (document.getElementById('animal-filter-panel')) return;
+
+            var panel = document.createElement('div');
+            panel.id = 'animal-filter-panel';
+
+            var topRow = document.createElement('div');
+            topRow.className = 'panel-row panel-row-top';
+
+            var bottomRow = document.createElement('div');
+            bottomRow.className = 'panel-row panel-row-bottom';
+
+            var statusText = document.createElement('div');
+            statusText.id = 'hotel-list-status';
+            topRow.appendChild(statusText);
+
+            var hoverList = document.createElement('div');
+            hoverList.id = 'hover-hotel-list';
+
+            var saveBtn = createButton('Add visible hotels', 'save-animals-btn', function () {
+                var result = core.mergeSavedWithVisible();
+                updateHotelListCount();
+                showMessage('Saved ' + result.addedCount + ' hotel names.');
+            }, '➕');
+
+            var filterBtn = createButton('Exclude added hotels', 'filter-animals-btn', function () {
+                core.dimSavedHotels();
+                showMessage('Dimmed saved hotels.');
+            }, '🔍');
+
+            var copyBtn = createButton('Copy non-excluded hotels', 'copy-non-excluded-btn', function () {
+                var nonExcluded = core.getNonExcludedVisibleHotels();
+                if (!nonExcluded.length) {
+                    showMessage('No non-excluded hotels to copy.');
+                    return;
+                }
+                copyText(nonExcluded.join('\n'), function () {
+                    showMessage('Copied ' + nonExcluded.length + ' hotel names to clipboard.');
+                }, function () {
+                    showMessage('Copy failed on this browser.');
+                });
+            }, '📋');
+
+            var clearBtn = createButton('Clear hotel filter list', 'clear-animals-btn', function () {
+                core.clearSavedList();
+                updateHotelListCount();
+                showMessage('Hotel filter list cleared.');
+            }, '🧹');
+
+            [saveBtn, filterBtn, copyBtn, clearBtn].forEach(function (btn) { bottomRow.appendChild(btn); });
+
+            saveBtn.addEventListener('mouseenter', function () { renderSavedList(hoverList); hoverList.style.display = 'block'; });
+            saveBtn.addEventListener('focus', function () { renderSavedList(hoverList); hoverList.style.display = 'block'; });
+            saveBtn.addEventListener('blur', function () { hoverList.style.display = 'none'; });
+            panel.addEventListener('mouseleave', function () { hoverList.style.display = 'none'; });
+
+            panel.appendChild(topRow);
+            panel.appendChild(bottomRow);
+            panel.appendChild(hoverList);
+            document.body.appendChild(panel);
+            updateHotelListCount();
+        }
+
+        return { insertControlPanel: insertControlPanel };
     }
 
-    navigator.clipboard.writeText(nonExcluded.join('\n')).then(() => {
-        showMessage(`Copied ${nonExcluded.length} hotel names to clipboard.`);
-    });
-}
-
-function clearAnimalFriendlyList() {
-    localStorage.removeItem('animalFriendlyList');
-    updateHotelListCount();
-    showMessage('Hotel filter list cleared.');
-}
-
-(function init() {
-    insertControlPanel();
+    createUI(createCore()).insertControlPanel();
 })();
