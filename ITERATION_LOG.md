@@ -19,3 +19,4 @@
 ---
 
 <!-- New entries above this line, most recent first -->
+2026-05-05 | Refactor: shared core pattern in content.js + bookmarklet.js; Firefox MV3 support via gecko settings in manifest; README install steps updated.
