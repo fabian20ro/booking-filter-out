@@ -127,8 +127,24 @@
         }
 
         function copyText(text, onDone, onFail) {
+            function fallbackCopy() {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.cssText = 'position:fixed;top:50%;left:5%;width:90%;height:120px;z-index:10002;font-size:14px;border:2px solid #1f67ff;border-radius:8px;padding:8px';
+                document.body.appendChild(ta);
+                ta.focus();
+                ta.select();
+                showMessage('Select all & copy the text below (' + text.split('\n').length + ' hotels)');
+                ta.addEventListener('blur', function () {
+                    if (ta.parentNode) ta.parentNode.removeChild(ta);
+                });
+            }
+
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(onDone, onFail);
+                navigator.clipboard.writeText(text).then(onDone, function () {
+                    fallbackCopy();
+                    if (onFail) onFail();
+                });
                 return;
             }
 
@@ -143,7 +159,8 @@
                 document.execCommand('copy');
                 onDone();
             } catch (e) {
-                onFail();
+                fallbackCopy();
+                if (onFail) onFail();
             }
             if (ta.parentNode) ta.parentNode.removeChild(ta);
         }

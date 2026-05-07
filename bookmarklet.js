@@ -123,7 +123,7 @@
     var buttons = [
         ['Add visible hotels', '\u2795', function () { var added = mergeSavedWithVisible(); updateStatus(); showMessage('Saved ' + added + ' hotel names.'); }],
         ['Exclude added hotels', '\uD83D\uDD0D', function () { dimSavedHotels(); showMessage('Dimmed saved hotels.'); }],
-        ['Copy non-excluded', '\uD83D\uDCCB', copyNonExcluded],
+        ['Copy non-excluded hotels', '\uD83D\uDCCB', copyNonExcluded],
         ['Clear list', '\uD83E\uDDF9', function () { localStorage.removeItem(STORAGE_KEY); updateStatus(); showMessage('Hotel filter list cleared.'); }]
     ];
 
