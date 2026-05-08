@@ -44,10 +44,17 @@
     function mergeSavedWithVisible() {
         var mergedMap = Object.create(null);
         var visible = getVisibleHotelNames();
-        getSavedList().forEach(function (name) { mergedMap[name] = true; });
-        visible.forEach(function (name) { mergedMap[name] = true; });
+        var saved = getSavedList();
+        var addedCount = 0;
+        saved.forEach(function (name) { mergedMap[name] = true; });
+        visible.forEach(function (name) {
+            if (!mergedMap[name]) {
+                mergedMap[name] = true;
+                addedCount++;
+            }
+        });
         setSavedList(Object.keys(mergedMap));
-        return visible.length;
+        return addedCount;
     }
 
     function dimSavedHotels() {
