@@ -42,13 +42,22 @@
         }
 
         function mergeSavedWithVisible() {
+            var savedList = getSavedList();
+            var visibleHotels = getVisibleHotelNames();
             var mergedMap = Object.create(null);
-            getSavedList().forEach(function (name) { mergedMap[name] = true; });
-            getVisibleHotelNames().forEach(function (name) { mergedMap[name] = true; });
+            savedList.forEach(function (name) { mergedMap[name] = true; });
+            
+            var addedCount = 0;
+            visibleHotels.forEach(function (name) {
+                if (!mergedMap[name]) {
+                    mergedMap[name] = true;
+                    addedCount++;
+                }
+            });
 
             var merged = Object.keys(mergedMap);
             setSavedList(merged);
-            return { savedCount: merged.length, addedCount: getVisibleHotelNames().length };
+            return { savedCount: merged.length, addedCount: addedCount };
         }
 
         function dimSavedHotels() {
