@@ -84,7 +84,7 @@
         return {
             getSavedList: getSavedList,
             mergeSavedWithVisible: mergeSavedWithVisible,
-            dimSavedHotels: dimSavedHotels,
+            toggleDimSavedHotels: toggleDimSavedHotels,
             clearSavedList: clearSavedList,
             getNonExcludedVisibleHotels: getNonExcludedVisibleHotels
         };
