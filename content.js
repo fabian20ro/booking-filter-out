@@ -60,12 +60,14 @@
             return { savedCount: merged.length, addedCount: addedCount };
         }
 
-        function dimSavedHotels() {
+        function toggleDimSavedHotels() {
             var savedMap = Object.create(null);
             getSavedList().forEach(function (name) { savedMap[name] = true; });
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
-                if (name && savedMap[name]) card.style.opacity = '0.2';
+                if (name && savedMap[name]) {
+                    card.style.opacity = (card.style.opacity === '0.2') ? '1' : '0.2';
+                }
             });
         }
 
@@ -199,9 +201,9 @@
                 showMessage('Saved ' + result.addedCount + ' hotel names.');
             }, '➕');
 
-            var filterBtn = createButton('Exclude added hotels', 'filter-animals-btn', function () {
-                core.dimSavedHotels();
-                showMessage('Dimmed saved hotels.');
+            var filterBtn = createButton('Toggle dimming', 'filter-animals-btn', function () {
+                core.toggleDimSavedHotels();
+                showMessage('Toggled dimming.');
             }, '🔍');
 
             var copyBtn = createButton('Copy non-excluded hotels', 'copy-non-excluded-btn', function () {

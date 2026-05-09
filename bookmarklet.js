@@ -57,12 +57,14 @@
         return addedCount;
     }
 
-    function dimSavedHotels() {
+    function toggleDimSavedHotels() {
         var savedMap = Object.create(null);
         getSavedList().forEach(function (name) { savedMap[name] = true; });
         getPropertyCards().forEach(function (card) {
             var name = getHotelNameFromCard(card);
-            if (name && savedMap[name]) card.style.opacity = '0.2';
+            if (name && savedMap[name]) {
+                card.style.opacity = (card.style.opacity === '0.2') ? '1' : '0.2';
+            }
         });
     }
 
@@ -129,7 +131,7 @@
 
     var buttons = [
         ['Add visible hotels', '\u2795', function () { var added = mergeSavedWithVisible(); updateStatus(); showMessage('Saved ' + added + ' hotel names.'); }],
-        ['Exclude added hotels', '\uD83D\uDD0D', function () { dimSavedHotels(); showMessage('Dimmed saved hotels.'); }],
+        ['Toggle dimming', '\uD83D\uDD0D', function () { toggleDimSavedHotels(); showMessage('Toggled dimming.'); }],
         ['Copy non-excluded hotels', '\uD83D\uDCCB', copyNonExcluded],
         ['Clear list', '\uD83E\uDDF9', function () { localStorage.removeItem(STORAGE_KEY); updateStatus(); showMessage('Hotel filter list cleared.'); }]
     ];
