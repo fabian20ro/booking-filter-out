@@ -73,6 +73,9 @@
 
         function clearSavedList() {
             localStorage.removeItem(STORAGE_KEY);
+            getPropertyCards().forEach(function (card) {
+                card.style.opacity = '1';
+            });
         }
 
         function getNonExcludedVisibleHotels() {

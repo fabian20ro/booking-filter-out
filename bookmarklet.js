@@ -133,7 +133,12 @@
         ['Add visible hotels', '\u2795', function () { var added = mergeSavedWithVisible(); updateStatus(); showMessage('Saved ' + added + ' hotel names.'); }],
         ['Toggle dimming', '\uD83D\uDD0D', function () { toggleDimSavedHotels(); showMessage('Toggled dimming.'); }],
         ['Copy non-excluded hotels', '\uD83D\uDCCB', copyNonExcluded],
-        ['Clear list', '\uD83E\uDDF9', function () { localStorage.removeItem(STORAGE_KEY); updateStatus(); showMessage('Hotel filter list cleared.'); }]
+        ['Clear list', '\uD83E\uDDF9', function () { 
+            localStorage.removeItem(STORAGE_KEY); 
+            getPropertyCards().forEach(function (card) { card.style.opacity = '1'; });
+            updateStatus(); 
+            showMessage('Hotel filter list cleared.'); 
+        }]
     ];
 
     buttons.forEach(function (b) {
