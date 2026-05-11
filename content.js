@@ -201,7 +201,7 @@
             var saveBtn = createButton('Add visible hotels', 'save-animals-btn', function () {
                 var result = core.mergeSavedWithVisible();
                 updateHotelListCount();
-                showMessage('Saved ' + result.addedCount + ' hotel names.');
+                showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
             }, '➕');
 
             var filterBtn = createButton('Toggle dimming', 'filter-animals-btn', function () {

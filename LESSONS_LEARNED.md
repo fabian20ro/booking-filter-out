@@ -43,6 +43,8 @@ Obsolete lessons → Archive section at bottom (with date and reason). Never del
 
 <!-- Format: **[YYYY-MM-DD]** Brief title — Explanation -->
 
+**[2026-05-11] Explicit no-op feedback** — For idempotent save actions, a success message like "Saved 0 items" reads like a bug; show a dedicated no-op message instead.
+
 ---
 
 ## Archive

@@ -130,7 +130,7 @@
     var listVisible = false;
 
     var buttons = [
-        ['Add visible hotels', '\u2795', function () { var added = mergeSavedWithVisible(); updateStatus(); showMessage('Saved ' + added + ' hotel names.'); }],
+        ['Add visible hotels', '\u2795', function () { var added = mergeSavedWithVisible(); updateStatus(); showMessage(added ? ('Saved ' + added + ' hotel names.') : 'No new hotel names found.'); }],
         ['Toggle dimming', '\uD83D\uDD0D', function () { toggleDimSavedHotels(); showMessage('Toggled dimming.'); }],
         ['Copy non-excluded hotels', '\uD83D\uDCCB', copyNonExcluded],
         ['Clear list', '\uD83E\uDDF9', function () { 
