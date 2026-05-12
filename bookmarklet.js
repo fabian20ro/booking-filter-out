@@ -54,8 +54,9 @@
             }
         });
         setSavedList(Object.keys(mergedMap));
-        return addedCount;
+        return { savedCount: Object.keys(mergedMap).length, addedCount: addedCount };
     }
+
 
     function toggleDimSavedHotels() {
         var savedMap = Object.create(null);
@@ -109,7 +110,7 @@
         var text = nonExcluded.join('\n');
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(function () {
-                showMessage('Copied ' + nonExcluded.length + ' hotel names.');
+                showMessage('Copied ' + nonExcluded.length + ' hotel names to clipboard.');
             }, function () {
                 fallbackCopy(text, nonExcluded.length);
             });
@@ -130,10 +131,10 @@
     var listVisible = false;
 
     var buttons = [
-        ['Add visible hotels', '\u2795', function () { var added = mergeSavedWithVisible(); updateStatus(); showMessage(added ? ('Saved ' + added + ' hotel names.') : 'No new hotel names found.'); }],
+        ['Add visible hotels', '\u2795', function () { var result = mergeSavedWithVisible(); updateStatus(); showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.'); }],
         ['Toggle dimming', '\uD83D\uDD0D', function () { toggleDimSavedHotels(); showMessage('Toggled dimming.'); }],
         ['Copy non-excluded hotels', '\uD83D\uDCCB', copyNonExcluded],
-        ['Clear list', '\uD83E\uDDF9', function () { 
+        ['Clear hotel filter list', '\uD83E\uDDF9', function () { 
             localStorage.removeItem(STORAGE_KEY); 
             getPropertyCards().forEach(function (card) { card.style.opacity = '1'; });
             updateStatus(); 
