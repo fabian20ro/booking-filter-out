@@ -3,6 +3,7 @@ Local list.
 Browse results on booking.
 Click add visible hotels.
 Change filter.
+Click Copy non-excluded hotels to copy the currently enabled visible hotels.
 Click Exclude added hotels and the added hotels become grayed out.
 
 This is a Chromium + Firefox extension.
