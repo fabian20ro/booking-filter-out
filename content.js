@@ -223,9 +223,10 @@
             }, '📋');
 
             var clearBtn = createButton('Clear hotel filter list', 'clear-animals-btn', function () {
+                var hadSavedList = core.getSavedList().length > 0;
                 core.clearSavedList();
                 updateHotelListCount();
-                showMessage('Hotel filter list cleared.');
+                showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
             }, '🧹');
 
             [saveBtn, filterBtn, copyBtn, clearBtn].forEach(function (btn) { bottomRow.appendChild(btn); });

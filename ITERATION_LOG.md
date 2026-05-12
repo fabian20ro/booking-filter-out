@@ -21,6 +21,16 @@
 <!-- New entries above this line, most recent first -->
 ---
 
+### [2026-05-12] Explicit no-op clear feedback
+
+**Context:** Make the clear-list action say when there was nothing to clear.
+**What happened:** Updated content.js and bookmarklet.js so "Clear hotel filter list" now reports "Hotel filter list was already empty." when the saved list is empty, instead of always claiming a clear happened.
+**Outcome:** Success
+**Insight:** Keep idempotent actions honest in both surfaces.
+**Promoted to Lessons Learned:** No
+
+---
+
 ### [2026-05-12] Mobile label sync
 
 **Context:** Align mobile install page labels with the extension buttons.
