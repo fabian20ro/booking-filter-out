@@ -37,6 +37,8 @@ Obsolete lessons → Archive section at bottom (with date and reason). Never del
 
 **[2026-05-12] README action inventory** — Keep the extension quickstart aligned with the actual toolbar buttons; if the UI gains a button like "Copy non-excluded hotels", the README should name it explicitly.
 
+**[2026-05-12] Mobile/desktop UI parity** — When content.js and bookmarklet.js share an action, mirror the exact user-visible button labels and success messages so the desktop extension and bookmarklet stay consistent.
+
 ## Deployment
 
 <!-- Format: **[YYYY-MM-DD]** Brief title — Explanation -->
