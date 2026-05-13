@@ -21,6 +21,16 @@
 <!-- New entries above this line, most recent first -->
 ---
 
+### [2026-05-13] Mobile install label parity
+
+**Context:** Keep the mobile install page aligned with the live bookmarklet toolbar labels.
+**What happened:** Updated the mobile usage grid so it now says "Toggle dimming" and "Clear hotel filter list" instead of paraphrases.
+**Outcome:** Success
+**Insight:** Preview text should mirror the exact action labels users will tap.
+**Promoted to Lessons Learned:** Yes
+
+---
+
 ### [2026-05-12] Explicit no-op clear feedback
 
 **Context:** Make the clear-list action say when there was nothing to clear.

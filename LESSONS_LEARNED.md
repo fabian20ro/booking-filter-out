@@ -39,6 +39,8 @@ Obsolete lessons → Archive section at bottom (with date and reason). Never del
 
 **[2026-05-12] Mobile/desktop UI parity** — When content.js and bookmarklet.js share an action, mirror the exact user-visible button labels and success messages so the desktop extension and bookmarklet stay consistent.
 
+**[2026-05-13] Mobile install labels** — The mobile install page should use the exact toolbar action labels, not paraphrases, so the preview matches the live bookmarklet UI.
+
 ## Deployment
 
 <!-- Format: **[YYYY-MM-DD]** Brief title — Explanation -->
