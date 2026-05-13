@@ -18,6 +18,15 @@
 
 ---
 
+### [2026-05-13] README action label parity
+
+**Context:** Keep the README quickstart aligned with the live toolbar action labels.
+**What happened:** Updated the README step from "Exclude added hotels" to "Toggle dimming" so the docs match the actual button name.
+**Outcome:** Success
+**Insight:** User-facing docs should mirror the exact action label, not a paraphrase.
+**Promoted to Lessons Learned:** No
+
+---
 <!-- New entries above this line, most recent first -->
 ---
 
