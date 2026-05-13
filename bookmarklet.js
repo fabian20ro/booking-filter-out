@@ -90,6 +90,26 @@
         if (el) el.textContent = getSavedList().length + ' saved';
     }
 
+    function renderSavedList(listEl) {
+        var saved = getSavedList();
+        listEl.innerHTML = '';
+
+        if (!saved.length) {
+            var empty = document.createElement('i');
+            empty.textContent = 'No hotels saved';
+            listEl.appendChild(empty);
+            return;
+        }
+
+        var ul = document.createElement('ul');
+        saved.forEach(function (name) {
+            var li = document.createElement('li');
+            li.textContent = name;
+            ul.appendChild(li);
+        });
+        listEl.appendChild(ul);
+    }
+
     function fallbackCopy(text, count) {
         var ta = document.createElement('textarea');
         ta.value = text;
@@ -156,8 +176,7 @@
     status.addEventListener('click', function () {
         listVisible = !listVisible;
         if (listVisible) {
-            var saved = getSavedList();
-            hoverList.innerHTML = saved.length ? '<ul>' + saved.map(function (n) { return '<li>' + n + '</li>'; }).join('') + '</ul>' : '<i>No hotels saved</i>';
+            renderSavedList(hoverList);
             hoverList.style.display = 'block';
         } else {
             hoverList.style.display = 'none';

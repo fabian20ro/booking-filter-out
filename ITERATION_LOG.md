@@ -30,6 +30,16 @@
 <!-- New entries above this line, most recent first -->
 ---
 
+### [2026-05-13] Safe saved-name rendering
+
+**Context:** Reduce the risk of HTML injection in the saved hotel-name hover list.
+**What happened:** Updated content.js and bookmarklet.js so the saved-name list is built with DOM nodes and `textContent` instead of raw `innerHTML`.
+**Outcome:** Success
+**Insight:** Treat hotel names as untrusted input even when they come from the page you are filtering.
+**Promoted to Lessons Learned:** Yes
+
+---
+
 ### [2026-05-13] Mobile install label parity
 
 **Context:** Keep the mobile install page aligned with the live bookmarklet toolbar labels.

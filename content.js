@@ -132,7 +132,22 @@
 
         function renderSavedList(hoverList) {
             var saved = core.getSavedList();
-            hoverList.innerHTML = saved.length ? '<ul>' + saved.map(function (name) { return '<li>' + name + '</li>'; }).join('') + '</ul>' : '<i>No hotels saved</i>';
+            hoverList.innerHTML = '';
+
+            if (!saved.length) {
+                var empty = document.createElement('i');
+                empty.textContent = 'No hotels saved';
+                hoverList.appendChild(empty);
+                return;
+            }
+
+            var list = document.createElement('ul');
+            saved.forEach(function (name) {
+                var item = document.createElement('li');
+                item.textContent = name;
+                list.appendChild(item);
+            });
+            hoverList.appendChild(list);
         }
 
         function updateHotelListCount() {

@@ -41,6 +41,8 @@ Obsolete lessons → Archive section at bottom (with date and reason). Never del
 
 **[2026-05-13] Mobile install labels** — The mobile install page should use the exact toolbar action labels, not paraphrases, so the preview matches the live bookmarklet UI.
 
+**[2026-05-13] External names as text nodes** — Hotel names come from Booking.com and should be rendered with `textContent` in saved-name lists; avoid `innerHTML` so the hover list stays safe and markup-neutral.
+
 ## Deployment
 
 <!-- Format: **[YYYY-MM-DD]** Brief title — Explanation -->
