@@ -211,6 +211,7 @@
             statusText.setAttribute('role', 'status');
             statusText.setAttribute('aria-live', 'polite');
             statusText.setAttribute('aria-atomic', 'true');
+            statusText.style.cursor = 'pointer';
             topRow.appendChild(statusText);
 
             var hoverList = document.createElement('div');
@@ -252,6 +253,15 @@
             saveBtn.addEventListener('mouseenter', function () { renderSavedList(hoverList); hoverList.style.display = 'block'; });
             saveBtn.addEventListener('focus', function () { renderSavedList(hoverList); hoverList.style.display = 'block'; });
             saveBtn.addEventListener('blur', function () { hoverList.style.display = 'none'; });
+            statusText.addEventListener('click', function () {
+                if (hoverList.style.display === 'block') {
+                    hoverList.style.display = 'none';
+                    return;
+                }
+
+                renderSavedList(hoverList);
+                hoverList.style.display = 'block';
+            });
             panel.addEventListener('mouseleave', function () { hoverList.style.display = 'none'; });
 
             panel.appendChild(topRow);

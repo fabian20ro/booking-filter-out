@@ -36,6 +36,7 @@
   font-size: 11px;
   line-height: 1;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 #animal-filter-panel button {

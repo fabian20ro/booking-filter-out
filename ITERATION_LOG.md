@@ -36,6 +36,15 @@
 **Promoted to Lessons Learned:** No
 
 ---
+### [2026-05-14] Saved-count badge parity
+
+**Context:** Make the desktop extension easier to use without relying only on the hover trigger.
+**What happened:** Added click-to-toggle behavior for the saved-count badge in content.js, matched the affordance in the desktop styling, and documented the interaction in the README for both extension and mobile use.
+**Outcome:** Success
+**Insight:** When a count badge already exposes useful state, making it interactive on every surface reduces hunting for the saved list.
+**Promoted to Lessons Learned:** Yes
+
+---
 <!-- New entries above this line, most recent first -->
 ---
 ### [2026-05-14] Saved-count live region sync

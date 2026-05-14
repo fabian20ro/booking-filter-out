@@ -14,6 +14,7 @@ To use it:
 4. load unpacked (Chromium) or load temporary add-on and pick `manifest.json` (Firefox).
 5. open booking.com.
 6. search for a location and dates; control panel appears top-right.
+7. click the saved-count badge to show or hide the saved hotel list.
 
 Initially developed to filter out all hotels that accept animals so only the ones that forbid them are "enabled"...
 
@@ -25,6 +26,6 @@ No extension install needed — works on iOS Safari, Android Chrome, Firefox, an
 2. Tap **"Copy bookmarklet to clipboard"**
 3. Create any bookmark in your browser, then **edit** it and **paste** the copied code as the URL
 4. Go to booking.com, search for a location, then open your bookmarks and tap **"Hotel Filter"**
-5. A toolbar appears at the bottom of the screen with the same 4 actions, including **Copy non-excluded hotels**
+5. A toolbar appears at the bottom of the screen with the same 4 actions, including **Copy non-excluded hotels**. Tap the saved-count badge to show or hide the saved hotel list.
 
 Detailed step-by-step instructions for each browser are on the install page.
