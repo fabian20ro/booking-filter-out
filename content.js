@@ -211,6 +211,8 @@
             statusText.setAttribute('role', 'status');
             statusText.setAttribute('aria-live', 'polite');
             statusText.setAttribute('aria-atomic', 'true');
+            statusText.setAttribute('tabindex', '0');
+            statusText.setAttribute('aria-controls', 'hover-hotel-list');
             statusText.style.cursor = 'pointer';
             topRow.appendChild(statusText);
 
@@ -250,10 +252,7 @@
 
             [saveBtn, filterBtn, copyBtn, clearBtn].forEach(function (btn) { bottomRow.appendChild(btn); });
 
-            saveBtn.addEventListener('mouseenter', function () { renderSavedList(hoverList); hoverList.style.display = 'block'; });
-            saveBtn.addEventListener('focus', function () { renderSavedList(hoverList); hoverList.style.display = 'block'; });
-            saveBtn.addEventListener('blur', function () { hoverList.style.display = 'none'; });
-            statusText.addEventListener('click', function () {
+            function toggleSavedListVisibility() {
                 if (hoverList.style.display === 'block') {
                     hoverList.style.display = 'none';
                     return;
@@ -261,6 +260,17 @@
 
                 renderSavedList(hoverList);
                 hoverList.style.display = 'block';
+            }
+
+            saveBtn.addEventListener('mouseenter', function () { renderSavedList(hoverList); hoverList.style.display = 'block'; });
+            saveBtn.addEventListener('focus', function () { renderSavedList(hoverList); hoverList.style.display = 'block'; });
+            saveBtn.addEventListener('blur', function () { hoverList.style.display = 'none'; });
+            statusText.addEventListener('click', toggleSavedListVisibility);
+            statusText.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleSavedListVisibility();
+                }
             });
             panel.addEventListener('mouseleave', function () { hoverList.style.display = 'none'; });
 

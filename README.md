@@ -14,7 +14,7 @@ To use it:
 4. load unpacked (Chromium) or load temporary add-on and pick `manifest.json` (Firefox).
 5. open booking.com.
 6. search for a location and dates; control panel appears top-right.
-7. click the saved-count badge to show or hide the saved hotel list.
+7. click the saved-count badge, or focus it and press Enter/Space, to show or hide the saved hotel list.
 
 Initially developed to filter out all hotels that accept animals so only the ones that forbid them are "enabled"...
 

@@ -45,6 +45,15 @@
 **Promoted to Lessons Learned:** Yes
 
 ---
+### [2026-05-14] Keyboard access for saved-count badge
+
+**Context:** Keep the saved-count badge interaction usable for keyboard users, not just pointer users.
+**What happened:** Added tabindex + Enter/Space handling to the saved-count badge in content.js and bookmarklet.js, and added matching focus-visible styling in style.css and the bookmarklet inline CSS.
+**Outcome:** Success
+**Insight:** If a live status badge opens the saved list, it should act like a reachable control too.
+**Promoted to Lessons Learned:** Yes
+
+---
 <!-- New entries above this line, most recent first -->
 ---
 ### [2026-05-14] Saved-count live region sync

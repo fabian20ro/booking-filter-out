@@ -61,6 +61,12 @@
   transform: translateY(-1px) scale(1.02);
 }
 
+#animal-filter-panel button:focus-visible,
+#hotel-list-status:focus-visible {
+  outline: 3px solid #163680;
+  outline-offset: 2px;
+}
+
 #clear-animals-btn {
   flex: 0 0 auto;
 }
