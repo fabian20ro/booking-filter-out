@@ -1,10 +1,10 @@
 # booking-filter-out
 Local list.
 Browse results on booking.
-Click add visible hotels.
-Change filter.
-Click Copy non-excluded hotels to copy the currently enabled visible hotels.
-Click Toggle dimming and the added hotels become grayed out.
+Click **Add visible hotels**.
+Click **Toggle dimming**.
+Click **Copy non-excluded hotels** to copy the currently enabled visible hotels.
+Click **Clear hotel filter list** to reset the saved list.
 
 This is a Chromium + Firefox extension.
 To use it:

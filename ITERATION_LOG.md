@@ -27,6 +27,15 @@
 **Promoted to Lessons Learned:** No
 
 ---
+### [2026-05-14] README action label sync
+
+**Context:** Keep the README quickstart aligned with the exact toolbar labels shown in the UI.
+**What happened:** Updated the README quickstart to use the literal action names: Add visible hotels, Toggle dimming, Copy non-excluded hotels, and Clear hotel filter list.
+**Outcome:** Success
+**Insight:** Quickstart copy should mirror the exact UI labels, not leftover shorthand.
+**Promoted to Lessons Learned:** No
+
+---
 <!-- New entries above this line, most recent first -->
 ---
 
