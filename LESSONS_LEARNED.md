@@ -36,12 +36,10 @@ Obsolete lessons → Archive section at bottom (with date and reason). Never del
 <!-- Format: **[YYYY-MM-DD]** Brief title — Explanation -->
 
 **[2026-05-12] README action inventory** — Keep the extension quickstart aligned with the actual toolbar buttons; if the UI gains a button like "Copy non-excluded hotels", the README should name it explicitly.
-
 **[2026-05-12] Mobile/desktop UI parity** — When content.js and bookmarklet.js share an action, mirror the exact user-visible button labels and success messages so the desktop extension and bookmarklet stay consistent.
-
 **[2026-05-13] Mobile install labels** — The mobile install page should use the exact toolbar action labels, not paraphrases, so the preview matches the live bookmarklet UI.
-
 **[2026-05-13] External names as text nodes** — Hotel names come from Booking.com and should be rendered with `textContent` in saved-name lists; avoid `innerHTML` so the hover list stays safe and markup-neutral.
+**[2026-05-14] Saved-count live region** — The saved-count/status badge in both surfaces should expose `role=status` with polite, atomic live updates so screen readers hear add/clear count changes.
 
 ## Deployment
 

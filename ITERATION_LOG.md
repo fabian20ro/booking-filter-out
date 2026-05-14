@@ -38,7 +38,15 @@
 ---
 <!-- New entries above this line, most recent first -->
 ---
+### [2026-05-14] Saved-count live region sync
 
+**Context:** Improve accessibility for the saved-count badge in both the extension panel and bookmarklet toolbar.
+**What happened:** Added `role=status`, `aria-live=polite`, and `aria-atomic=true` to the shared `hotel-list-status` element in content.js and bookmarklet.js so count changes can be announced.
+**Outcome:** Success
+**Insight:** Count badges that change after actions should be live regions on both surfaces, not just visually updated text.
+**Promoted to Lessons Learned:** Yes
+
+---
 ### [2026-05-13] Safe saved-name rendering
 
 **Context:** Reduce the risk of HTML injection in the saved hotel-name hover list.

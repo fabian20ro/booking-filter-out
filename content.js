@@ -208,6 +208,9 @@
 
             var statusText = document.createElement('div');
             statusText.id = 'hotel-list-status';
+            statusText.setAttribute('role', 'status');
+            statusText.setAttribute('aria-live', 'polite');
+            statusText.setAttribute('aria-atomic', 'true');
             topRow.appendChild(statusText);
 
             var hoverList = document.createElement('div');

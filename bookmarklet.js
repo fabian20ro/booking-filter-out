@@ -144,6 +144,9 @@
 
     var status = document.createElement('div');
     status.id = 'hotel-list-status';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    status.setAttribute('aria-atomic', 'true');
     panel.appendChild(status);
 
     var hoverList = document.createElement('div');
