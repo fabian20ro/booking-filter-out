@@ -18,6 +18,16 @@
 
 ---
 
+### [2026-05-15] Bookmarklet badge cursor parity
+
+**Context:** Keep the mobile bookmarklet's saved-count badge visually consistent with the extension's clickable badge.
+**What happened:** Added `cursor:pointer` to the bookmarklet inline CSS for `#hotel-list-status` so the saved-count badge clearly reads as interactive on phone/tablet.
+**Outcome:** Success
+**Insight:** If a badge is clickable everywhere, its hover/cursor affordance should match on every surface that renders it.
+**Promoted to Lessons Learned:** Yes
+
+---
+
 ### [2026-05-15] Hover-list refresh after saved-list mutations
 
 **Context:** Keep the saved hotel list panel aligned with saved-list changes while it is open.

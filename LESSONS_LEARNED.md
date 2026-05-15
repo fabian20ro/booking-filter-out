@@ -33,7 +33,9 @@ Obsolete lessons → Archive section at bottom (with date and reason). Never del
 
 ## Extension Behavior
 
-<!-- Format: **[YYYY-MM-DD]** Brief title — Explanation -->
+<!-- Format: **[YYYY-MM-DD] Brief title — Explanation -->
+
+**[2026-05-15] Bookmarklet badge cursor parity** — If the saved-count badge is clickable in the extension, keep the bookmarklet's inline CSS showing a pointer cursor too; otherwise the mobile surface hides the same affordance.
 
 **[2026-05-12] README action inventory** — Keep the extension quickstart aligned with the actual toolbar buttons; if the UI gains a button like "Copy non-excluded hotels", the README should name it explicitly.
 **[2026-05-12] Mobile/desktop UI parity** — When content.js and bookmarklet.js share an action, mirror the exact user-visible button labels and success messages so the desktop extension and bookmarklet stay consistent.
