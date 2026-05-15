@@ -171,7 +171,7 @@
     }
 
     var buttons = [
-        ['Add visible hotels', '\u2795', function () { var result = mergeSavedWithVisible(); updateStatus(); showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.'); }],
+        ['Add visible hotels', '\u2795', function () { var result = mergeSavedWithVisible(); updateStatus(); if (hoverList.style.display === 'block') renderSavedList(hoverList); showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.'); }],
         ['Toggle dimming', '\uD83D\uDD0D', function () { toggleDimSavedHotels(); showMessage('Toggled dimming.'); }],
         ['Copy non-excluded hotels', '\uD83D\uDCCB', copyNonExcluded],
         ['Clear hotel filter list', '\uD83E\uDDF9', function () {
@@ -179,6 +179,7 @@
             localStorage.removeItem(STORAGE_KEY);
             getPropertyCards().forEach(function (card) { card.style.opacity = '1'; });
             updateStatus();
+            if (hoverList.style.display === 'block') renderSavedList(hoverList);
             showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
         }]
     ];

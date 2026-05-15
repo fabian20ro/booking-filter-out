@@ -230,6 +230,7 @@
             var saveBtn = createButton('Add visible hotels', 'save-animals-btn', function () {
                 var result = core.mergeSavedWithVisible();
                 updateHotelListCount();
+                if (hoverList.style.display === 'block') renderSavedList(hoverList);
                 showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
             }, '➕');
 
@@ -255,6 +256,7 @@
                 var hadSavedList = core.getSavedList().length > 0;
                 core.clearSavedList();
                 updateHotelListCount();
+                if (hoverList.style.display === 'block') renderSavedList(hoverList);
                 showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
             }, '🧹');
 

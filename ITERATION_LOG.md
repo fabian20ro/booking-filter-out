@@ -18,6 +18,16 @@
 
 ---
 
+### [2026-05-15] Hover-list refresh after saved-list mutations
+
+**Context:** Keep the saved hotel list panel aligned with saved-list changes while it is open.
+**What happened:** Updated content.js and bookmarklet.js so Add visible hotels and Clear hotel filter list rerender the hover list when it is visible, preventing stale names after mutations.
+**Outcome:** Success
+**Insight:** If a panel mirrors mutable state, refresh the open panel on the same mutation path instead of waiting for the user to close and reopen it.
+**Promoted to Lessons Learned:** Yes
+
+---
+
 ### [2026-05-15] Hover-list visibility state sync
 
 **Context:** Keep the saved hotel list toggle aligned across click, hover, and keyboard access.
