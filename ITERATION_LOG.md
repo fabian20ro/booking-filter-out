@@ -18,6 +18,16 @@
 
 ---
 
+### [2026-05-15] Hover-list visibility state sync
+
+**Context:** Keep the saved hotel list toggle aligned across click, hover, and keyboard access.
+**What happened:** Reworked the saved-list toggle in content.js and bookmarklet.js to derive visibility from the DOM state, added aria-expanded / aria-hidden updates, and removed the stale bookmarklet boolean state.
+**Outcome:** Success
+**Insight:** When the same panel is controlled by multiple interactions, a separate visibility flag can drift unless every hide path updates it.
+**Promoted to Lessons Learned:** Yes
+
+---
+
 ### [2026-05-13] README action label parity
 
 **Context:** Keep the README quickstart aligned with the live toolbar action labels.

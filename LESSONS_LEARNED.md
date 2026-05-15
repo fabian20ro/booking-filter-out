@@ -42,6 +42,7 @@ Obsolete lessons → Archive section at bottom (with date and reason). Never del
 **[2026-05-14] Saved-count live region** — The saved-count/status badge in both surfaces should expose `role=status` with polite, atomic live updates so screen readers hear add/clear count changes.
 **[2026-05-14] Saved-count badge parity** — When the saved-count badge already exposes useful state, keep it clickable on every surface and document the interaction so users can reach the saved hotel list without hunting for the hover trigger.
 **[2026-05-14] Clickable badge keyboard access** — If a status badge opens a panel or list, make it keyboard-focusable and wire Enter/Space to the same toggle so mouse and keyboard users get the same affordance.
+**[2026-05-15] Hover-list visibility state** — If the saved-list panel can be opened from both hover/focus and click, keep the visibility state in one place or resync it on every hide path; stale booleans make the toggle drift from the actual DOM.
 
 ## Deployment
 

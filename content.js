@@ -213,11 +213,19 @@
             statusText.setAttribute('aria-atomic', 'true');
             statusText.setAttribute('tabindex', '0');
             statusText.setAttribute('aria-controls', 'hover-hotel-list');
+            statusText.setAttribute('aria-expanded', 'false');
             statusText.style.cursor = 'pointer';
             topRow.appendChild(statusText);
 
             var hoverList = document.createElement('div');
             hoverList.id = 'hover-hotel-list';
+            hoverList.setAttribute('aria-hidden', 'true');
+
+            function setHoverListVisible(visible) {
+                hoverList.style.display = visible ? 'block' : 'none';
+                hoverList.setAttribute('aria-hidden', visible ? 'false' : 'true');
+                statusText.setAttribute('aria-expanded', visible ? 'true' : 'false');
+            }
 
             var saveBtn = createButton('Add visible hotels', 'save-animals-btn', function () {
                 var result = core.mergeSavedWithVisible();
@@ -253,18 +261,14 @@
             [saveBtn, filterBtn, copyBtn, clearBtn].forEach(function (btn) { bottomRow.appendChild(btn); });
 
             function toggleSavedListVisibility() {
-                if (hoverList.style.display === 'block') {
-                    hoverList.style.display = 'none';
-                    return;
-                }
-
-                renderSavedList(hoverList);
-                hoverList.style.display = 'block';
+                var visible = hoverList.style.display !== 'block';
+                if (visible) renderSavedList(hoverList);
+                setHoverListVisible(visible);
             }
 
-            saveBtn.addEventListener('mouseenter', function () { renderSavedList(hoverList); hoverList.style.display = 'block'; });
-            saveBtn.addEventListener('focus', function () { renderSavedList(hoverList); hoverList.style.display = 'block'; });
-            saveBtn.addEventListener('blur', function () { hoverList.style.display = 'none'; });
+            saveBtn.addEventListener('mouseenter', function () { renderSavedList(hoverList); setHoverListVisible(true); });
+            saveBtn.addEventListener('focus', function () { renderSavedList(hoverList); setHoverListVisible(true); });
+            saveBtn.addEventListener('blur', function () { setHoverListVisible(false); });
             statusText.addEventListener('click', toggleSavedListVisibility);
             statusText.addEventListener('keydown', function (event) {
                 if (event.key === 'Enter' || event.key === ' ') {
@@ -272,7 +276,7 @@
                     toggleSavedListVisibility();
                 }
             });
-            panel.addEventListener('mouseleave', function () { hoverList.style.display = 'none'; });
+            panel.addEventListener('mouseleave', function () { setHoverListVisible(false); });
 
             panel.appendChild(topRow);
             panel.appendChild(bottomRow);

@@ -149,20 +149,25 @@
     status.setAttribute('aria-atomic', 'true');
     status.setAttribute('tabindex', '0');
     status.setAttribute('aria-controls', 'hover-hotel-list');
+    status.setAttribute('aria-expanded', 'false');
     panel.appendChild(status);
 
     var hoverList = document.createElement('div');
     hoverList.id = 'hover-hotel-list';
-    var listVisible = false;
+    hoverList.setAttribute('aria-hidden', 'true');
+
+    function setHoverListVisible(visible) {
+        hoverList.style.display = visible ? 'block' : 'none';
+        hoverList.setAttribute('aria-hidden', visible ? 'false' : 'true');
+        status.setAttribute('aria-expanded', visible ? 'true' : 'false');
+    }
 
     function toggleSavedListVisibility() {
-        listVisible = !listVisible;
-        if (listVisible) {
+        var visible = hoverList.style.display !== 'block';
+        if (visible) {
             renderSavedList(hoverList);
-            hoverList.style.display = 'block';
-        } else {
-            hoverList.style.display = 'none';
         }
+        setHoverListVisible(visible);
     }
 
     var buttons = [
