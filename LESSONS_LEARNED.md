@@ -51,6 +51,8 @@ Obsolete lessons → Archive section at bottom (with date and reason). Never del
 
 <!-- Format: **[YYYY-MM-DD]** Brief title — Explanation -->
 
+**[2026-05-16] Mobile install page needs HTTP hosting** — The bookmarklet install page fetches `bookmarklet.js` next to the HTML file, so a local copy needs to be served over HTTP rather than opened as a raw file.
+
 ## Code Patterns & Pitfalls
 
 <!-- Format: **[YYYY-MM-DD]** Brief title — Explanation -->

@@ -23,6 +23,7 @@ Initially developed to filter out all hotels that accept animals so only the one
 No extension install needed — works on iOS Safari, Android Chrome, Firefox, and more.
 
 1. Open the install page on your phone: [mobile.html](https://fabian20ro.github.io/booking-filter-out/mobile.html)
+   - If you open a local copy, serve it over HTTP; the page loads `bookmarklet.js` next to it.
 2. Tap **"Copy bookmarklet to clipboard"**
 3. Create any bookmark in your browser, then **edit** it and **paste** the copied code as the URL
 4. Go to booking.com, search for a location, then open your bookmarks and tap **"Hotel Filter"**

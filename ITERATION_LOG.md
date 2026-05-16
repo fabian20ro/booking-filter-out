@@ -94,6 +94,15 @@
 **Promoted to Lessons Learned:** No
 
 ---
+### [2026-05-16] Mobile install page HTTP hosting note
+
+**Context:** Reduce mobile install friction when users open the bookmarklet page from a local copy.
+**What happened:** Updated README.md to note that a local copy of the mobile install page must be served over HTTP because it loads `bookmarklet.js` beside the HTML file.
+**Outcome:** Success
+**Insight:** If a page fetches a sibling asset, the docs should name the hosting requirement before users hit the failure mode.
+**Promoted to Lessons Learned:** Yes
+
+---
 <!-- New entries above this line, most recent first -->
 ---
 ### [2026-05-14] Saved-count live region sync
