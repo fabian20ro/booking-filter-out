@@ -103,6 +103,15 @@
 **Promoted to Lessons Learned:** Yes
 
 ---
+### [2026-05-16] Mobile install page HTTP hosting reminder
+
+**Context:** Reduce confusion when users open the bookmarklet install page from a local file.
+**What happened:** Added an on-page note under the copy button warning that local copies must be served over HTTP so `bookmarklet.js` can load beside the HTML file.
+**Outcome:** Success
+**Insight:** If the install page depends on a sibling asset, the warning belongs in the page copy, not only in README.md.
+**Promoted to Lessons Learned:** No
+
+---
 <!-- New entries above this line, most recent first -->
 ---
 ### [2026-05-14] Saved-count live region sync
