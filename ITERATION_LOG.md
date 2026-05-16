@@ -84,6 +84,16 @@
 **Promoted to Lessons Learned:** Yes
 
 ---
+
+### [2026-05-16] Mobile preview badge wording sync
+
+**Context:** Keep the mobile install page preview aligned with the saved-count badge affordance already documented in the README.
+**What happened:** Updated the mobile preview copy so it now says "Tap the saved-count badge to see saved hotel names." instead of the shorter "Tap the badge" wording.
+**Outcome:** Success
+**Insight:** When a user-facing preview mentions a clickable badge, name the exact badge affordance so the install page matches the documented quickstart.
+**Promoted to Lessons Learned:** No
+
+---
 <!-- New entries above this line, most recent first -->
 ---
 ### [2026-05-14] Saved-count live region sync
