@@ -66,7 +66,7 @@
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
                 if (name && savedMap[name]) {
-                    card.style.opacity = (card.style.opacity === '0.2') ? '1' : '0.2';
+                    card.style.opacity = (card.style.opacity === '1') ? '0.2' : '1';
                 }
             });
         }
