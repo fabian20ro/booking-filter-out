@@ -112,6 +112,15 @@
 **Promoted to Lessons Learned:** No
 
 ---
+### [2026-05-17] Bookmarklet copy-all parity
+
+**Context:** Keep the mobile bookmarklet action set aligned with the extension toolbar.
+**What happened:** Added the bookmarklet's missing Copy all saved action, shared the bookmarklet copy-list helper between saved and non-excluded copy paths, and updated mobile docs/preview copy to show the extra action.
+**Outcome:** Success
+**Insight:** When the extension gains an action, verify the bookmarklet button array and mobile install preview, not just the README wording.
+**Promoted to Lessons Learned:** No
+
+---
 <!-- New entries above this line, most recent first -->
 ---
 ### [2026-05-14] Saved-count live region sync

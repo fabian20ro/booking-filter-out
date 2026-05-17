@@ -27,6 +27,6 @@ No extension install needed — works on iOS Safari, Android Chrome, Firefox, an
 2. Tap **"Copy bookmarklet to clipboard"**
 3. Create any bookmark in your browser, then **edit** it and **paste** the copied code as the URL
 4. Go to booking.com, search for a location, then open your bookmarks and tap **"Hotel Filter"**
-5. A toolbar appears at the bottom of the screen with the same 4 actions, including **Copy non-excluded hotels**. Tap the saved-count badge to show or hide the saved hotel list.
+5. A toolbar appears at the bottom of the screen with the same actions, including **Copy all saved** and **Copy non-excluded hotels**. Tap the saved-count badge to show or hide the saved hotel list.
 
 Detailed step-by-step instructions for each browser are on the install page.
