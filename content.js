@@ -66,7 +66,7 @@
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
                 if (name && savedMap[name]) {
-                    card.style.opacity = (card.style.opacity === '1') ? '0.2' : '1';
+                    card.style.opacity = (card.style.opacity === '0.2') ? '1' : '0.2';
                 }
             });
         }
@@ -260,7 +260,20 @@
                 showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
             }, '🧹');
 
-            [saveBtn, filterBtn, copyBtn, clearBtn].forEach(function (btn) { bottomRow.appendChild(btn); });
+            var copyAllBtn = createButton('Copy all saved', 'copy-all-saved-btn', function () {
+                var saved = core.getSavedList();
+                if (!saved.length) {
+                    showMessage('No hotels to copy.');
+                    return;
+                }
+                copyText(saved.join('\n'), function () {
+                    showMessage('Copied ' + saved.length + ' hotel names.');
+                }, function () {
+                    showMessage('Copy failed on this browser.');
+                });
+            }, '📋');
+
+            [saveBtn, filterBtn, copyAllBtn, copyBtn, clearBtn].forEach(function (btn) { bottomRow.appendChild(btn); });
 
             function toggleSavedListVisibility() {
                 var visible = hoverList.style.display !== 'block';
