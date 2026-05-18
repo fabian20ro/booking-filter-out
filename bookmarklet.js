@@ -1,3 +1,10 @@
+/**
+ * Booking.com Hotel Filter Bookmarklet
+ * 
+ * Configuration:
+ * - SELECTORS: DOM elements used to identify hotel cards and titles.
+ * - STORAGE_KEY: localStorage key for the list of animal-friendly hotels.
+ */
 (function () {
     if (document.getElementById('animal-filter-panel')) return;
 
