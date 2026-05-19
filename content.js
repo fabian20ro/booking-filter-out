@@ -101,16 +101,6 @@
             var msgBox = document.createElement('div');
             msgBox.id = 'bf-toast';
             msgBox.textContent = message;
-            msgBox.style.position = 'fixed';
-            msgBox.style.top = '20px';
-            msgBox.style.left = '50%';
-            msgBox.style.transform = 'translateX(-50%)';
-            msgBox.style.background = '#444';
-            msgBox.style.color = '#fff';
-            msgBox.style.padding = '10px 20px';
-            msgBox.style.borderRadius = '5px';
-            msgBox.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-            msgBox.style.zIndex = '10001';
             msgBox.setAttribute('role', 'status');
             msgBox.setAttribute('aria-live', 'polite');
             document.body.appendChild(msgBox);
