@@ -1,3 +1,10 @@
+/**
+ * Booking.com Hotel Filter Bookmarklet
+ * 
+ * Configuration:
+ * - SELECTORS: DOM elements used to identify hotel cards and titles.
+ * - STORAGE_KEY: localStorage key for the list of animal-friendly hotels.
+ */
 (function () {
     if (document.getElementById('animal-filter-panel')) return;
 
@@ -121,22 +128,33 @@
         ta.addEventListener('blur', function () { if (ta.parentNode) ta.parentNode.removeChild(ta); });
     }
 
-    function copyNonExcluded() {
-        var nonExcluded = getNonExcludedVisibleHotels();
-        if (!nonExcluded.length) {
-            showMessage('No non-excluded hotels to copy.');
+    function copyTextList(names, emptyMessage, successMessage) {
+        if (!names.length) {
+            showMessage(emptyMessage);
             return;
         }
-        var text = nonExcluded.join('\n');
+        var text = names.join('\n');
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(function () {
-                showMessage('Copied ' + nonExcluded.length + ' hotel names to clipboard.');
+                showMessage(successMessage(names.length));
             }, function () {
-                fallbackCopy(text, nonExcluded.length);
+                fallbackCopy(text, names.length);
             });
         } else {
-            fallbackCopy(text, nonExcluded.length);
+            fallbackCopy(text, names.length);
         }
+    }
+
+    function copySaved() {
+        copyTextList(getSavedList(), 'No hotels to copy.', function (count) {
+            return 'Copied ' + count + ' hotel names.';
+        });
+    }
+
+    function copyNonExcluded() {
+        copyTextList(getNonExcludedVisibleHotels(), 'No non-excluded hotels to copy.', function (count) {
+            return 'Copied ' + count + ' hotel names to clipboard.';
+        });
     }
 
     var panel = document.createElement('div');
@@ -173,6 +191,7 @@
     var buttons = [
         ['Add visible hotels', '\u2795', function () { var result = mergeSavedWithVisible(); updateStatus(); if (hoverList.style.display === 'block') renderSavedList(hoverList); showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.'); }],
         ['Toggle dimming', '\uD83D\uDD0D', function () { toggleDimSavedHotels(); showMessage('Toggled dimming.'); }],
+        ['Copy all saved', '\uD83D\uDCCB', copySaved],
         ['Copy non-excluded hotels', '\uD83D\uDCCB', copyNonExcluded],
         ['Clear hotel filter list', '\uD83E\uDDF9', function () {
             var hadSavedList = getSavedList().length > 0;
