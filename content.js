@@ -217,53 +217,58 @@
                 statusText.setAttribute('aria-expanded', visible ? 'true' : 'false');
             }
 
-            var saveBtn = createButton('Add visible hotels', 'save-animals-btn', function () {
-                var result = core.mergeSavedWithVisible();
-                updateHotelListCount();
-                if (hoverList.style.display === 'block') renderSavedList(hoverList);
-                showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
-            }, '➕');
+            var buttonsConfig = [
+                ['Add visible hotels', '\u2795', 'save-animals-btn', function () {
+                    var result = core.mergeSavedWithVisible();
+                    updateHotelListCount();
+                    if (hoverList.style.display === 'block') renderSavedList(hoverList);
+                    showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
+                }],
+                ['Toggle dimming', '\uD83D\uDD0D', 'filter-animals-btn', function () {
+                    core.toggleDimSavedHotels();
+                    showMessage('Toggled dimming.');
+                }],
+                ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function () {
+                    var saved = core.getSavedList();
+                    if (!saved.length) {
+                        showMessage('No hotels to copy.');
+                        return;
+                    }
+                    copyText(saved.join('\n'), function () {
+                        showMessage('Copied ' + saved.length + ' hotel names.');
+                    }, function () {
+                        showMessage('Copy failed on this browser.');
+                    });
+                }],
+                ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function () {
+                    var nonExcluded = core.getNonExcludedVisibleHotels();
+                    if (!nonExcluded.length) {
+                        showMessage('No non-excluded hotels to copy.');
+                        return;
+                    }
+                    copyText(nonExcluded.join('\n'), function () {
+                        showMessage('Copied ' + nonExcluded.length + ' hotel names to clipboard.');
+                    }, function () {
+                        showMessage('Copy failed on this browser.');
+                    });
+                }],
+                ['Clear hotel filter list', '\uD83E\uDDF9', 'clear-animals-btn', function () {
+                    var hadSavedList = core.getSavedList().length > 0;
+                    core.clearSavedList();
+                    updateHotelListCount();
+                    if (hoverList.style.display === 'block') renderSavedList(hoverList);
+                    showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
+                }]
+            ];
 
-            var filterBtn = createButton('Toggle dimming', 'filter-animals-btn', function () {
-                core.toggleDimSavedHotels();
-                showMessage('Toggled dimming.');
-            }, '🔍');
-
-            var copyBtn = createButton('Copy non-excluded hotels', 'copy-non-excluded-btn', function () {
-                var nonExcluded = core.getNonExcludedVisibleHotels();
-                if (!nonExcluded.length) {
-                    showMessage('No non-excluded hotels to copy.');
-                    return;
+            var saveBtn;
+            buttonsConfig.forEach(function (config) {
+                var btn = createButton(config[0], config[2], config[3], config[1]);
+                bottomRow.appendChild(btn);
+                if (config[2] === 'save-animals-btn') {
+                    saveBtn = btn;
                 }
-                copyText(nonExcluded.join('\n'), function () {
-                    showMessage('Copied ' + nonExcluded.length + ' hotel names to clipboard.');
-                }, function () {
-                    showMessage('Copy failed on this browser.');
-                });
-            }, '📋');
-
-            var clearBtn = createButton('Clear hotel filter list', 'clear-animals-btn', function () {
-                var hadSavedList = core.getSavedList().length > 0;
-                core.clearSavedList();
-                updateHotelListCount();
-                if (hoverList.style.display === 'block') renderSavedList(hoverList);
-                showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
-            }, '🧹');
-
-            var copyAllBtn = createButton('Copy all saved', 'copy-all-saved-btn', function () {
-                var saved = core.getSavedList();
-                if (!saved.length) {
-                    showMessage('No hotels to copy.');
-                    return;
-                }
-                copyText(saved.join('\n'), function () {
-                    showMessage('Copied ' + saved.length + ' hotel names.');
-                }, function () {
-                    showMessage('Copy failed on this browser.');
-                });
-            }, '📋');
-
-            [saveBtn, filterBtn, copyAllBtn, copyBtn, clearBtn].forEach(function (btn) { bottomRow.appendChild(btn); });
+            });
 
             function toggleSavedListVisibility() {
                 var visible = hoverList.style.display !== 'block';
