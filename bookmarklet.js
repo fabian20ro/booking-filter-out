@@ -60,8 +60,9 @@
                 addedCount++;
             }
         });
-        setSavedList(Object.keys(mergedMap));
-        return { savedCount: Object.keys(mergedMap).length, addedCount: addedCount };
+        var merged = Object.keys(mergedMap);
+        setSavedList(merged);
+        return { savedCount: merged.length, addedCount: addedCount };
     }
 
 
