@@ -1,6 +1,10 @@
 /**
  * Booking.com Hotel Filter Bookmarklet
  * 
+ * Relationship with content.js:
+ * This file implements the bookmarklet version of the filter logic.
+ * It must stay functionally in sync with content.js (selectors, storage keys, behavior).
+ * 
  * Configuration:
  * - SELECTORS: DOM elements used to identify hotel cards and titles.
  * - STORAGE_KEY: localStorage key for the list of animal-friendly hotels.
