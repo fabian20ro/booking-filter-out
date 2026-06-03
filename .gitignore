@@ -3,3 +3,5 @@
 *.iml
 
 /extension.zip
+# Compound Autopilot infrastructure metadata
+.compound-autopilot/

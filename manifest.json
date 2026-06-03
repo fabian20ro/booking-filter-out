@@ -12,12 +12,12 @@
       "strict_min_version": "109.0"
     }
   },
-  "content_scripts": [
-    {
-      "matches": ["*://www.booking.com/searchresults*"],
-      "js": ["content.js"],
-      "css": ["style.css"]
-    }
-  ],
+    "content_scripts": [
+      {
+        "matches": ["*://*.booking.com/searchresults*"],
+        "js": ["content.js"],
+        "css": ["style.css"]
+      }
+    ],
   "permissions": ["storage"]
 }
