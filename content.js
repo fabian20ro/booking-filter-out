@@ -84,12 +84,17 @@
             return getVisibleHotelNames().filter(function (name) { return !savedMap[name]; });
         }
 
+        function getVisibleHotelsText() {
+            return getVisibleHotelNames().join('\n');
+        }
+
         return {
             getSavedList: getSavedList,
             mergeSavedWithVisible: mergeSavedWithVisible,
             toggleDimSavedHotels: toggleDimSavedHotels,
             clearSavedList: clearSavedList,
-            getNonExcludedVisibleHotels: getNonExcludedVisibleHotels
+            getNonExcludedVisibleHotels: getNonExcludedVisibleHotels,
+            getVisibleHotelsText: getVisibleHotelsText
         };
     }
 
@@ -248,6 +253,18 @@
                     }
                     copyText(nonExcluded.join('\n'), function () {
                         showMessage('Copied ' + nonExcluded.length + ' hotel names to clipboard.');
+                    }, function () {
+                        showMessage('Copy failed on this browser.');
+                    });
+                }],
+                ['Copy visible hotels', '\uD83D\uDCC4', 'copy-visible-btn', function () {
+                    var text = core.getVisibleHotelsText();
+                    if (!text) {
+                        showMessage('No visible hotels found.');
+                        return;
+                    }
+                    copyText(text, function () {
+                        showMessage('Copied all visible hotel names.');
                     }, function () {
                         showMessage('Copy failed on this browser.');
                     });
