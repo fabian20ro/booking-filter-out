@@ -33,3 +33,7 @@ No extension install needed — works on iOS Safari, Android Chrome, Firefox, an
 Detailed step-by-step instructions for each browser are on the install page.
 
 *Maintained by Compound Autopilot.*
+
+## Maintenance History
+
+- 2026-05-22: Automated maintenance run via Compound Autopilot. Added routine documentation update.
