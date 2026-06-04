@@ -1,6 +1,7 @@
 (function () {
     if (window.__bookingFilterInit) return;
     window.__bookingFilterInit = true;
+    console.info('Booking.com Hotel Filter initialized.');
 
     var SELECTORS = {
         propertyCard: '[data-testid="property-card"]',
