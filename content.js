@@ -78,6 +78,12 @@
             });
         }
 
+        function removeHotel(name) {
+            var list = getSavedList();
+            var updated = list.filter(function (h) { return h !== name; });
+            setSavedList(updated);
+        }
+
         function getNonExcludedVisibleHotels() {
             var savedMap = Object.create(null);
             getSavedList().forEach(function (name) { savedMap[name] = true; });
@@ -89,9 +95,12 @@
             mergeSavedWithVisible: mergeSavedWithVisible,
             toggleDimSavedHotels: toggleDimSavedHotels,
             clearSavedList: clearSavedList,
+            removeHotel: removeHotel,
             getNonExcludedVisibleHotels: getNonExcludedVisibleHotels
         };
     }
+
+    window.__bookingFilterCore = createCore();
 
     function createUI(core) {
         function showMessage(message) {
