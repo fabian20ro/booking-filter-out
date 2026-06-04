@@ -88,6 +88,8 @@
         var msg = document.createElement('div');
         msg.id = 'bf-toast';
         msg.textContent = message;
+        msg.setAttribute('role', 'status');
+        msg.setAttribute('aria-live', 'polite');
         document.body.appendChild(msg);
         setTimeout(function () { if (msg.parentNode) msg.parentNode.removeChild(msg); }, 3000);
     }
