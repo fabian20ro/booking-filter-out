@@ -56,7 +56,9 @@
             });
 
             var merged = Object.keys(mergedMap);
-            setSavedList(merged);
+            if (addedCount > 0) {
+                setSavedList(merged);
+            }
             return { savedCount: merged.length, addedCount: addedCount };
         }
 
