@@ -223,6 +223,8 @@
         }
     });
 
+    panel.addEventListener('mouseleave', function () { setHoverListVisible(false); });
+
     panel.appendChild(hoverList);
     document.body.appendChild(panel);
     updateStatus();
