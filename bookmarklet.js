@@ -205,12 +205,17 @@
         }]
     ];
 
-    buttons.forEach(function (b) {
+    buttons.forEach(function (b, i) {
         var btn = document.createElement('button');
         btn.textContent = b[1];
         btn.title = b[0];
         btn.setAttribute('aria-label', b[0]);
         btn.addEventListener('click', b[2]);
+        if (i === 0) {
+            btn.addEventListener('mouseenter', function () { renderSavedList(hoverList); setHoverListVisible(true); });
+            btn.addEventListener('focus', function () { renderSavedList(hoverList); setHoverListVisible(true); });
+            btn.addEventListener('blur', function () { setHoverListVisible(false); });
+        }
         panel.appendChild(btn);
     });
 
