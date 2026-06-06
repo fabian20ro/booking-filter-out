@@ -320,8 +320,9 @@
 
             panel.appendChild(topRow);
             panel.appendChild(bottomRow);
-            panel.appendChild(hoverList);
-            updateHotelListCount();
+        panel.appendChild(hoverList);
+        document.body.appendChild(panel);
+        updateHotelListCount();
         }
 
         return { insertControlPanel: insertControlPanel };
