@@ -211,7 +211,6 @@
         }],
         ['Clear hotel filter list', '\uD83E\uDDF9', function () {
             var hadSavedList = getSavedList().length > 0;
-            getSavedList(); // logic error in my mental model? no.
             localStorage.removeItem(STORAGE_KEY);
             getPropertyCards().forEach(function (card) { card.style.opacity = '1'; });
             updateStatus();
