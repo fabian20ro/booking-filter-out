@@ -99,12 +99,18 @@
     }
 
     function renderSavedList(listEl, filter) {
+        var ul = listEl.querySelector('ul');
+        if (ul) {
+            ul.innerHTML = '';
+        } else {
+            ul = document.createElement('ul');
+            listEl.appendChild(ul);
+        }
         var saved = getSavedList();
-        listEl.innerHTML = '';
         if (!saved.length) {
             var empty = document.createElement('i');
             empty.textContent = 'No hotels saved';
-            listEl.appendChild(empty);
+            ul.appendChild(empty);
             return;
         }
         var items = saved.filter(function (name) {
@@ -113,16 +119,14 @@
         if (items.length === 0) {
             var noMatch = document.createElement('li');
             noMatch.textContent = 'No matches';
-            listEl.appendChild(noMatch);
+            ul.appendChild(noMatch);
             return;
         }
-        var ul = document.createElement('ul');
         items.forEach(function (name) {
             var li = document.createElement('li');
             li.textContent = name;
             ul.appendChild(li);
         });
-        listEl.appendChild(ul);
     }
 
     function fallbackCopy(text, count) {
