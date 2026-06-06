@@ -140,7 +140,8 @@
         
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(function () {
-                if (onDone) onDone(count);
+                var msg = onDone ? onDone(count) : '';
+                if (msg) showMessage(msg);
             }, function () {
                 if (onFail) onFail(count);
                 else fallbackCopy(text, count);
@@ -148,6 +149,14 @@
         } else {
             fallbackCopy(text, count);
         }
+    }
+
+    function copyTextList(list, errorMessage, onDone, onFail) {
+        if (!list || list.length === 0) {
+            showMessage(errorMessage);
+            return;
+        }
+        copyText(list.join('\n'), onDone, onFail);
     }
 
     function copySaved() {
