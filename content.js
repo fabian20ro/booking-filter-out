@@ -54,7 +54,6 @@
                     addedCount++;
                 }
             });
-
             var merged = Object.keys(mergedMap);
             setSavedList(merged);
             return { savedCount: merged.length, addedCount: addedCount };
@@ -146,23 +145,17 @@
         }
 
         function copyText(text, onDone, onFail) {
-            function fallbackCopy() {
-                var ta = document.createElement('textarea');
-                ta.value = text;
-                ta.style.cssText = 'position:fixed;top:50%;left:5%;width:90%;height:120px;z-index:10002;font-size:14px;border:2px solid #1f67ff;border-radius:8px;padding:8px';
-                document.body.appendChild(ta);
-                ta.focus();
-                ta.select();
-                showMessage('Select all & copy the text below (' + text.split('\n').length + ' hotels)');
-                ta.addEventListener('blur', function () {
-                    if (ta.parentNode) ta.parentNode.removeChild(ta);
-                });
+            if (!text || text.length === 0) {
+                showMessage('No content to copy.');
+                return;
             }
-
+            var count = text.split('\n').length;
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(onDone, function () {
-                    fallbackCopy();
-                    if (onFail) onFail();
+                navigator.clipboard.writeText(text).then(function () {
+                    if (onDone) onDone(count);
+                }, function () {
+                    if (onFail) onFail(count);
+                    else fallbackCopy();
                 });
                 return;
             }
@@ -176,10 +169,10 @@
             ta.select();
             try {
                 document.execCommand('copy');
-                onDone();
+                if (onDone) onDone(count);
             } catch (e) {
-                fallbackCopy();
-                if (onFail) onFail();
+                if (onFail) onFail(count);
+                else fallbackCopy();
             }
             if (ta.parentNode) ta.parentNode.removeChild(ta);
         }

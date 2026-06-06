@@ -130,20 +130,23 @@
         ta.addEventListener('blur', function () { if (ta.parentNode) ta.parentNode.removeChild(ta); });
     }
 
-    function copyTextList(names, emptyMessage, successMessage) {
-        if (!names.length) {
-            showMessage(emptyMessage);
+    function copyText(text, onDone, onFail) {
+        if (!text || text.length === 0) {
+            showMessage('No content to copy.');
             return;
         }
-        var text = names.join('\n');
+        var names = text.split('\n');
+        var count = names.length;
+        
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(function () {
-                showMessage(successMessage(names.length));
+                if (onDone) onDone(count);
             }, function () {
-                fallbackCopy(text, names.length);
+                if (onFail) onFail(count);
+                else fallbackCopy(text, count);
             });
         } else {
-            fallbackCopy(text, names.length);
+            fallbackCopy(text, count);
         }
     }
 
