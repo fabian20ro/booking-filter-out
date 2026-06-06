@@ -119,24 +119,35 @@
             return button;
         }
 
-        function renderSavedList(hoverList) {
+        function renderSavedList(hoverList, filter) {
             var saved = core.getSavedList();
-            hoverList.innerHTML = '';
+            var list = hoverList.querySelector('ul');
+            if (!list) {
+                list = document.createElement('ul');
+                hoverList.appendChild(list);
+            }
 
             if (!saved.length) {
-                var empty = document.createElement('i');
-                empty.textContent = 'No hotels saved';
-                hoverList.appendChild(empty);
+                list.innerHTML = '<li><i>No hotels saved</i></li>';
                 return;
             }
 
-            var list = document.createElement('ul');
-            saved.forEach(function (name) {
-                var item = document.createElement('li');
-                item.textContent = name;
-                list.appendChild(item);
+            var items = saved.filter(function (name) {
+                return name.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
             });
-            hoverList.appendChild(list);
+
+            list.innerHTML = '';
+            if (items.length === 0) {
+                var noMatch = document.createElement('li');
+                noMatch.textContent = 'No matches';
+                list.appendChild(noMatch);
+            } else {
+                items.forEach(function (name) {
+                    var item = document.createElement('li');
+                    item.textContent = name;
+                    list.appendChild(item);
+                });
+            }
         }
 
         function updateHotelListCount() {
@@ -155,7 +166,7 @@
                     if (onDone) onDone(count);
                 }, function () {
                     if (onFail) onFail(count);
-                    else fallbackCopy();
+                    else fallbackCopy(text, count);
                 });
                 return;
             }
@@ -172,7 +183,25 @@
                 if (onDone) onDone(count);
             } catch (e) {
                 if (onFail) onFail(count);
-                else fallbackCopy();
+                else fallbackCopy(text, count);
+            }
+            if (ta.parentNode) ta.parentNode.removeChild(ta);
+        }
+
+        function fallbackCopy(text, count) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.top = '-2000px';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                document.execCommand('copy');
+                if (onDone) onDone(count);
+            } catch (e) {
+                if (onFail) onFail(count);
+                else fallbackCopy(text, count);
             }
             if (ta.parentNode) ta.parentNode.removeChild(ta);
         }
@@ -198,11 +227,19 @@
             statusText.setAttribute('aria-controls', 'hover-hotel-list');
             statusText.setAttribute('aria-expanded', 'false');
             statusText.style.cursor = 'pointer';
-            topRow.appendChild(statusText);
 
             var hoverList = document.createElement('div');
             hoverList.id = 'hover-hotel-list';
             hoverList.setAttribute('aria-hidden', 'true');
+
+            var filterInput = document.createElement('input');
+            filterInput.type = 'text';
+            filterInput.placeholder = 'Filter list...';
+            filterInput.className = 'filter-input';
+            filterInput.addEventListener('input', function () {
+                renderSavedList(hoverList, filterInput.value);
+            });
+            hoverList.appendChild(filterInput);
 
             function setHoverListVisible(visible) {
                 hoverList.style.display = visible ? 'block' : 'none';
@@ -214,7 +251,7 @@
                 ['Add visible hotels', '\u2795', 'save-animals-btn', function () {
                     var result = core.mergeSavedWithVisible();
                     updateHotelListCount();
-                    if (hoverList.style.display === 'block') renderSavedList(hoverList);
+                    if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
                     showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
                 }],
                 ['Toggle dimming', '\uD83D\uDD0D', 'filter-animals-btn', function () {
@@ -249,7 +286,7 @@
                     var hadSavedList = core.getSavedList().length > 0;
                     core.clearSavedList();
                     updateHotelListCount();
-                    if (hoverList.style.display === 'block') renderSavedList(hoverList);
+                    if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
                     showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
                 }]
             ];
@@ -265,12 +302,12 @@
 
             function toggleSavedListVisibility() {
                 var visible = hoverList.style.display !== 'block';
-                if (visible) renderSavedList(hoverList);
+                if (visible) renderSavedList(hoverList, filterInput.value);
                 setHoverListVisible(visible);
             }
 
-            saveBtn.addEventListener('mouseenter', function () { renderSavedList(hoverList); setHoverListVisible(true); });
-            saveBtn.addEventListener('focus', function () { renderSavedList(hoverList); setHoverListVisible(true); });
+            saveBtn.addEventListener('mouseenter', function () { renderSavedList(hoverList, filterInput.value); setHoverListVisible(true); });
+            saveBtn.addEventListener('focus', function () { renderSavedList(hoverList, filterInput.value); setHoverListVisible(true); });
             saveBtn.addEventListener('blur', function () { setHoverListVisible(false); });
             statusText.addEventListener('click', toggleSavedListVisibility);
             statusText.addEventListener('keydown', function (event) {
@@ -284,7 +321,6 @@
             panel.appendChild(topRow);
             panel.appendChild(bottomRow);
             panel.appendChild(hoverList);
-            document.body.appendChild(panel);
             updateHotelListCount();
         }
 
