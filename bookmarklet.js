@@ -232,8 +232,9 @@
 
     buttons.forEach(function(b) {
         var btn = document.createElement('button');
-        btn.textContent = b[0]; 
+        btn.textContent = b[0];
         btn.title = b[0];
+        btn.setAttribute('aria-label', b[0]);
         btn.addEventListener('click', b[2]);
         panel.appendChild(btn);
     });
