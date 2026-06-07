@@ -108,8 +108,8 @@
         }
         var saved = getSavedList();
         if (!saved.length) {
-            var empty = document.createElement('i');
-            empty.textContent = 'No hotels saved';
+            var empty = document.createElement('li');
+            empty.innerHTML = '<i>No hotels saved</i>';
             ul.appendChild(empty);
             return;
         }
