@@ -204,24 +204,24 @@
     }
 
     var buttons = [
-        ['Add visible hotels', '\u2795', function () { 
+        ['Add visible hotels', '\u2795', 'save-animals-btn', function () { 
             var result = mergeSavedWithVisible(); 
             updateStatus(); 
             if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value); 
             showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.'); 
         }],
-        ['Toggle dimming', '\uD83D\uDD0D', function () { toggleDimSavedHotels(); showMessage('Toggled dimming.'); }],
-        ['Copy all saved', '\uD83D\uDCCB', function() {
+        ['Toggle dimming', '\uD83D\uDD0D', 'toggle-dim-btn', function () { toggleDimSavedHotels(); showMessage('Toggled dimming.'); }],
+        ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function() {
             var saved = getSavedList();
             if (!saved.length) { showMessage('No hotels to copy.'); return; }
             copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel names.')}, null);
         }],
-        ['Copy non-excluded hotels', '\uD83D\uDCCB', function() {
+        ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function() {
             var nonExcluded = getNonExcludedVisibleHotels();
             if (!nonExcluded.length) { showMessage('No non-excluded hotels to copy.'); return; }
             copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);
         }],
-        ['Clear hotel filter list', '\uD83E\uDDF9', function () {
+        ['Clear hotel filter list', '\uD83E\uDDF9', 'clear-animals-btn', function () {
             var hadSavedList = getSavedList().length > 0;
             clearSavedList();
             updateStatus();
@@ -232,10 +232,11 @@
 
     buttons.forEach(function(b) {
         var btn = document.createElement('button');
-        btn.textContent = b[0];
+        btn.textContent = b[1];
         btn.title = b[0];
+        btn.id = b[2];
         btn.setAttribute('aria-label', b[0]);
-        btn.addEventListener('click', b[2]);
+        btn.addEventListener('click', b[3]);
         panel.appendChild(btn);
     });
 
