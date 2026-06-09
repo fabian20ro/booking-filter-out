@@ -55,7 +55,21 @@
         });
         var merged = Object.keys(mergedMap);
         setSavedList(merged);
+        applyDimming();
         return { savedCount: merged.length, addedCount: addedCount };
+    }
+
+    function applyDimming() {
+        var savedMap = Object.create(null);
+        getSavedList().forEach(function (name) { savedMap[name] = true; });
+        getPropertyCards().forEach(function (card) {
+            var name = getHotelNameFromCard(card);
+            if (name && savedMap[name]) {
+                card.classList.add('bf-dimmed');
+            } else {
+                card.classList.remove('bf-dimmed');
+            }
+        });
     }
 
     function toggleDimSavedHotels() {
@@ -64,7 +78,7 @@
         getPropertyCards().forEach(function (card) {
             var name = getHotelNameFromCard(card);
             if (name && savedMap[name]) {
-                card.style.opacity = (card.style.opacity === '0.2') ? '1' : '0.2';
+                card.classList.toggle('bf-dimmed');
             }
         });
     }
@@ -72,7 +86,7 @@
     function clearSavedList() {
         localStorage.removeItem(STORAGE_KEY);
         getPropertyCards().forEach(function (card) {
-            card.style.opacity = '1';
+            card.classList.remove('bf-dimmed');
         });
     }
 
@@ -212,12 +226,12 @@
             toggleDimSavedHotels();
             showMessage('Toggled dimming.');
         }],
-        ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function() {
+        ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function () {
             var saved = getSavedList();
             if (!saved.length) { showMessage('No hotels to copy.'); return; }
             copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel names.')}, null);
         }],
-        ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function() {
+        ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function () {
             var nonExcluded = getNonExcludedVisibleHotels();
             if (!nonExcluded.length) { showMessage('No non-excluded hotels to copy.'); return; }
             copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);

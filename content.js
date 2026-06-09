@@ -53,7 +53,21 @@
             });
             var merged = Object.keys(mergedMap);
             setSavedList(merged);
+            applyDimming();
             return { savedCount: merged.length, addedCount: addedCount };
+        }
+
+        function applyDimming() {
+            var savedMap = Object.create(null);
+            getSavedList().forEach(function (name) { savedMap[name] = true; });
+            getPropertyCards().forEach(function (card) {
+                var name = getHotelNameFromCard(card);
+                if (name && savedMap[name]) {
+                    card.classList.add('bf-dimmed');
+                } else {
+                    card.classList.remove('bf-dimmed');
+                }
+            });
         }
 
         function toggleDimSavedHotels() {
@@ -62,7 +76,7 @@
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
                 if (name && savedMap[name]) {
-                    card.style.opacity = (card.style.opacity === '0.2') ? '1' : '0.2';
+                    card.classList.toggle('bf-dimmed');
                 }
             });
         }
@@ -70,7 +84,7 @@
         function clearSavedList() {
             localStorage.removeItem(STORAGE_KEY);
             getPropertyCards().forEach(function (card) {
-                card.style.opacity = '1';
+                card.classList.remove('bf-dimmed');
             });
         }
 
@@ -83,6 +97,7 @@
         return {
             getSavedList: getSavedList,
             mergeSavedWithVisible: mergeSavedWithVisible,
+            applyDimming: applyDimming,
             toggleDimSavedHotels: toggleDimSavedHotels,
             clearSavedList: clearSavedList,
             getNonExcludedVisibleHotels: getNonExcludedVisibleHotels,
@@ -94,6 +109,10 @@
     }
 
     function createUI(core) {
+        var style = document.createElement('style');
+        style.textContent = '.bf-dimmed { opacity: 0.2 !important; }';
+        document.head.appendChild(style);
+
         function showMessage(message) {
             var old = document.getElementById('bf-toast');
             if (old && old.parentNode) old.parentNode.removeChild(old);
