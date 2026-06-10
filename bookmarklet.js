@@ -148,6 +148,26 @@
         });
     }
 
+    function createButton(text, id, onClick, symbol) {
+        var button = document.createElement('button');
+        button.textContent = symbol || text;
+        button.id = id;
+        button.title = text;
+        button.setAttribute('aria-label', text);
+        button.addEventListener('click', onClick);
+        return button;
+    }
+
+    function createButton(text, id, onClick, symbol) {
+        var button = document.createElement('button');
+        button.textContent = symbol || text;
+        button.id = id;
+        button.title = text;
+        button.setAttribute('aria-label', text);
+        button.addEventListener('click', onClick);
+        return button;
+    }
+
     function copyText(text, onDone, onFail) {
         if (!text || text.length === 0) {
             showMessage('No content to copy.');
@@ -245,15 +265,8 @@
         }]
     ];
 
-    var buttons = [];
     buttonsConfig.forEach(function(b) {
-        var btn = document.createElement('button');
-        btn.textContent = b[1];
-        btn.id = b[2];
-        btn.title = b[0];
-        btn.setAttribute('aria-label', b[0]);
-        btn.addEventListener('click', b[3]);
-        panel.appendChild(btn);
+        panel.appendChild(createButton(b[0], b[2], b[3], b[1]));
     });
 
     status.addEventListener('click', function() {
