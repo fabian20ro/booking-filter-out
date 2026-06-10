@@ -158,16 +158,6 @@
         return button;
     }
 
-    function createButton(text, id, onClick, symbol) {
-        var button = document.createElement('button');
-        button.textContent = symbol || text;
-        button.id = id;
-        button.title = text;
-        button.setAttribute('aria-label', text);
-        button.addEventListener('click', onClick);
-        return button;
-    }
-
     function copyText(text, onDone, onFail) {
         if (!text || text.length === 0) {
             showMessage('No content to copy.');
