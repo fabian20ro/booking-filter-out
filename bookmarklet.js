@@ -4,7 +4,6 @@
     var style = document.createElement('style');
     style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,sans-serif}#animal-filter-panel button{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:20px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}#hotel-list-status{min-height:44px;min-width:50px;padding:0 10px;display:flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}#hover-hotel-list{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:260px;max-height:200px;overflow-y:auto;padding:10px;border:1px solid #c8d7ff;border-radius:10px;background:#fff;color:#163680;font-size:12px;box-shadow:0 4px 12px rgba(31,71,161,.12)}#hover-hotel-list ul{margin:0;padding-left:18px}.filter-input{width:100%;padding:4px 8px;margin-bottom:6px;border:1px solid #c8d7ff;border-radius:4px;font-size:12px}#bf-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#444;color:#fff;padding:10px 20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:10001;font:14px -apple-system,BlinkMacSystemFont,sans-serif}.bf-dimmed { opacity: 0.2 !important; }';
     document.head.appendChild(style);
-
     var SELECTORS = {
         propertyCard: '[data-testid="property-card"]',
         title: '[data-testid="title"]'
@@ -146,16 +145,6 @@
             li.textContent = name;
             ul.appendChild(li);
         });
-    }
-
-    function createButton(text, id, onClick, symbol) {
-        var button = document.createElement('button');
-        button.textContent = symbol || text;
-        button.id = id;
-        button.title = text;
-        button.setAttribute('aria-label', text);
-        button.addEventListener('click', onClick);
-        return button;
     }
 
     function createButton(text, id, onClick, symbol) {
