@@ -240,7 +240,7 @@
             if (!saved.length) { showMessage('No hotels to copy.'); return; }
             copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel names.')}, null);
         }],
-        ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function () {
+        ['Copy non-excluded hotels', '\uD83D\uDCCA', 'copy-non-excluded-btn', function () {
             var nonExcluded = getNonExcludedVisibleHotels();
             if (!nonExcluded.length) { showMessage('No non-excluded hotels to copy.'); return; }
             copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);
