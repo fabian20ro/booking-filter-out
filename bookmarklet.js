@@ -159,7 +159,7 @@
 
     function copyText(text, onDone, onFail) {
         if (!text || text.length === 0) {
-            showMessage('No content to copy.');
+            showMessage('No hotels to copy.');
             return;
         }
         var count = text.split('\n').length;
