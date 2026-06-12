@@ -56,6 +56,12 @@ function mergeSavedWithVisible(visible) {
     return { savedCount: merged.length, addedCount: addedCount };
 }
 
+function getNonExcludedVisibleHotels(visible) {
+    var savedMap = Object.create(null);
+    getSavedList().forEach(function (name) { savedMap[name] = true; });
+    return visible.filter(function (name) { return !savedMap[name]; });
+}
+
 // Test 1: merge adds new hotels
 console.log('Testing mergeSavedWithVisible...');
 localStorage.clear();
@@ -74,3 +80,11 @@ const res2 = mergeSavedWithVisible(['Hotel A']);
 assert.strictEqual(res2.addedCount, 0);
 assert.strictEqual(res2.savedCount, 1);
 console.log('Test 2 passed!');
+
+// Test 3: getNonExcludedVisibleHotels
+console.log('Testing getNonExcludedVisibleHotels...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 'Hotel B']));
+const nonExcluded = getNonExcludedVisibleHotels(['Hotel A', 'Hotel C', 'Hotel D']);
+assert.deepStrictEqual(nonExcluded, ['Hotel C', 'Hotel D']);
+console.log('Test 3 passed!');
