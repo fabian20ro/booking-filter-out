@@ -10,6 +10,14 @@
     };
     var STORAGE_KEY = 'animalFriendlyList';
 
+    function getSavedList() {
+        try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        } catch (e) {
+            return [];
+        }
+    }
+
     function removeHotel(name) {
         var currentSaved = getSavedList();
         var newSaved = currentSaved.filter(function(n) { return n !== name; });
