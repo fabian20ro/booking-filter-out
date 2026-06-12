@@ -23,6 +23,7 @@
         var newSaved = currentSaved.filter(function(n) { return n !== name; });
         setSavedList(newSaved);
         applyDimming();
+        updateStatus();
     }
 
     function setSavedList(list) {
@@ -94,6 +95,7 @@
         getPropertyCards().forEach(function (card) {
             card.classList.remove('bf-dimmed');
         });
+        updateStatus();
     }
 
     function getNonExcludedVisibleHotels() {

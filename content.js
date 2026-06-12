@@ -86,6 +86,7 @@
             getPropertyCards().forEach(function (card) {
                 card.classList.remove('bf-dimmed');
             });
+            updateStatus();
         }
 
         function getNonExcludedVisibleHotels() {
@@ -102,6 +103,7 @@
                 var newSaved = currentSaved.filter(function(n) { return n !== name; });
                 setSavedList(newSaved);
                 applyDimming();
+                updateStatus();
             },
             applyDimming: applyDimming,
             toggleDimSavedHotels: toggleDimSavedHotels,
