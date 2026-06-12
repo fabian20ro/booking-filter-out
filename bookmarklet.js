@@ -10,12 +10,11 @@
     };
     var STORAGE_KEY = 'animalFriendlyList';
 
-    function getSavedList() {
-        try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        } catch (e) {
-            return [];
-        }
+    function removeHotel(name) {
+        var currentSaved = getSavedList();
+        var newSaved = currentSaved.filter(function(n) { return n !== name; });
+        setSavedList(newSaved);
+        applyDimming();
     }
 
     function setSavedList(list) {
@@ -142,7 +141,28 @@
         }
         items.forEach(function (name) {
             var li = document.createElement('li');
-            li.textContent = name;
+            li.style.display = 'flex';
+            li.style.justifyContent = 'space-between';
+            li.style.alignItems = 'center';
+
+            var span = document.createElement('span');
+            span.textContent = name;
+            li.appendChild(span);
+
+            var btn = document.createElement('button');
+            btn.textContent = '×';
+            btn.style.border = 'none';
+            btn.style.background = 'none';
+            btn.style.color = '#ff4d4f';
+            btn.style.cursor = 'pointer';
+            btn.style.padding = '0 4px';
+            btn.style.fontSize = '16px';
+            btn.onclick = function() {
+                removeHotel(name);
+                renderSavedList(listEl, filter);
+            };
+            li.appendChild(btn);
+
             ul.appendChild(li);
         });
     }
@@ -159,7 +179,7 @@
 
     function copyText(text, onDone, onFail) {
         if (!text || text.length === 0) {
-            showMessage('No content to copy.');
+            showMessage('No hotels to copy.');
             return;
         }
         var count = text.split('\n').length;
