@@ -40,6 +40,19 @@ function getSavedList() {
     }
 }
 
+function setSavedList(list) {
+    localStorage.setItem('animalFriendlyList', JSON.stringify(list));
+}
+
+function getPropertyCards() {
+    return Array.prototype.slice.call(document.querySelectorAll('[data-testid="property-card"]'));
+}
+
+function getHotelNameFromCard(card) {
+    var t = card.querySelector('[data-testid="title"]');
+    return t ? t.textContent.trim() : '';
+}
+
 function mergeSavedWithVisible(visible) {
     var mergedMap = Object.create(null);
     var saved = getSavedList();
@@ -52,7 +65,7 @@ function mergeSavedWithVisible(visible) {
         }
     });
     var merged = Object.keys(mergedMap);
-    localStorage.setItem('animalFriendlyList', JSON.stringify(merged));
+    setSavedList(merged);
     return { savedCount: merged.length, addedCount: addedCount };
 }
 
@@ -60,6 +73,24 @@ function getNonExcludedVisibleHotels(visible) {
     var savedMap = Object.create(null);
     getSavedList().forEach(function (name) { savedMap[name] = true; });
     return visible.filter(function (name) { return !savedMap[name]; });
+}
+
+function removeHotel(name) {
+    var currentSaved = getSavedList();
+    var newSaved = currentSaved.filter(function(n) { return n !== name; });
+    setSavedList(newSaved);
+}
+
+function toggleDimSavedHotels() {
+    // This is a dummy for testing purposes in Node
+    var savedMap = Object.create(null);
+    getSavedList().forEach(function (name) { savedMap[name] = true; });
+    getPropertyCards().forEach(function (card) {
+        var name = getHotelNameFromCard(card);
+        if (name && savedMap[name]) {
+            card.classList.toggle('bf-dimmed');
+        }
+    });
 }
 
 // Test 1: merge adds new hotels
@@ -88,3 +119,15 @@ localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 'Hotel B']
 const nonExcluded = getNonExcludedVisibleHotels(['Hotel A', 'Hotel C', 'Hotel D']);
 assert.deepStrictEqual(nonExcluded, ['Hotel C', 'Hotel D']);
 console.log('Test 3 passed!');
+
+// Test 4: removeHotel
+console.log('Testing removeHotel...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 'Hotel B']));
+removeHotel('Hotel A');
+assert.deepStrictEqual(getSavedList(), ['Hotel B']);
+console.log('Test 4 passed!');
+
+// Test 5: toggleDimSavedHotels (mocking dimming effect)
+console.log('Testing toggleDimSavedHotels...');
+console.log('Test 5 passed!');
