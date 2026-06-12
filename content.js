@@ -97,6 +97,12 @@
         return {
             getSavedList: getSavedList,
             mergeSavedWithVisible: mergeSavedWithVisible,
+            removeHotel: function(name) {
+                var currentSaved = getSavedList();
+                var newSaved = currentSaved.filter(function(n) { return n !== name; });
+                setSavedList(newSaved);
+                applyDimming();
+            },
             applyDimming: applyDimming,
             toggleDimSavedHotels: toggleDimSavedHotels,
             clearSavedList: clearSavedList,
@@ -147,7 +153,7 @@
                 ul = document.createElement('ul');
                 listEl.appendChild(ul);
             }
-            var saved = core.getSavedList();
+            var saved = getSavedList();
             if (!saved.length) {
                 var empty = document.createElement('li');
                 empty.innerHTML = '<i>No hotels saved</i>';
@@ -165,7 +171,28 @@
             }
             items.forEach(function (name) {
                 var li = document.createElement('li');
-                li.textContent = name;
+                li.style.display = 'flex';
+                li.style.justifyContent = 'space-between';
+                li.style.alignItems = 'center';
+
+                var span = document.createElement('span');
+                span.textContent = name;
+                li.appendChild(span);
+
+                var btn = document.createElement('button');
+                btn.textContent = '×';
+                btn.style.border = 'none';
+                btn.style.background = 'none';
+                btn.style.color = '#ff4d4f';
+                btn.style.cursor = 'pointer';
+                btn.style.padding = '0 4px';
+                btn.style.fontSize = '16px';
+                btn.onclick = function() {
+                    core.removeHotel(name);
+                    renderSavedList(listEl, filter);
+                };
+                li.appendChild(btn);
+
                 ul.appendChild(li);
             });
         }
