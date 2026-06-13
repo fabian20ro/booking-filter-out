@@ -17,7 +17,8 @@ global.document = {
         addEventListener: () => {},
         remove: () => {},
         removeChild: () => {},
-        textContent: ''
+        textContent: '',
+        querySelectorAll: () => []
     }),
     getElementById: () => ({
         textContent: '',
@@ -50,7 +51,7 @@ function getPropertyCards() {
 
 function getHotelNameFromCard(card) {
     var t = card.querySelector('[data-testid="title"]');
-    return t ? t.textContent.trim() : '';
+    return t ? t.textContent.trim().toLowerCase() : '';
 }
 
 function mergeSavedWithVisible(visible) {
@@ -131,3 +132,17 @@ console.log('Test 4 passed!');
 // Test 5: toggleDimSavedHotels (mocking dimming effect)
 console.log('Testing toggleDimSavedHotels...');
 console.log('Test 5 passed!');
+
+// Test 6: getHotelNameFromCard
+console.log('Testing getHotelNameFromCard...');
+const mockCard = {
+    querySelector: (selector) => {
+        if (selector === '[data-testid="title"]') {
+            return { textContent: '  HOTEL NAME  ' };
+        }
+        return null;
+    }
+};
+const name = getHotelNameFromCard(mockCard);
+assert.strictEqual(name, 'hotel name');
+console.log('Test 6 passed!');
