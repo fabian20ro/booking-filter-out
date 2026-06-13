@@ -281,6 +281,13 @@
             updateStatus();
             if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
             showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
+        }],
+        ['Clear hotel filter list', '\uD83E\uDDF9', 'clear-animals-btn', function () {
+            var hadSavedList = getSavedList().length > 0;
+            clearSavedList();
+            updateStatus();
+            if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
+            showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
         }]
     ];
 
