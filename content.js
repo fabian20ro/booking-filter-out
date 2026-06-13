@@ -18,7 +18,7 @@
         }
 
         function setSavedList(list) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(function(s) { return s.toLowerCase(); })));
         }
 
         function getPropertyCards() {

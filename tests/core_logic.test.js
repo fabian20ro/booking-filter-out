@@ -53,15 +53,15 @@ function getHotelNameFromCard(card) {
     var t = card.querySelector('[data-testid="title"]');
     return t ? t.textContent.trim().toLowerCase() : '';
 }
-
 function mergeSavedWithVisible(visible) {
     var mergedMap = Object.create(null);
     var saved = getSavedList();
     var addedCount = 0;
-    saved.forEach(function (name) { mergedMap[name] = true; });
+    saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
     visible.forEach(function (name) {
-        if (!mergedMap[name]) {
-            mergedMap[name] = true;
+        var lowerName = name.toLowerCase();
+        if (!mergedMap[lowerName]) {
+            mergedMap[lowerName] = true;
             addedCount++;
         }
     });
@@ -78,7 +78,7 @@ function getNonExcludedVisibleHotels(visible) {
 
 function removeHotel(name) {
     var currentSaved = getSavedList();
-    var newSaved = currentSaved.filter(function(n) { return n !== name; });
+    var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.toLowerCase(); });
     setSavedList(newSaved);
 }
 
@@ -167,3 +167,20 @@ const mockCard2 = {
 const name = getHotelNameFromCard(mockCard2);
 assert.strictEqual(name, 'hotel name');
 console.log('Test 6 passed!');
+
+// Test 7: Case-insensitive removal and merging
+console.log('Testing case-insensitive operations...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 'Hotel B']));
+removeHotel('hotel a');
+assert.deepStrictEqual(getSavedList(), ['Hotel B']);
+console.log('Test 7 passed!');
+
+// Test 8: Case-insensitive merge
+console.log('Testing case-insensitive merge...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+const res3 = mergeSavedWithVisible(['Hotel A', 'HOTEL B']);
+assert.strictEqual(res3.addedCount, 1);
+assert.strictEqual(res3.savedCount, 2);
+console.log('Test 8 passed!');
