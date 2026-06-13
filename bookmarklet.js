@@ -302,6 +302,18 @@
 
     panel.addEventListener('mouseleave', function () { setHoverListVisible(false); });
 
+    var debounceTimeout;
+    var observer = new MutationObserver(function() {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(function() {
+            applyDimming();
+        }, 500);
+    });
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
     panel.appendChild(hoverList);
     document.body.appendChild(panel);
     updateStatus();
