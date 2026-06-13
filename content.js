@@ -100,7 +100,7 @@
             mergeSavedWithVisible: mergeSavedWithVisible,
             removeHotel: function(name) {
                 var currentSaved = getSavedList();
-                var newSaved = currentSaved.filter(function(n) { return n !== name; });
+                var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.toLowerCase(); });
                 setSavedList(newSaved);
                 applyDimming();
                 updateStatus();
