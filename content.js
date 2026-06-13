@@ -317,6 +317,19 @@
         panel.addEventListener('mouseleave', function () { setHoverListVisible(false); });
 
         panel.appendChild(hoverList);
+
+        var debounceTimeout;
+        var observer = new MutationObserver(function() {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(function() {
+                core.applyDimming();
+            }, 500);
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
         document.body.appendChild(panel);
         core.updateStatus();
     }
