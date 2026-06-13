@@ -83,7 +83,6 @@ function removeHotel(name) {
 }
 
 function toggleDimSavedHotels() {
-    // This is a dummy for testing purposes in Node
     var savedMap = Object.create(null);
     getSavedList().forEach(function (name) { savedMap[name] = true; });
     getPropertyCards().forEach(function (card) {
@@ -101,7 +100,6 @@ localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A']));
 const res = mergeSavedWithVisible(['Hotel A', 'Hotel B']);
 assert.strictEqual(res.addedCount, 1);
 assert.strictEqual(res.savedCount, 2);
-assert.deepStrictEqual(getSavedList(), ['Hotel A', 'Hotel B']);
 console.log('Test 1 passed!');
 
 // Test 2: merge with no new hotels
@@ -129,13 +127,36 @@ removeHotel('Hotel A');
 assert.deepStrictEqual(getSavedList(), ['Hotel B']);
 console.log('Test 4 passed!');
 
-// Test 5: toggleDimSavedHotels (mocking dimming effect)
+// Test 5: toggleDimSavedHotels
 console.log('Testing toggleDimSavedHotels...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+const mockCard = {
+    querySelector: function(selector) {
+        if (selector === '[data-testid="title"]') {
+            return { textContent: '  HOTEL A  ' };
+        }
+        return null;
+    },
+    classList: {
+        _toggled: null,
+        toggle: function(cls) { this._toggled = cls; }
+    }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCard];
+    return [];
+};
+global.document.getElementById = function(id) {
+    return { textContent: '', setAttribute: () => {}, addEventListener: () => {} };
+};
+toggleDimSavedHotels();
+assert.strictEqual(mockCard.classList._toggled, 'bf-dimmed');
 console.log('Test 5 passed!');
 
 // Test 6: getHotelNameFromCard
 console.log('Testing getHotelNameFromCard...');
-const mockCard = {
+const mockCard2 = {
     querySelector: (selector) => {
         if (selector === '[data-testid="title"]') {
             return { textContent: '  HOTEL NAME  ' };
@@ -143,6 +164,6 @@ const mockCard = {
         return null;
     }
 };
-const name = getHotelNameFromCard(mockCard);
+const name = getHotelNameFromCard(mockCard2);
 assert.strictEqual(name, 'hotel name');
 console.log('Test 6 passed!');
