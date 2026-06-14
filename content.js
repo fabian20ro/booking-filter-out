@@ -127,6 +127,7 @@
 
             var msgBox = document.createElement('div');
             msgBox.id = 'bf-toast';
+            msgBox.className = 'bf-toast';
             msgBox.textContent = message;
             msgBox.setAttribute('role', 'status');
             msgBox.setAttribute('aria-live', 'polite');
