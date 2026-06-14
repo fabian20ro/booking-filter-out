@@ -130,6 +130,9 @@
             msgBox.textContent = message;
             msgBox.setAttribute('role', 'status');
             msgBox.setAttribute('aria-live', 'polite');
+            msgBox.setAttribute('aria-atomic', 'true');
+            msgBox.setAttribute('tabindex', '0');
+            msgBox.setAttribute('aria-controls', 'hover-hotel-list');
             document.body.appendChild(msgBox);
 
             setTimeout(function () {
