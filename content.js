@@ -348,4 +348,3 @@
 
     createUI(createCore());
 })();
-// routine check
