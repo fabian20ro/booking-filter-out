@@ -307,6 +307,8 @@
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             status.click();
+        } else if (event.key === 'Escape') {
+            setHoverListVisible(false);
         }
     });
 
