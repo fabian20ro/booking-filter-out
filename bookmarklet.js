@@ -108,15 +108,19 @@
         var old = document.getElementById('bf-toast');
         if (old && old.parentNode) old.parentNode.removeChild(old);
 
-        var msgBox = document.createElement('div');
-        msgBox.id = 'bf-toast';
-        msgBox.textContent = message;
-        msgBox.setAttribute('role', 'status');
-        msgBox.setAttribute('aria-live', 'polite');
-        document.body.appendChild(msgBox);
+        var toast = document.createElement('div');
+        toast.id = 'bf-toast';
+        toast.className = 'bf-toast';
+        toast.textContent = message;
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.setAttribute('tabindex', '0');
+        toast.setAttribute('aria-controls', 'hover-hotel-list');
+        document.body.appendChild(toast);
 
         setTimeout(function () {
-            if (msgBox.parentNode) msgBox.parentNode.removeChild(msgBox);
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
         }, 3000);
     }
 
