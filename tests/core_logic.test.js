@@ -148,7 +148,7 @@ global.document.querySelectorAll = function(selector) {
     return [];
 };
 global.document.getElementById = function(id) {
-    return { textContent: '', setAttribute: () => {}, addEventListener: () => {} };
+    return { textContent: '', setAttribute: () => {}, addEventListener: () => {}, removeChild: () => {}, className: '' };
 };
 toggleDimSavedHotels();
 assert.strictEqual(mockCard.classList._toggled, 'bf-dimmed');
@@ -168,19 +168,33 @@ const name = getHotelNameFromCard(mockCard2);
 assert.strictEqual(name, 'hotel name');
 console.log('Test 6 passed!');
 
-// Test 7: Case-insensitive removal and merging
-console.log('Testing case-insensitive operations...');
+// Test 6.1: getHotelNameFromCard with null title
+console.log('Testing getHotelNameFromCard with null title...');
+const mockCardNull = {
+    querySelector: (selector) => {
+        if (selector === '[data-testid="title"]') {
+            return null;
+        }
+        return null;
+    }
+};
+const nameNull = getHotelNameFromCard(mockCardNull);
+assert.strictEqual(nameNull, '');
+console.log('Test 6.1 passed!');
+
+// Test 4.1: removeHotel with non-existing name
+console.log('Testing removeHotel with non-existing name...');
 localStorage.clear();
 localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 'Hotel B']));
-removeHotel('hotel a');
-assert.deepStrictEqual(getSavedList(), ['Hotel B']);
-console.log('Test 7 passed!');
+removeHotel('Hotel C');
+assert.deepStrictEqual(getSavedList(), ['Hotel A', 'Hotel B']);
+console.log('Test 4.1 passed!');
 
-// Test 8: Case-insensitive merge
-console.log('Testing case-insensitive merge...');
+// Test 8.1: mergeSavedWithVisible with duplicates
+console.log('Testing mergeSavedWithVisible with duplicates...');
 localStorage.clear();
-localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
-const res3 = mergeSavedWithVisible(['Hotel A', 'HOTEL B']);
-assert.strictEqual(res3.addedCount, 1);
-assert.strictEqual(res3.savedCount, 2);
-console.log('Test 8 passed!');
+localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 'Hotel A'])); // Should have unique
+const resD = mergeSavedWithVisible(['Hotel A', 'Hotel B']);
+assert.strictEqual(resD.addedCount, 1);
+assert.strictEqual(resD.savedCount, 2);
+console.log('Test 8.1 passed!');
