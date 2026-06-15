@@ -53,10 +53,11 @@
         var visible = getVisibleHotelNames();
         var saved = getSavedList();
         var addedCount = 0;
-        saved.forEach(function (name) { mergedMap[name] = true; });
+        saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
         visible.forEach(function (name) {
-            if (!mergedMap[name]) {
-                mergedMap[name] = true;
+            var lowerName = name.toLowerCase();
+            if (!mergedMap[lowerName]) {
+                mergedMap[lowerName] = true;
                 addedCount++;
             }
         });
