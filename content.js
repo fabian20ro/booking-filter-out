@@ -1,3 +1,4 @@
+// Parity check
 (function () {
     if (window.__bookingFilterInit) return;
     window.__bookingFilterInit = true;
@@ -119,7 +120,7 @@
 
     function createUI(core) {
         var style = document.createElement('style');
-        style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}#animal-filter-panel button{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:20px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}#animal-filter-panel button:active{background:#dde6ff;transform:scale(.95)}#hotel-list-status{min-height:44px;min-width:50px;padding:0 10px;display:flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}#hover-hotel-list{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:260px;max-height:200px;overflow-y:auto;padding:10px;border:1px solid #c8d7ff;border-radius:10px;background:#fff;color:#163680;font-size:12px;box-shadow:0 4px 12px rgba(31,71,161,.12)}#bf-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#444;color:#fff;padding:10px 20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:10001;font:14px -apple-system,BlinkMacSystemFont,sans-serif} .bf-dimmed { opacity: 0.2 !important; }';
+        style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}#animal-filter-panel button{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:20px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}#animal-filter-panel button:active{background:#dde6ff;transform:scale(.95)}#hotel-list-status{min-height:44px;min-width:50px;padding:0 10px;display:flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}#hover-hotel-list{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:260px;max-height:200px;overflow-y:auto;padding:10px;border:1px solid #c8d7ff;border-radius:10px;background:#fff;color:#163680;font-size:12px;box-shadow:0 4px 12px rgba(31,71,161,.12)}#bf-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#444;color:#fff;padding:10px 20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:10001;font:14px -apple-system,BlinkMacSystemFont,sans-serif}.bf-dimmed { opacity: 0.2 !important; }';
         document.head.appendChild(style);
 
         function showMessage(message) {
@@ -158,92 +159,6 @@
             return button;
         }
 
-        function renderSavedList(listEl, filter) {
-            var ul = listEl.querySelector('ul');
-            if (ul) {
-                ul.innerHTML = '';
-            } else {
-                ul = document.createElement('ul');
-                listEl.appendChild(ul);
-            }
-            var saved = getSavedList();
-            if (!saved.length) {
-                var empty = document.createElement('li');
-                empty.innerHTML = '<i>No hotels saved</i>';
-                ul.appendChild(empty);
-                return;
-            }
-            var items = saved.filter(function (name) {
-                return name.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
-            });
-            if (items.length === 0) {
-                var noMatch = document.createElement('li');
-                noMatch.textContent = 'No matches';
-                ul.appendChild(noMatch);
-                return;
-            }
-            items.forEach(function (name) {
-                var li = document.createElement('li');
-                li.style.display = 'flex';
-                li.style.justifyContent = 'space-between';
-                li.style.alignItems = 'center';
-
-                var span = document.createElement('span');
-                span.textContent = name;
-                li.appendChild(span);
-
-                var btn = document.createElement('button');
-                btn.textContent = '×';
-                btn.style.border = 'none';
-                btn.style.background = 'none';
-                btn.style.color = '#ff4d4f';
-                btn.style.cursor = 'pointer';
-                btn.style.padding = '0 4px';
-                btn.style.fontSize = '16px';
-                btn.onclick = function() {
-                    core.removeHotel(name);
-                    renderSavedList(listEl, filter);
-                };
-                li.appendChild(btn);
-
-                ul.appendChild(li);
-            });
-        }
-
-        function copyText(text, onDone, onFail) {
-            if (!text || text.length === 0) {
-                showMessage('No hotels to copy.');
-                return;
-            }
-            var count = text.split('\n').length;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(function () {
-                    if (onDone) onDone(count);
-                }, function () {
-                    if (onFail) onFail(count);
-                    else fallbackCopy(text, count);
-                });
-            } else {
-                fallbackCopy(text, count);
-            }
-        }
-
-        function fallbackCopy(text, count) {
-            var ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.top = '-2000px';
-            document.body.appendChild(ta);
-            ta.focus();
-            ta.select();
-            try {
-                document.execCommand('copy');
-            } catch (e) {
-                // fail silently
-            }
-            if (ta.parentNode) ta.parentNode.removeChild(ta);
-        }
-
         var panel = document.createElement('div');
         panel.id = 'animal-filter-panel';
 
@@ -261,6 +176,7 @@
         var hoverList = document.createElement('div');
         hoverList.id = 'hover-hotel-list';
         hoverList.setAttribute('aria-hidden', 'true');
+        hoverList.setAttribute('aria-controls', 'hover-hotel-list');
 
         var filterInput = document.createElement('input');
         filterInput.type = 'text';
@@ -330,19 +246,6 @@
         panel.addEventListener('mouseleave', function () { setHoverListVisible(false); });
 
         panel.appendChild(hoverList);
-
-        var debounceTimeout;
-        var observer = new MutationObserver(function() {
-            clearTimeout(debounceTimeout);
-            debounceTimeout = setTimeout(function() {
-                core.applyDimming();
-            }, 500);
-        });
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-
         document.body.appendChild(panel);
         core.updateStatus();
     }
