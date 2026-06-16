@@ -20,13 +20,14 @@
 
     function removeHotel(name) {
         var currentSaved = getSavedList();
-        var newSaved = currentSaved.filter(function(n) { return n !== name; });
+        var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.toLowerCase(); });
         setSavedList(newSaved);
         applyDimming();
+        updateStatus();
     }
 
     function setSavedList(list) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(function(s) { return s.toLowerCase(); })));
     }
 
     function getPropertyCards() {
@@ -35,7 +36,7 @@
 
     function getHotelNameFromCard(card) {
         var t = card.querySelector(SELECTORS.title);
-        return t ? t.textContent.trim() : '';
+        return t ? t.textContent.trim().toLowerCase() : '';
     }
 
     function getVisibleHotelNames() {
@@ -52,10 +53,11 @@
         var visible = getVisibleHotelNames();
         var saved = getSavedList();
         var addedCount = 0;
-        saved.forEach(function (name) { mergedMap[name] = true; });
+        saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
         visible.forEach(function (name) {
-            if (!mergedMap[name]) {
-                mergedMap[name] = true;
+            var lowerName = name.toLowerCase();
+            if (!mergedMap[lowerName]) {
+                mergedMap[lowerName] = true;
                 addedCount++;
             }
         });
@@ -94,6 +96,7 @@
         getPropertyCards().forEach(function (card) {
             card.classList.remove('bf-dimmed');
         });
+        updateStatus();
     }
 
     function getNonExcludedVisibleHotels() {
@@ -106,15 +109,19 @@
         var old = document.getElementById('bf-toast');
         if (old && old.parentNode) old.parentNode.removeChild(old);
 
-        var msgBox = document.createElement('div');
-        msgBox.id = 'bf-toast';
-        msgBox.textContent = message;
-        msgBox.setAttribute('role', 'status');
-        msgBox.setAttribute('aria-live', 'polite');
-        document.body.appendChild(msgBox);
+        var toast = document.createElement('div');
+        toast.id = 'bf-toast';
+        toast.className = 'bf-toast';
+        toast.textContent = message;
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.setAttribute('tabindex', '0');
+        toast.setAttribute('aria-controls', 'hover-hotel-list');
+        document.body.appendChild(toast);
 
         setTimeout(function () {
-            if (msgBox.parentNode) msgBox.parentNode.removeChild(msgBox);
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
         }, 3000);
     }
 
@@ -182,6 +189,12 @@
         button.title = text;
         button.setAttribute('aria-label', text);
         button.addEventListener('click', onClick);
+        if (id === 'save-animals-btn') {
+            button.addEventListener('mouseenter', function() { button.style.opacity = '0.7'; });
+            button.addEventListener('mouseleave', function() { button.style.opacity = '1.0'; });
+            button.addEventListener('focus', function() { button.style.opacity = '0.7'; });
+            button.addEventListener('blur', function() { button.style.opacity = '1.0'; });
+        }
         return button;
     }
 
@@ -268,7 +281,7 @@
             if (!saved.length) { showMessage('No hotels to copy.'); return; }
             copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel names.')}, null);
         }],
-        ['Copy non-excluded hotels', '\uD83D\uDCCA', 'copy-non-excluded-btn', function () {
+        ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function () {
             var nonExcluded = getNonExcludedVisibleHotels();
             if (!nonExcluded.length) { showMessage('No non-excluded hotels to copy.'); return; }
             copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);
@@ -279,7 +292,7 @@
             updateStatus();
             if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
             showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
-        }]
+        }],
     ];
 
     buttonsConfig.forEach(function(b) {
@@ -295,10 +308,24 @@
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             status.click();
+        } else if (event.key === 'Escape') {
+            setHoverListVisible(false);
         }
     });
 
     panel.addEventListener('mouseleave', function () { setHoverListVisible(false); });
+
+    var debounceTimeout;
+    var observer = new MutationObserver(function() {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(function() {
+            applyDimming();
+        }, 500);
+    });
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 
     panel.appendChild(hoverList);
     document.body.appendChild(panel);

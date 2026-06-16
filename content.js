@@ -18,7 +18,7 @@
         }
 
         function setSavedList(list) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(function(s) { return s.toLowerCase(); })));
         }
 
         function getPropertyCards() {
@@ -27,7 +27,7 @@
 
         function getHotelNameFromCard(card) {
             var t = card.querySelector(SELECTORS.title);
-            return t ? t.textContent.trim() : '';
+            return t ? t.textContent.trim().toLowerCase() : '';
         }
 
         function getVisibleHotelNames() {
@@ -44,10 +44,11 @@
             var visible = getVisibleHotelNames();
             var saved = getSavedList();
             var addedCount = 0;
-            saved.forEach(function (name) { mergedMap[name] = true; });
+            saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
             visible.forEach(function (name) {
-                if (!mergedMap[name]) {
-                    mergedMap[name] = true;
+                var lowerName = name.toLowerCase();
+                if (!mergedMap[lowerName]) {
+                    mergedMap[lowerName] = true;
                     addedCount++;
                 }
             });
@@ -86,6 +87,7 @@
             getPropertyCards().forEach(function (card) {
                 card.classList.remove('bf-dimmed');
             });
+            updateStatus();
         }
 
         function getNonExcludedVisibleHotels() {
@@ -99,9 +101,10 @@
             mergeSavedWithVisible: mergeSavedWithVisible,
             removeHotel: function(name) {
                 var currentSaved = getSavedList();
-                var newSaved = currentSaved.filter(function(n) { return n !== name; });
+                var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.toLowerCase(); });
                 setSavedList(newSaved);
                 applyDimming();
+                updateStatus();
             },
             applyDimming: applyDimming,
             toggleDimSavedHotels: toggleDimSavedHotels,
@@ -125,9 +128,13 @@
 
             var msgBox = document.createElement('div');
             msgBox.id = 'bf-toast';
+            msgBox.className = 'bf-toast';
             msgBox.textContent = message;
             msgBox.setAttribute('role', 'status');
             msgBox.setAttribute('aria-live', 'polite');
+            msgBox.setAttribute('aria-atomic', 'true');
+            msgBox.setAttribute('tabindex', '0');
+            msgBox.setAttribute('aria-controls', 'hover-hotel-list');
             document.body.appendChild(msgBox);
 
             setTimeout(function () {
@@ -142,6 +149,12 @@
             button.title = text;
             button.setAttribute('aria-label', text);
             button.addEventListener('click', onClick);
+            if (id === 'save-animals-btn') {
+                button.addEventListener('mouseenter', function() { button.style.opacity = '0.7'; });
+                button.addEventListener('mouseleave', function() { button.style.opacity = '1.0'; });
+                button.addEventListener('focus', function() { button.style.opacity = '0.7'; });
+                button.addEventListener('blur', function() { button.style.opacity = '1.0'; });
+            }
             return button;
         }
 
@@ -280,7 +293,7 @@
                 if (!saved.length) { showMessage('No hotels to copy.'); return; }
                 copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel names.')}, null);
             }],
-            ['Copy non-excluded hotels', '\uD83D\uDCCA', 'copy-non-excluded-btn', function () {
+            ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function () {
                 var nonExcluded = core.getNonExcludedVisibleHotels();
                 if (!nonExcluded.length) { showMessage('No non-excluded hotels to copy.'); return; }
                 copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);
@@ -309,12 +322,27 @@
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 status.click();
+            } else if (event.key === 'Escape') {
+                setHoverListVisible(false);
             }
         });
 
         panel.addEventListener('mouseleave', function () { setHoverListVisible(false); });
 
         panel.appendChild(hoverList);
+
+        var debounceTimeout;
+        var observer = new MutationObserver(function() {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(function() {
+                core.applyDimming();
+            }, 500);
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
         document.body.appendChild(panel);
         core.updateStatus();
     }
