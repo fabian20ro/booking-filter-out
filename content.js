@@ -248,6 +248,70 @@
         panel.appendChild(hoverList);
         document.body.appendChild(panel);
         core.updateStatus();
+
+        function renderSavedList(listEl, filter) {
+            var ul = listEl.querySelector('ul');
+            if (ul) {
+                ul.innerHTML = '';
+            } else {
+                ul = document.createElement('ul');
+                listEl.appendChild(ul);
+            }
+            var saved = core.getSavedList();
+            if (!saved.length) {
+                var empty = document.createElement('li');
+                empty.innerHTML = '<i>No hotels saved</i>';
+                ul.appendChild(empty);
+                return;
+            }
+            var items = saved.filter(function (name) {
+                return name.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+            });
+            if (items.length === 0) {
+                var noMatch = document.createElement('li');
+                noMatch.textContent = 'No matches';
+                ul.appendChild(noMatch);
+                return;
+            }
+            items.forEach(function (name) {
+                var li = document.createElement('li');
+                li.style.display = 'flex';
+                li.style.justifyContent = 'space-between';
+                li.style.alignItems = 'center';
+
+                var span = document.createElement('span');
+                span.textContent = name;
+                li.appendChild(span);
+
+                var btn = document.createElement('button');
+                btn.textContent = '×';
+                btn.style.border = 'none';
+                btn.style.background = 'none';
+                btn.style.color = '#ff4d4f';
+                btn.style.cursor = 'pointer';
+                btn.style.padding = '0 4px';
+                btn.style.fontSize = '16px';
+                btn.onclick = function() {
+                    core.removeHotel(name);
+                    renderSavedList(listEl, filter);
+                };
+                li.appendChild(btn);
+
+                ul.appendChild(li);
+            });
+        }
+
+        var debounceTimeout;
+        var observer = new MutationObserver(function() {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(function() {
+                core.applyDimming();
+            }, 500);
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
     }
 
     createUI(createCore());
