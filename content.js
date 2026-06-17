@@ -312,6 +312,40 @@
             childList: true,
             subtree: true
         });
+
+        function copyText(text, onDone, onFail) {
+            if (!text || text.length === 0) {
+                showMessage('No hotels to copy.');
+                return;
+            }
+            var count = text.split('\n').length;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function () {
+                    if (onDone) onDone(count);
+                }, function () {
+                    if (onFail) onFail(count);
+                    else fallbackCopy(text, count);
+                });
+            } else {
+                fallbackCopy(text, count);
+            }
+        }
+
+        function fallbackCopy(text, count) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.top = '-2000px';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                document.execCommand('copy');
+            } catch (e) {
+                // fail silently
+            }
+            if (ta.parentNode) ta.parentNode.removeChild(ta);
+        }
     }
 
     createUI(createCore());
