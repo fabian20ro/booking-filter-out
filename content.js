@@ -272,7 +272,7 @@
                 noMatch.textContent = 'No matches';
                 ul.appendChild(noMatch);
                 return;
-            }
+            |
             items.forEach(function (name) {
                 var li = document.createElement('li');
                 li.style.display = 'flex';
@@ -317,7 +317,7 @@
             if (!text || text.length === 0) {
                 showMessage('No hotels to copy.');
                 return;
-            }
+            |
             var count = text.split('\n').length;
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(text).then(function () {
