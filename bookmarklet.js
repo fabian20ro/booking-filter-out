@@ -190,10 +190,10 @@
         button.setAttribute('aria-label', text);
         button.addEventListener('click', onClick);
         if (id === 'save-animals-btn') {
-            button.addEventListener('mouseenter', function() { button.style.opacity = '0.7'; });
-            button.addEventListener('mouseleave', function() { button.style.opacity = '1.0'; });
-            button.addEventListener('focus', function() { button.style.opacity = '0.7'; });
-            button.addEventListener('blur', function() { button.style.opacity = '1.0'; });
+            btn.addEventListener('mouseenter', function() { btn.style.opacity = '0.7'; });
+            btn.addEventListener('mouseleave', function() { btn.style.opacity = '1.0'; });
+            btn.addEventListener('focus', function() { btn.style.opacity = '0.7'; });
+            btn.addEventListener('blur', function() { btn.style.opacity = '1.0'; });
         }
         return button;
     }
