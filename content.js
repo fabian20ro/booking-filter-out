@@ -99,7 +99,7 @@
 
         function updateStatus() {
             var status = document.getElementById('hotel-list-status');
-            if (status) status.textContent = getSavedList().length + ' saved';
+            if (status) status.textContent = getSavedList().length + ' hotels saved';
         }
 
         return {
