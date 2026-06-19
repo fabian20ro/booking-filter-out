@@ -97,6 +97,11 @@
             return getVisibleHotelNames().filter(function (name) { return !savedMap[name]; });
         }
 
+        function updateStatus() {
+            var status = document.getElementById('hotel-list-status');
+            if (status) status.textContent = getSavedList().length + ' hotels saved';
+        }
+
         return {
             getSavedList: getSavedList,
             mergeSavedWithVisible: mergeSavedWithVisible,
@@ -111,10 +116,7 @@
             toggleDimSavedHotels: toggleDimSavedHotels,
             clearSavedList: clearSavedList,
             getNonExcludedVisibleHotels: getNonExcludedVisibleHotels,
-            updateStatus: function() {
-                var status = document.getElementById('hotel-list-status');
-                if (status) status.textContent = getSavedList().length + ' saved';
-            }
+            updateStatus: updateStatus
         };
     }
 
@@ -170,6 +172,7 @@
         status.setAttribute('tabindex', '0');
         status.setAttribute('aria-controls', 'hover-hotel-list');
         status.setAttribute('aria-expanded', 'false');
+        status.setAttribute('title', 'Click to toggle list');
         status.style.cursor = 'pointer';
         panel.appendChild(status);
 

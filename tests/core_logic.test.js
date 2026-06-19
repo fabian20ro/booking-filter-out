@@ -76,12 +76,19 @@ function getNonExcludedVisibleHotels(visible) {
     return visible.filter(function (name) { return !savedMap[name]; });
 }
 
-function removeHotel(name) {
+async function removeHotel(name) {
     var currentSaved = getSavedList();
     var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.toLowerCase(); });
     setSavedList(newSaved);
 }
 
+// Test 4: removeHotel
+console.log('Testing removeHotel...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 'Hotel B']));
+removeHotel('Hotel A');
+assert.deepStrictEqual(getSavedList(), ['Hotel B']);
+console.log('Test 4 passed!');
 function toggleDimSavedHotels() {
     var savedMap = Object.create(null);
     getSavedList().forEach(function (name) { savedMap[name] = true; });

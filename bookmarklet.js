@@ -127,7 +127,7 @@
 
     function updateStatus() {
         var el = document.getElementById('hotel-list-status');
-        if (el) el.textContent = getSavedList().length + ' saved';
+        if (el) el.textContent = getSavedList().length + ' hotels saved';
     }
 
     function renderSavedList(listEl, filter) {
@@ -243,7 +243,8 @@
     status.setAttribute('tabindex', '0');
     status.setAttribute('aria-controls', 'hover-hotel-list');
     status.setAttribute('aria-expanded', 'false');
-    status.style.cursor = 'pointer';
+            status.setAttribute('title', 'Click to toggle list');
+            status.style.cursor = 'pointer';
     panel.appendChild(status);
 
     var hoverList = document.createElement('div');
