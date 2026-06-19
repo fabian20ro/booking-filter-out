@@ -243,7 +243,8 @@
     status.setAttribute('tabindex', '0');
     status.setAttribute('aria-controls', 'hover-hotel-list');
     status.setAttribute('aria-expanded', 'false');
-    status.style.cursor = 'pointer';
+            status.setAttribute('title', 'Click to toggle list');
+            status.style.cursor = 'pointer';
     panel.appendChild(status);
 
     var hoverList = document.createElement('div');

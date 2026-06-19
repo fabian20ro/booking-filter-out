@@ -172,6 +172,7 @@
         status.setAttribute('tabindex', '0');
         status.setAttribute('aria-controls', 'hover-hotel-list');
         status.setAttribute('aria-expanded', 'false');
+        status.setAttribute('title', 'Click to toggle list');
         status.style.cursor = 'pointer';
         panel.appendChild(status);
 
