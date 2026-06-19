@@ -127,7 +127,7 @@
 
     function updateStatus() {
         var el = document.getElementById('hotel-list-status');
-        if (el) el.textContent = getSavedList().length + ' saved';
+        if (el) el.textContent = getSavedList().length + ' hotels saved';
     }
 
     function renderSavedList(listEl, filter) {
