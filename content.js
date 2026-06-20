@@ -12,7 +12,8 @@
     function createCore() {
         function getSavedList() {
             try {
-                return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                var list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                return Array.isArray(list) ? list : [];
             } catch (e) {
                 return [];
             }
