@@ -12,7 +12,8 @@
 
     function getSavedList() {
         try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            var list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            return Array.isArray(list) ? list : [];
         } catch (e) {
             return [];
         }
@@ -27,7 +28,11 @@
     }
 
     function setSavedList(list) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(function(s) { return s.toLowerCase(); })));
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(function(s) { return s.toLowerCase(); })));
+        } catch (e) {
+            console.error('Booking Filter: Failed to save list', e);
+        }
     }
 
     function getPropertyCards() {
@@ -127,7 +132,10 @@
 
     function updateStatus() {
         var el = document.getElementById('hotel-list-status');
-        if (el) el.textContent = getSavedList().length + ' hotels saved';
+        if (el) {
+            var count = getSavedList().length;
+            el.textContent = count === 0 ? 'No hotels saved' : count + ' hotels saved';
+        }
     }
 
     function renderSavedList(listEl, filter) {
@@ -243,8 +251,8 @@
     status.setAttribute('tabindex', '0');
     status.setAttribute('aria-controls', 'hover-hotel-list');
     status.setAttribute('aria-expanded', 'false');
-            status.setAttribute('title', 'Click to toggle list');
-            status.style.cursor = 'pointer';
+    status.setAttribute('title', 'Click to toggle list');
+    status.style.cursor = 'pointer';
     panel.appendChild(status);
 
     var hoverList = document.createElement('div');

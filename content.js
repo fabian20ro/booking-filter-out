@@ -12,14 +12,19 @@
     function createCore() {
         function getSavedList() {
             try {
-                return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                var list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                return Array.isArray(list) ? list : [];
             } catch (e) {
                 return [];
             }
         }
 
         function setSavedList(list) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(function(s) { return s.toLowerCase(); })));
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(function(s) { return s.toLowerCase(); })));
+            } catch (e) {
+                console.error('Booking Filter: Failed to save list', e);
+            }
         }
 
         function getPropertyCards() {
@@ -99,7 +104,10 @@
 
         function updateStatus() {
             var status = document.getElementById('hotel-list-status');
-            if (status) status.textContent = getSavedList().length + ' hotels saved';
+            if (status) {
+                var count = getSavedList().length;
+                status.textContent = count === 0 ? 'No hotels saved' : count + ' hotels saved';
+            }
         }
 
         return {
