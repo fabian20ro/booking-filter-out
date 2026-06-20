@@ -1,7 +1,7 @@
 (function () {
     if (document.getElementById('animal-filter-panel')) return;
 
-    style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}[data-testid="property-card"]{transition:opacity 0.3s ease}.bf-dimmed { opacity: 0.2 !important; }';
+    var style = document.createElement('style'); style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}[data-testid="property-card"]{transition:opacity 0.3s ease}.bf-dimmed { opacity: 0.2 !important; }';
     document.head.appendChild(style);
     var SELECTORS = {
         propertyCard: '[data-testid="property-card"]',
@@ -47,7 +47,7 @@
         var names = [];
         getPropertyCards().forEach(function (card) {
             var name = getHotelNameFromCard(card);
-            if (name) names.push(name);
+            if (name && names.indexOf(name) === -1) names.push(name);
         });
         return names;
     }

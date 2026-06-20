@@ -40,7 +40,7 @@
             var names = [];
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
-                if (name) names.push(name);
+                if (name && names.indexOf(name) === -1) names.push(name);
             });
             return names;
         }
