@@ -104,7 +104,10 @@
 
         function updateStatus() {
             var status = document.getElementById('hotel-list-status');
-            if (status) status.textContent = getSavedList().length + ' hotels saved';
+            if (status) {
+                var count = getSavedList().length;
+                status.textContent = count === 0 ? 'No hotels saved' : count + ' hotels saved';
+            }
         }
 
         return {
