@@ -20,7 +20,11 @@
         }
 
         function setSavedList(list) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(function(s) { return s.toLowerCase(); })));
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(function(s) { return s.toLowerCase(); })));
+            } catch (e) {
+                console.error('Booking Filter: Failed to save list', e);
+            }
         }
 
         function getPropertyCards() {
