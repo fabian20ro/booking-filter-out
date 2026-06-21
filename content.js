@@ -226,6 +226,7 @@
                 copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);
             }],
             ['Clear hotel filter list', '\uD83E\uDDF9', 'clear-animals-btn', function () {
+                if (!confirm('Are you sure you want to clear the hotel filter list?')) return;
                 var hadSavedList = core.getSavedList().length > 0;
                 core.clearSavedList();
                 core.updateStatus();
