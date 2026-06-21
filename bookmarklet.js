@@ -77,9 +77,13 @@
         getPropertyCards().forEach(function (card) {
             var name = getHotelNameFromCard(card);
             if (name && savedMap[name]) {
-                card.classList.add('bf-dimmed');
+                if (!card.classList.contains('bf-dimmed')) {
+                    card.classList.add('bf-dimmed');
+                }
             } else {
-                card.classList.remove('bf-dimmed');
+                if (card.classList.contains('bf-dimmed')) {
+                    card.classList.remove('bf-dimmed');
+                }
             }
         });
     }
