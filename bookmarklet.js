@@ -148,7 +148,7 @@
         var saved = getSavedList();
         if (!saved.length) {
             var empty = document.createElement('li');
-            empty.innerHTML = '<i>No hotels saved</it>';
+            empty.innerHTML = '<i>No hotels saved</i>';
             ul.appendChild(empty);
             return;
         }
