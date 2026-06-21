@@ -249,10 +249,14 @@
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 status.click();
-            } else if (event.key === 'Escape') {
-                setHoverListVisible(false);
             }
         });
+
+        panel.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                setHoverListVisible(false);
+            }
+        }, true);
 
         panel.addEventListener('mouseleave', function () { setHoverListVisible(false); });
 
