@@ -184,6 +184,7 @@
             btn.style.padding = '0 4px';
             btn.style.fontSize = '16px';
             btn.onclick = function() {
+                if (!confirm('Remove ' + name + ' from the list?')) return;
                 removeHotel(name);
                 renderSavedList(listEl, filter);
             };
