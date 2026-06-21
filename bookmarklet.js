@@ -148,7 +148,7 @@
         var saved = getSavedList();
         if (!saved.length) {
             var empty = document.createElement('li');
-            empty.innerHTML = '<i>No hotels saved</i>';
+            empty.innerHTML = '<i>No hotels saved</it>';
             ul.appendChild(empty);
             return;
         }
@@ -295,6 +295,7 @@
             copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);
         }],
         ['Clear hotel filter list', '\uD83E\uDDF9', 'clear-animals-btn', function () {
+            if (!confirm('Are you sure you want to clear the hotel filter list?')) return;
             var hadSavedList = getSavedList().length > 0;
             clearSavedList();
             updateStatus();
