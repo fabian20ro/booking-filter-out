@@ -37,12 +37,12 @@
         }
 
         function getVisibleHotelNames() {
-            var names = [];
+            const names = new Set();
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
-                if (name && names.indexOf(name) === -1) names.push(name);
+                if (name) names.add(name);
             });
-            return names;
+            return Array.from(names);
         }
 
         function mergeSavedWithVisible() {
@@ -70,9 +70,13 @@
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
                 if (name && savedMap[name]) {
-                    card.classList.add('bf-dimmed');
+                    if (!card.classList.contains('bf-dimmed')) {
+                        card.classList.add('bf-dimmed');
+                    }
                 } else {
-                    card.classList.remove('bf-dimmed');
+                    if (card.classList.contains('bf-dimmed')) {
+                        card.classList.remove('bf-dimmed');
+                    }
                 }
             });
         }
@@ -124,13 +128,23 @@
             toggleDimSavedHotels: toggleDimSavedHotels,
             clearSavedList: clearSavedList,
             getNonExcludedVisibleHotels: getNonExcludedVisibleHotels,
-            updateStatus: updateStatus
+            updateStatus: updateStatus,
+            getDimmedHotelNames: function() {
+                var dimmedNames = new Set();
+                getPropertyCards().forEach(function(card) {
+                    if (card.classList.contains('bf-dimmed')) {
+                        var name = getHotelNameFromCard(card);
+                        if (name) dimmedNames.add(name);
+                    }
+                });
+                return Array.from(dimmedNames);
+            }
         };
     }
 
     function createUI(core) {
         var style = document.createElement('style');
-        style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}#animal-filter-panel button{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:20px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}#animal-filter-panel button:active{background:#dde6ff;transform:scale(.95)}#hotel-list-status{min-height:44px;min-width:50px;padding:0 10px;display:flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}#hover-hotel-list{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:260px;max-height:200px;overflow-y:auto;padding:10px;border:1px solid #c8d7ff;border-radius:10px;background:#fff;color:#163680;font-size:12px;box-shadow:0 4px 12px rgba(31,71,161,.12)}#bf-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#444;color:#fff;padding:10px 20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:10001;font:14px -apple-system,BlinkMacSystemFont,sans-serif}[data-testid="property-card"]{transition:opacity 0.3s ease}.bf-dimmed { opacity: 0.2 !important; }';
+        style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}#animal-filter-panel button{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:20px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}#animal-filter-panel button:active{background:#dde6ff;transform:scale(.95)}#hotel-list-status{min-height:44px;min-width:50px;padding:0 10px;display:flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}[data-testid="property-card"]{transition:opacity 0.3s ease}.bf-dimmed { opacity: 0.2 !important; }.bf-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#444;color:#fff;padding:10px 20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:10001;font:14px -apple-system,BlinkMacSystemFont,sans-serif}#hover-hotel-list{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:260px;max-height:200px;overflow-y-auto;padding:10px;border:1px solid #c8d7ff;border-radius:10px;background:#fff;color:#163680;font-size:12px;box-shadow:0 4px 12px rgba(31,71,161,.12);}';
         document.head.appendChild(style);
 
         function showMessage(message) {
@@ -226,11 +240,17 @@
                 copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);
             }],
             ['Clear hotel filter list', '\uD83E\uDDF9', 'clear-animals-btn', function () {
+                if (!confirm('Are you sure you want to clear the hotel filter list?')) return;
                 var hadSavedList = core.getSavedList().length > 0;
                 core.clearSavedList();
                 core.updateStatus();
                 if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
                 showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
+            }],
+            ['Copy dimmed hotels', '\uD83D\uDCCB', 'copy-dimmed-btn', function () {
+                var dimmed = core.getDimmedHotelNames();
+                if (!dimmed.length) { showMessage('No hotels currently dimmed.'); return; }
+                copyText(dimmed.join('\n'), function(c){showMessage('Copied '+c+' dimmed hotel names.');}, null);
             }]
         ];
 
@@ -307,6 +327,7 @@
                 btn.style.padding = '0 4px';
                 btn.style.fontSize = '16px';
                 btn.onclick = function() {
+                    if (!confirm('Remove ' + name + ' from the list?')) return;
                     core.removeHotel(name);
                     renderSavedList(listEl, filter);
                 };
