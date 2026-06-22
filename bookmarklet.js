@@ -1,7 +1,7 @@
 (function () {
     if (document.getElementById('animal-filter-panel')) return;
 
-    var style = document.createElement('style'); style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}#animal-filter-panel button{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:20px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}#animal-filter-panel button:active{background:#dde6ff;transform:scale(.95)}#hotel-list-status{min-height:44px;min-width:50px;padding:0 10px;display:flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}[data-testid="property-card"]{transition:opacity 0.3s ease}.bf-dimmed { opacity: 0.2 !important; }.bf-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#444;color:#fff;padding:10px 20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:10001;font:14px -apple-system,BlinkMacSystemFont,sans-serif}#hover-hotel-list{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:260px;max-height:200px;overflow-y:auto;padding:10px;border:1px solid #c8d7ff;border-radius:10px;background:#fff;color:#163680;font-size:12px;box-shadow:0 4px 12px rgba(31,71,161,.12);}.filter-input{width:100%;padding:6px;margin-bottom:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;font-size:12px;}';
+    var style = document.createElement('style'); style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}#animal-filter-panel button{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:20px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}#animal-filter-panel button:active{background:#dde6ff;transform:scale(.95)}#hotel-list-status{min-height:44px;min-width:50px;padding:0 10px;display:flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}[data-testid="property-card"]{transition:opacity 0.3s ease}.bf-dimmed { opacity: 0.2 !important; }.bf-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#444;color:#fff;padding:10px 20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:10001;font:14px -apple-system,BlinkMacSystemFont,sans-serif}#hover-hotel-list{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:260px;max-height:200px;overflow-y:auto;padding:10px;border:1px solid #c8dff;border-radius:10px;background:#fff;color:#163680;font-size:12px;box-shadow:0 4px 12px rgba(31,71,161,.12);}.filter-input{width:100%;padding:6px;margin-bottom:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;font-size:12px;}';
     document.head.appendChild(style);
     var SELECTORS = {
         propertyCard: '[data-testid="property-card"]',
@@ -126,27 +126,27 @@
         var old = document.getElementById('bf-toast');
         if (old && old.parentNode) old.parentNode.removeChild(old);
 
-        var toast = document.createElement('div');
-        toast.id = 'bf-toast';
-        toast.className = 'bf-toast';
-        toast.textContent = message;
-        toast.setAttribute('role', 'status');
-        toast.setAttribute('aria-live', 'polite');
-        toast.setAttribute('aria-atomic', 'true');
-        toast.setAttribute('tabindex', '0');
-        toast.setAttribute('aria-controls', 'hover-hotel-list');
-        document.body.appendChild(toast);
+        var msgBox = document.createElement('div');
+        msgBox.id = 'bf-toast';
+        msgBox.className = 'bf-toast';
+        msgBox.textContent = message;
+        msgBox.setAttribute('role', 'status');
+        msgBox.setAttribute('aria-live', 'polite');
+        msgBox.setAttribute('aria-atomic', 'true');
+        msgBox.setAttribute('tabindex', '0');
+        msgBox.setAttribute('aria-controls', 'hover-hotel-list');
+        document.body.appendChild(msgBox);
 
         setTimeout(function () {
-            if (toast.parentNode) toast.parentNode.removeChild(toast);
+            if (msgBox.parentNode) msgBox.parentNode.removeChild(msgBox);
         }, 3000);
     }
 
     function updateStatus() {
-        var el = document.getElementById('hotel-list-status');
-        if (el) {
+        var status = document.getElementById('hotel-list-status');
+        if (status) {
             var count = getSavedList().length;
-            el.textContent = count === 0 ? 'No hotels saved' : count + ' hotels saved';
+            status.textContent = count === 0 ? 'No hotels saved' : count + ' hotels saved';
         }
     }
 
@@ -194,7 +194,7 @@
             btn.style.fontSize = '16px';
             btn.onclick = function() {
                 if (!confirm('Remove ' + name + ' from the list?')) return;
-                removeHotel(name);
+                core.removeHotel(name);
                 renderSavedList(listEl, filter);
             };
             li.appendChild(btn);
@@ -289,40 +289,39 @@
 
     var buttonsConfig = [
         ['Add visible hotels', '\u2795', 'save-animals-btn', function () {
-            var result = mergeSavedWithVisible();
-            updateStatus();
+            var result = core.mergeSavedWithVisible();
+            core.updateStatus();
             if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
-            showMessage(result.addedCount ? ('Saved ' + result.addedCount + (result.addedCount === 1 ? ' hotel name.' : ' hotel names.')) : 'No new hotel names found.');
+            showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
         }],
-        ['Toggle dimming', '\u263C', 'toggle-dim-btn', function () {
-            var isDimmed = toggleDimSavedHotels();
-            var icon = isDimmed ? '\uD83C\uDF19' : '\uD83C\uDF1E';
-            var btn = document.getElementById('toggle-dim-btn');
-            if (btn) btn.textContent = icon;
-            showMessage('Dimming ' + (isDimmed ? 'ON' : 'OFF'));
+        ['Toggle dimming', '\uD83D\uDD0D', 'toggle-dim-btn', function () {
+            core.toggleDimSavedHotels();
+            showMessage('Toggled dimming.');
         }],
         ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function () {
-            var saved = getSavedList();
+            var saved = core.getSavedList();
             if (!saved.length) { showMessage('No hotels to copy.'); return; }
-            copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel name' + (c === 1 ? '' : 's') + '.')}, null);
+            copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel names.')}, null);
         }],
         ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function () {
-            var nonExcluded = getNonExcludedVisibleHotels();
+            var nonExcluded = core.getNonExcludedVisibleHotels();
             if (!nonExcluded.length) { showMessage('No non-excluded hotels to copy.'); return; }
             copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);
         }],
         ['Clear hotel filter list', '\uD83E\uDDF9', 'clear-animals-btn', function () {
             if (!confirm('Are you sure you want to clear the hotel filter list?')) return;
-            var hadSavedList = getSavedList().length > 0;
-            clearSavedList();
-            updateStatus();
+            var hadSavedList = core.getSavedList().length > 0;
+            core.clearSavedList();
+            core.updateStatus();
             if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
             showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
         }],
     ];
 
+    var buttons = [];
     buttonsConfig.forEach(function(b) {
-        panel.appendChild(createButton(b[0], b[2], b[3], b[1]));
+        var btn = createButton(b[0], b[2], b[3], b[1]);
+        panel.appendChild(btn);
     });
 
     status.addEventListener('click', function() {
@@ -334,10 +333,14 @@
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             status.click();
-        } else if (event.key === 'Escape') {
-            setHoverListVisible(false);
         }
     });
+
+    panel.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            setHoverListVisible(false);
+        }
+    }, true);
 
     panel.addEventListener('mouseleave', function () { setHoverListVisible(false); });
 
@@ -345,7 +348,7 @@
     var observer = new MutationObserver(function() {
         clearTimeout(debounceTimeout);
         debounceTimeout = setTimeout(function() {
-            applyDimming();
+            core.applyDimming();
         }, 500);
     });
     observer.observe(document.body, {
@@ -355,5 +358,112 @@
 
     panel.appendChild(hoverList);
     document.body.appendChild(panel);
-    updateStatus();
+    core.updateStatus();
+
+    function renderSavedList(listEl, filter) {
+        var ul = listEl.querySelector('ul');
+        if (ul) {
+            ul.innerHTML = '';
+        } else {
+            ul = document.createElement('ul');
+            listEl.appendChild(ul);
+        }
+        var saved = core.getSavedList();
+        if (!saved.length) {
+            var empty = document.createElement('li');
+            empty.innerHTML = '<i>No hotels saved</i>';
+            ul.appendChild(empty);
+            return;
+        }
+        var items = saved.filter(function (name) {
+            return name.toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+        });
+        if (items.length === 0) {
+            var noMatch = document.createElement('li');
+            noMatch.textContent = 'No matches';
+            ul.appendChild(noMatch);
+            return;
+        }
+        items.forEach(function (name) {
+            var li = document.createElement('li');
+            li.style.display = 'flex';
+            li.style.justifyContent = 'space-between';
+            li.style.alignItems = 'center';
+
+            var span = document.createElement('span');
+            span.textContent = name;
+            li.appendChild(span);
+
+            var btn = document.createElement('button');
+            btn.textContent = '×';
+            btn.style.border = 'none';
+            btn.style.background = 'none';
+            btn.style.color = '#ff4d4f';
+            btn.style.cursor = 'pointer';
+            btn.style.padding = '0 4px';
+            btn.style.fontSize = '16px';
+            btn.onclick = function() {
+                if (!confirm('Remove ' + name + ' from the list?')) return;
+                core.removeHotel(name);
+                renderSavedList(listEl, filter);
+            };
+            li.appendChild(btn);
+
+            ul.appendChild(li);
+        });
+    }
+
+    function createButton(text, id, onClick, symbol) {
+        var button = document.createElement('button');
+        button.textContent = symbol || text;
+        button.id = id;
+        button.title = text;
+        button.setAttribute('aria-label', text);
+        button.addEventListener('click', onClick);
+        if (id === 'save-animals-btn') {
+            button.addEventListener('mouseenter', function() { button.style.opacity = '0.7'; });
+            button.addEventListener('mouseleave', function() { button.style.opacity = '1.0'; });
+            button.addEventListener('focus', function() { button.style.opacity = '0.7'; });
+            button.addEventListener('blur', function() { button.style.opacity = '1.0'; });
+        }
+        return button;
+    }
+
+    function copyText(text, onDone, onFail) {
+        if (!text || text.length === 0) {
+            showMessage('No hotels to copy.');
+            return;
+        }
+        var count = text.split('\n').length;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function () {
+                if (onDone) onDone(count);
+            }, function () {
+                if (onFail) onFail(count);
+                else fallbackCopy(text, count);
+            });
+        } else {
+            fallbackCopy(text, count);
+        }
+    }
+
+    function fallbackCopy(text, count) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.top = '-2000px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try {
+            document.execCommand('copy');
+        } catch (e) {
+            // fail silently
+        }
+        if (ta.parentNode) ta.parentNode.removeChild(ta);
+    }
+
+    panel.appendChild(hoverList);
+    document.body.appendChild(panel);
+    core.updateStatus();
 })();
