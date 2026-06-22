@@ -128,7 +128,17 @@
             toggleDimSavedHotels: toggleDimSavedHotels,
             clearSavedList: clearSavedList,
             getNonExcludedVisibleHotels: getNonExcludedVisibleHotels,
-            updateStatus: updateStatus
+            updateStatus: updateStatus,
+            getDimmedHotelNames: function() {
+                var dimmedNames = [];
+                getPropertyCards().forEach(function(card) {
+                    if (card.classList.contains('bf-dimmed')) {
+                        var name = getHotelNameFromCard(card);
+                        if (name) dimmedNames.push(name);
+                    }
+                });
+                return dimmedNames;
+            }
         };
     }
 
@@ -236,6 +246,11 @@
                 core.updateStatus();
                 if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
                 showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
+            }],
+            ['Copy dimmed hotels', '\uD83D\uDCCB', 'copy-dimmed-btn', function () {
+                var dimmed = core.getDimmedHotelNames();
+                if (!dimmed.length) { showMessage('No hotels currently dimmed.'); return; }
+                copyText(dimmed.join('\n'), function(c){showMessage('Copied '+c+' dimmed hotel names.');}, null);
             }]
         ];
 
