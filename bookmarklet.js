@@ -318,7 +318,8 @@
             showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
         }],
         ['Toggle dimming', '\uD83D\uDD0D', 'toggle-dim-btn', function () {
-            core.toggleDimSavedHotels();
+            var isDimmed = core.toggleDimSavedHotels();
+            document.getElementById('toggle-dim-btn').textContent = isDimmed ? '\uD83D\uDED1' : '\uD83D\uDD0D';
             showMessage('Toggled dimming.');
         }],
         ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function () {
