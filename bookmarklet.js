@@ -292,7 +292,7 @@
             var result = mergeSavedWithVisible();
             updateStatus();
             if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
-            showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
+            showMessage(result.addedCount ? ('Saved ' + result.addedCount + (result.addedCount === 1 ? ' hotel name.' : ' hotel names.')) : 'No new hotel names found.');
         }],
         ['Toggle dimming', '\uD83D\uDD0D', 'toggle-dim-btn', function () {
             var isDimmed = toggleDimSavedHotels();
@@ -301,7 +301,7 @@
         ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function () {
             var saved = getSavedList();
             if (!saved.length) { showMessage('No hotels to copy.'); return; }
-            copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel names.')}, null);
+            copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel name' + (c === 1 ? '' : 's') + '.')}, null);
         }],
         ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function () {
             var nonExcluded = getNonExcludedVisibleHotels();
