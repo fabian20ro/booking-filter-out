@@ -296,7 +296,7 @@
         }],
         ['Toggle dimming', '\u263C', 'toggle-dim-btn', function () {
             var isDimmed = toggleDimSavedHotels();
-            var icon = isDimmed ? '\uD83C\uDF11' : '\u263C';
+            var icon = isDimmed ? '\uD83C\uDF19' : '\uD83C\uDF1E';
             var btn = document.getElementById('toggle-dim-btn');
             if (btn) btn.textContent = icon;
             showMessage('Dimming ' + (isDimmed ? 'ON' : 'OFF'));
