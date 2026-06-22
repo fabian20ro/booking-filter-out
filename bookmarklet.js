@@ -127,7 +127,7 @@
         getPropertyCards().forEach(function(card) {
             if (card.classList.contains('bf-dimmed')) {
                 var name = getHotelNameFromCard(card);
-                if (name) dimmedNames.push(name);
+                if (name && dimmedNames.indexOf(name) === -1) dimmedNames.push(name);
             }
         });
         return dimmedNames;

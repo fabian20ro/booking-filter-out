@@ -130,14 +130,14 @@
             getNonExcludedVisibleHotels: getNonExcludedVisibleHotels,
             updateStatus: updateStatus,
             getDimmedHotelNames: function() {
-                var dimmedNames = [];
+                var dimmedNames = new Set();
                 getPropertyCards().forEach(function(card) {
                     if (card.classList.contains('bf-dimmed')) {
                         var name = getHotelNameFromCard(card);
-                        if (name) dimmedNames.push(name);
+                        if (name) dimmedNames.add(name);
                     }
                 });
-                return dimmedNames;
+                return Array.from(dimmedNames);
             }
         };
     }
