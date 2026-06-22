@@ -294,8 +294,11 @@
             if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
             showMessage(result.addedCount ? ('Saved ' + result.addedCount + (result.addedCount === 1 ? ' hotel name.' : ' hotel names.')) : 'No new hotel names found.');
         }],
-        ['Toggle dimming', '\uD83D\uDD0D', 'toggle-dim-btn', function () {
+        ['Toggle dimming', '\u263C', 'toggle-dim-btn', function () {
             var isDimmed = toggleDimSavedHotels();
+            var icon = isDimmed ? '\uD83C\uDF11' : '\u263C';
+            var btn = document.getElementById('toggle-dim-btn');
+            if (btn) btn.textContent = icon;
             showMessage('Dimming ' + (isDimmed ? 'ON' : 'OFF'));
         }],
         ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function () {
