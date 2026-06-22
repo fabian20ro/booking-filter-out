@@ -97,6 +97,15 @@
                 card.classList.toggle('bf-dimmed');
             }
         });
+        var cards = getPropertyCards();
+        var isDimmed = false;
+        for (var i = 0; i < cards.length; i++) {
+            if (cards[i].classList.contains('bf-dimmed')) {
+                isDimmed = true;
+                break;
+            }
+        }
+        return isDimmed;
     }
 
     function clearSavedList() {
@@ -286,8 +295,8 @@
             showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
         }],
         ['Toggle dimming', '\uD83D\uDD0D', 'toggle-dim-btn', function () {
-            toggleDimSavedHotels();
-            showMessage('Toggled dimming.');
+            var isDimmed = toggleDimSavedHotels();
+            showMessage('Dimming ' + (isDimmed ? 'ON' : 'OFF'));
         }],
         ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function () {
             var saved = getSavedList();
