@@ -37,12 +37,12 @@
         }
 
         function getVisibleHotelNames() {
-            var names = [];
+            const names = new Set();
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
-                if (name && names.indexOf(name) === -1) names.push(name);
+                if (name) names.add(name);
             });
-            return names;
+            return Array.from(names);
         }
 
         function mergeSavedWithVisible() {
