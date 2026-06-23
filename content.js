@@ -65,20 +65,24 @@
         }
 
         function applyDimming() {
-            var savedMap = Object.create(null);
-            getSavedList().forEach(function (name) { savedMap[name] = true; });
-            getPropertyCards().forEach(function (card) {
-                var name = getHotelNameFromCard(card);
-                if (name && savedMap[name]) {
-                    if (!card.classList.contains('bf-dimmed')) {
-                        card.classList.add('bf-dimmed');
+            try {
+                var savedMap = Object.create(null);
+                getSavedList().forEach(function (name) { savedMap[name] = true; });
+                getPropertyCards().forEach(function (card) {
+                    var name = getHotelNameFromCard(card);
+                    if (name && savedMap[name]) {
+                        if (!card.classList.contains('bf-dimmed')) {
+                            card.classList.add('bf-dimmed');
+                        }
+                    } else {
+                        if (card.classList.contains('bf-dimmed')) {
+                            card.classList.remove('bf-dimmed');
+                        }
                     }
-                } else {
-                    if (card.classList.contains('bf-dimmed')) {
-                        card.classList.remove('bf-dimmed');
-                    }
-                }
-            });
+                });
+            } catch (e) {
+                console.error('Booking Filter: Error applying dimming', e);
+            }
         }
 
         function toggleDimSavedHotels() {
@@ -244,6 +248,7 @@
             }],
             ['Toggle dimming', '\uD83D\uDD0D', 'toggle-dim-btn', function () {
                 var isDimmed = core.toggleDimSavedHotels();
+                updateStatus();
                 document.getElementById('toggle-dim-btn').textContent = isDimmed ? '\uD83D\uDED1' : '\uD83D\uDD0D';
                 showMessage('Toggled dimming.');
             }],
