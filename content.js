@@ -119,7 +119,15 @@
             var status = document.getElementById('hotel-list-status');
             if (status) {
                 var count = getSavedList().length;
-                status.textContent = count === 0 ? 'No hotels saved' : count + ' hotels saved';
+                var dimmed = false;
+                var cards = getPropertyCards();
+                for (var i = 0; i < cards.length; i++) {
+                    if (cards[i].classList.contains('bf-dimmed')) {
+                        dimmed = true;
+                        break;
+                    }
+                }
+                status.textContent = (count === 0 ? 'No hotels saved' : count + ' hotels saved') + (dimmed ? ' (Dimmed)' : '');
             }
         }
 
