@@ -98,6 +98,15 @@ function toggleDimSavedHotels() {
             card.classList.toggle('bf-dimmed');
         }
     });
+    var cards = getPropertyCards();
+    var isDimmed = false;
+    for (var i = 0; i < cards.length; i++) {
+        if (cards[i].classList.contains('bf-dimmed')) {
+            isDimmed = true;
+            break;
+        }
+    }
+    return isDimmed;
 }
 
 // Test 1: merge adds new hotels
@@ -157,8 +166,9 @@ global.document.querySelectorAll = function(selector) {
 global.document.getElementById = function(id) {
     return { textContent: '', setAttribute: () => {}, addEventListener: () => {}, removeChild: () => {}, className: '' };
 };
-toggleDimSavedHotels();
+var isDimmed = toggleDimSavedHotels();
 assert.strictEqual(mockCard.classList._toggled, 'bf-dimmed');
+assert.strictEqual(isDimmed, true);
 console.log('Test 5 passed!');
 
 // Test 6: getHotelNameFromCard
