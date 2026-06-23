@@ -1,7 +1,7 @@
 (function () {
     if (document.getElementById('animal-filter-panel')) return;
 
-    var style = document.createElement('style'); style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}#animal-filter-panel button{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:20px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}#animal-filter-panel button:active{background:#dde6ff;transform:scale(.95)}#hotel-list-status{min-height:44px;min-width:50px;padding:0 10px;display:flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}[data-testid="property-card"]{transition:opacity 0.3s ease}.bf-dimmed { opacity: 0.2 !important; }.bf-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#444;color:#fff;padding:10px 20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:10001;font:14px -apple-system,BlinkMacSystemFont,sans-serif}#hover-hotel-list{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:260px;max-height:200px;overflow-y-auto;padding:10px;border:1px solid #c8d7ff;border-radius:10px;background:#fff;color:#163680;font-size:12px;box-shadow:0 4px 12px rgba(31,71,161,.12);';
+    var style = document.createElement('style'); style.textContent = '#animal-filter-panel{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:10000;width:auto;padding:8px 12px;background:#efefef;border:1px solid #d6dbe7;border-radius:14px;box-shadow:0 4px 14px rgba(31,71,161,.15);display:flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}#animal-filter-panel button{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:20px;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}#animal-filter-panel button:active{background:#dde6ff;transform:scale(.95)}#hotel-list-status{min-height:44px;min-width:50px;padding:0 10px;display:flex;align-items:center;justify-content:center;border:2px solid #1f67ff;border-radius:10px;background:#f7f9ff;color:#1f67ff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer}[data-testid="property-card"]{transition:opacity 0.3s ease}.bf-dimmed { opacity: 0.2 !important; }.bf-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#444;color:#fff;padding:10px 20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.3);z-index:10001;font:14px -apple-system,BlinkMacSystemFont,sans-serif}#hover-hotel-list{display:none;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:260px;max-height:200px;overflow-y-auto;padding:10px;border:1px solid #c8d7ff;border-radius:10px;background:#fff;color:#163680;font-size:12px;box-shadow:0 4px 12px rgba(31,71,161,.12);}.filter-input{flex:1;padding:4px 8px;border:1px solid #ccc;border-radius:6px;font-size:13px;outline:none;}';
     document.head.appendChild(style);
     var SELECTORS = {
         propertyCard: '[data-testid="property-card"]',
@@ -169,7 +169,10 @@
         var status = document.getElementById('hotel-list-status');
         if (status) {
             var count = getSavedList().length;
-            status.textContent = count === 0 ? 'No hotels saved' : count + ' hotels saved';
+            var dimmedNames = getDimmedHotelNames();
+            var dimmedCount = dimmedNames.length;
+            var dimmed = dimmedCount > 0;
+            status.textContent = (count === 0 ? 'No hotels saved' : count + ' hotels saved') + (dimmed ? ' (' + dimmedCount + ' dimmed)' : '');
         }
     }
 
@@ -181,7 +184,7 @@
             ul = document.createElement('ul');
             listEl.appendChild(ul);
         }
-        var saved = getSavedList();
+        var saved = core.getSavedList();
         if (!saved.length) {
             var empty = document.createElement('li');
             empty.innerHTML = '<i>No hotels saved</i>';
@@ -233,12 +236,10 @@
         button.title = text;
         button.setAttribute('aria-label', text);
         button.addEventListener('click', onClick);
-        if (id === 'save-animals-btn') {
-            button.addEventListener('mouseenter', function() { button.style.opacity = '0.7'; });
-            button.addEventListener('mouseleave', function() { button.style.opacity = '1.0'; });
-            button.addEventListener('focus', function() { button.style.opacity = '0.7'; });
-            button.addEventListener('blur', function() { button.style.opacity = '1.0'; });
-        }
+        button.addEventListener('mouseenter', function() { button.style.opacity = '0.7'; });
+        button.addEventListener('mouseleave', function() { button.style.opacity = '1.0'; });
+        button.addEventListener('focus', function() { button.style.opacity = '0.7'; });
+        button.addEventListener('blur', function() { button.style.opacity = '1.0'; });
         return button;
     }
 
@@ -294,6 +295,7 @@
     var hoverList = document.createElement('div');
     hoverList.id = 'hover-hotel-list';
     hoverList.setAttribute('aria-hidden', 'true');
+    hoverList.setAttribute('aria-controls', 'hover-hotel-list');
 
     var filterInput = document.createElement('input');
     filterInput.type = 'text';
