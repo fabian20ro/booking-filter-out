@@ -226,6 +226,7 @@
         hoverList.id = 'hover-hotel-list';
         hoverList.setAttribute('aria-hidden', 'true');
         hoverList.setAttribute('aria-controls', 'hover-hotel-list');
+        hoverList.setAttribute('aria-expanded', 'false');
 
         var filterInput = document.createElement('input');
         filterInput.type = 'text';
@@ -265,6 +266,16 @@
                 if (!nonExcluded.length) { showMessage('No non-excluded hotels to copy.'); return; }
                 copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);
             }],
+            ['Copy all visible', '\uD83D\uDCCB', 'copy-all-visible-btn', function () {
+                var visible = core.getVisibleHotelNames();
+                if (!visible.length) { showMessage('No visible hotels found.'); return; }
+                copyText(visible.join('\n'), function(c){showMessage('Copied '+c+' visible hotels.')}, null);
+            }],
+            ['Copy dimmed hotels', '\uD83D\uDCCB', 'copy-dimmed-btn', function () {
+                var dimmed = core.getDimmedHotelNames();
+                if (!dimmed.length) { showMessage('No hotels currently dimmed.'); return; }
+                copyText(dimmed.join('\n'), function(c){showMessage('Copied '+c+' dimmed hotel names.');}, null);
+            }],
             ['Clear hotel filter list', '\uD83E\uDDF9', 'clear-animals-btn', function () {
                 if (!confirm('Are you sure you want to clear the hotel filter list?')) return;
                 var hadSavedList = core.getSavedList().length > 0;
@@ -272,11 +283,6 @@
                 core.updateStatus();
                 if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
                 showMessage(hadSavedList ? 'Hotel filter list cleared.' : 'Hotel filter list was already empty.');
-            }],
-            ['Copy dimmed hotels', '\uD83D\uDCCB', 'copy-dimmed-btn', function () {
-                var dimmed = core.getDimmedHotelNames();
-                if (!dimmed.length) { showMessage('No hotels currently dimmed.'); return; }
-                copyText(dimmed.join('\n'), function(c){showMessage('Copied '+c+' dimmed hotel names.');}, null);
             }]
         ];
 
