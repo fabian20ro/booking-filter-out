@@ -127,6 +127,13 @@
                 var dimmedCount = dimmedNames.length;
                 var dimmed = dimmedCount > 0;
                 status.textContent = (count === 0 ? 'No hotels saved' : count + ' hotels saved') + (dimmed ? ' (' + dimmedCount + ' dimmed)' : '');
+                if (dimmed) {
+                    status.style.color = '#ff4d4f';
+                    status.style.borderColor = '#ff4d4f';
+                } else {
+                    status.style.color = '';
+                    status.style.borderColor = '';
+                }
             }
         }
 
