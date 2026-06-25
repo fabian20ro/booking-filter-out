@@ -154,6 +154,14 @@
                     }
                 });
                 return Array.from(dimmedNames);
+            },
+            getVisibleHotelNames: function() {
+                const names = new Set();
+                getPropertyCards().forEach(function (card) {
+                    var name = getHotelNameFromCard(card);
+                    if (name) names.add(name);
+                });
+                return Array.from(names);
             }
         };
     }

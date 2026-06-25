@@ -142,7 +142,8 @@
         clearSavedList: clearSavedList,
         getNonExcludedVisibleHotels: getNonExcludedVisibleHotels,
         updateStatus: updateStatus,
-        getDimmedHotelNames: getDimmedHotelNames
+        getDimmedHotelNames: getDimmedHotelNames,
+        getVisibleHotelNames: getVisibleHotelNames
     };
 
     function showMessage(message) {
