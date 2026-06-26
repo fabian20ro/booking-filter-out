@@ -356,7 +356,7 @@
             if (!dimmed.length) { showMessage('No hotels currently dimmed.'); return; }
             copyText(dimmed.join('\n'), function(c){showMessage('Copied '+c+' dimmed hotel names.');}, null);
         }],
-        ['Copy all visible', '\uD83D\uDCC4', 'copy-visible-btn', function () {
+        ['Copy all visible', '\uD83D\uDCCB', 'copy-visible-btn', function () {
             var visible = core.getVisibleHotelNames();
             if (!visible.length) { showMessage('No hotels visible.'); return; }
             copyText(visible.join('\n'), function(c){showMessage('Copied '+c+' hotel names.');}, null);
