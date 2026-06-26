@@ -268,10 +268,20 @@
                 if (!saved.length) { showMessage('No hotels to copy.'); return; }
                 copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel names.')}, null);
             }],
+            ['Copy as JSON', '\uD83D\uDCC4', 'copy-json-btn', function () {
+                var saved = core.getSavedList();
+                if (!saved.length) { showMessage('No hotels to copy.'); return; }
+                copyText(JSON.stringify(saved, null, 2), function(c){showMessage('Copied JSON to clipboard.')}, null);
+            }],
             ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function () {
                 var nonExcluded = core.getNonExcludedVisibleHotels();
                 if (!nonExcluded.length) { showMessage('No non-excluded hotels to copy.'); return; }
                 copyText(nonExcluded.join('\n'), function(c){showMessage('Copied '+c+' hotel names to clipboard.');}, null);
+            }],
+        ['Copy as JSON', '\uD83D\uDCC4', 'copy-json-btn', function () {
+                var saved = core.getSavedList();
+                if (!saved.length) { showMessage('No hotels to copy.'); return; }
+                copyText(JSON.stringify(saved, null, 2), function(c){showMessage('Copied JSON to clipboard.')}, null);
             }],
             ['Copy all visible', '\uD83D\uDCCB', 'copy-all-visible-btn', function () {
                 var visible = core.getVisibleHotelNames();
