@@ -174,6 +174,13 @@
             var dimmedCount = dimmedNames.length;
             var dimmed = dimmedCount > 0;
             status.textContent = (count === 0 ? 'No hotels saved' : count + ' hotels saved') + (dimmed ? ' (' + dimmedCount + ' dimmed)' : '');
+            if (dimmed) {
+                status.style.color = '#ff4d4f';
+                status.style.borderColor = '#ff4d4f';
+            } else {
+                status.style.color = '';
+                status.style.borderColor = '';
+            }
         }
     }
 
@@ -348,6 +355,11 @@
             var dimmed = core.getDimmedHotelNames();
             if (!dimmed.length) { showMessage('No hotels currently dimmed.'); return; }
             copyText(dimmed.join('\n'), function(c){showMessage('Copied '+c+' dimmed hotel names.');}, null);
+        }],
+        ['Copy all visible', '\uD83D\uDCC4', 'copy-visible-btn', function () {
+            var visible = core.getVisibleHotelNames();
+            if (!visible.length) { showMessage('No hotels visible.'); return; }
+            copyText(visible.join('\n'), function(c){showMessage('Copied '+c+' hotel names.');}, null);
         }]
     ];
 
