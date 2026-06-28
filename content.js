@@ -130,6 +130,9 @@
                 if (dimmed) {
                     status.style.color = '#ff4d4f';
                     status.style.borderColor = '#ff4d4f';
+                } else if (count > 0) {
+                    status.style.color = '#1f67ff';
+                    status.style.borderColor = '#1f67ff';
                 } else {
                     status.style.color = '';
                     status.style.borderColor = '';
@@ -267,6 +270,11 @@
                 var saved = core.getSavedList();
                 if (!saved.length) { showMessage('No hotels to copy.'); return; }
                 copyText(saved.join('\n'), function(c){showMessage('Copied '+c+' hotel names.')}, null);
+            }],
+            ['Copy as JSON', '\uD83D\uDCC4', 'copy-json-btn', function () {
+                var saved = core.getSavedList();
+                if (!saved.length) { showMessage('No hotels to copy.'); return; }
+                copyText(JSON.stringify(saved, null, 2), function(c){showMessage('Copied JSON to clipboard.')}, null);
             }],
             ['Copy non-excluded hotels', '\uD83D\uDCCB', 'copy-non-excluded-btn', function () {
                 var nonExcluded = core.getNonExcludedVisibleHotels();
