@@ -177,6 +177,9 @@
             if (dimmed) {
                 status.style.color = '#ff4d4f';
                 status.style.borderColor = '#ff4d4f';
+            } else if (count > 0) {
+                status.style.color = '#1f67ff';
+                status.style.borderColor = '#1f67ff';
             } else {
                 status.style.color = '';
                 status.style.borderColor = '';
