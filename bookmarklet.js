@@ -372,7 +372,7 @@
                 var visible = core.getVisibleHotelNames();
                 if (!visible.length) { showMessage('No visible hotels found.'); return; }
                 copyText(visible.join('\n'), function(c){showMessage('Copied '+c+' hotel names.');}, null);
-            }]
+            }],
     ];
 
     var buttons = [];
