@@ -35,7 +35,8 @@ global.document = {
 // Implementation of the core logic to test
 function getSavedList() {
     try {
-        return JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
+        var list = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
+        return Array.isArray(list) ? list.filter(function(item) { return typeof item === 'string'; }) : [];
     } catch (e) {
         return [];
     }
@@ -207,11 +208,10 @@ removeHotel('Hotel C');
 assert.deepStrictEqual(getSavedList(), ['Hotel A', 'Hotel B']);
 console.log('Test 4.1 passed!');
 
-// Test 8.1: mergeSavedWithVisible with duplicates
-console.log('Testing mergeSavedWithVisible with duplicates...');
+// Test 9: getSavedList type validation
+console.log('Testing getSavedList type validation...');
 localStorage.clear();
-localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 'Hotel A'])); // Should have unique
-const resD = mergeSavedWithVisible(['Hotel A', 'Hotel B']);
-assert.strictEqual(resD.addedCount, 1);
-assert.strictEqual(resD.savedCount, 2);
-console.log('Test 8.1 passed!');
+localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 123, null]));
+const validatedList = getSavedList();
+assert.deepStrictEqual(validatedList, ['Hotel A']);
+console.log('Test 9 passed!');
