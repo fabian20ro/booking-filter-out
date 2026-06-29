@@ -119,6 +119,17 @@
             return getVisibleHotelNames().filter(function (name) { return !savedMap[name]; });
         }
 
+        function getDimmedHotelNames() {
+            var dimmedNames = new Set();
+            getPropertyCards().forEach(function(card) {
+                if (card.classList.contains('bf-dimmed')) {
+                    var name = getHotelNameFromCard(card);
+                    if (name) dimmedNames.add(name);
+                }
+            });
+            return Array.from(dimmedNames);
+        }
+
         function updateStatus() {
             var status = document.getElementById('hotel-list-status');
             if (status) {
