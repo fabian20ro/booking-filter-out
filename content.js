@@ -33,7 +33,7 @@
 
         function getHotelNameFromCard(card) {
             var t = card.querySelector(SELECTORS.title);
-            return t ? t.textContent.trim().toLowerCase() : '';
+            return (t && typeof t.textContent === 'string') ? t.textContent.trim().toLowerCase() : '';
         }
 
         function getVisibleHotelNames() {

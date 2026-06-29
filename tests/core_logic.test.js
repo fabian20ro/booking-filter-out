@@ -200,6 +200,45 @@ const nameNull = getHotelNameFromCard(mockCardNull);
 assert.strictEqual(nameNull, '');
 console.log('Test 6.1 passed!');
 
+// Test 6.2: getHotelNameFromCard with non-string textContent
+console.log('Testing getHotelNameFromCard with non-string textContent...');
+const mockCardNonString = {
+    querySelector: (selector) => {
+        if (selector === '[data-testid="title"]') {
+            return { textContent: 123 };
+        }
+        return null;
+    }
+};
+const nameNonString = getHotelNameFromCard(mockCardNonString);
+assert.strictEqual(nameNonString, '');
+console.log('Test 6.2 passed!');
+
+// Test 9.1: getSavedList robustness
+console.log('Testing getSavedList robustness...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', 'not-json');
+const fallbackList = getSavedList();
+assert.deepStrictEqual(fallbackList, []);
+console.log('Test 9.1 passed!');
+
+// Test 9.2: getSavedList with null elements
+console.log('Testing getSavedList with null elements...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', null, undefined, 123]));
+const cleanedList = getSavedList();
+assert.deepStrictEqual(cleanedList, ['Hotel A']);
+console.log('Test 9.2 passed!');
+
+// Test 9.3: getSavedList with unexpected JSON type
+console.log('Testing getSavedList with unexpected JSON type...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify({}));
+const objectList = getSavedList();
+assert.deepStrictEqual(objectList, []);
+console.log('Test 9.3 passed!');
+
+
 // Test 4.1: removeHotel with non-existing name
 console.log('Testing removeHotel with non-existing name...');
 localStorage.clear();
