@@ -36,7 +36,7 @@ global.document = {
 function getSavedList() {
     try {
         var list = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
-        return Array.isArray(list) ? list.filter(function(item) { return typeof item === 'string'; }) : [];
+        return Array.isArray(list) ? list.filter(function(item) { return typeof item === 'string' && item.trim() !== ''; }) : [];
     } catch (e) {
         return [];
     }
@@ -44,7 +44,7 @@ function getSavedList() {
 
 function setSavedList(list) {
     try {
-        var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string'; }) : [];
+        var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
         localStorage.setItem('animalFriendlyList', JSON.stringify(sanitized.map(function(s) { return s.toLowerCase(); })));
     } catch (e) {
         console.error('Booking Filter: Failed to save list', e);
@@ -83,8 +83,9 @@ function getNonExcludedVisibleHotels(visible) {
 }
 
 async function removeHotel(name) {
+    if (typeof name !== 'string') return;
     var currentSaved = getSavedList();
-    var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.toLowerCase(); });
+    var newSaved = currentSaved.filter(function(n) { return n.toLowerCase().trim() !== name.toLowerCase().trim(); });
     setSavedList(newSaved);
 }
 

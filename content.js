@@ -13,7 +13,7 @@
         function getSavedList() {
             try {
                 var list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-                return Array.isArray(list) ? list.filter(function(item) { return typeof item === 'string'; }) : [];
+                return Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
             } catch (e) {
                 return [];
             }
@@ -21,7 +21,7 @@
 
         function setSavedList(list) {
             try {
-                var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string'; }) : [];
+                var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.map(function(s) { return s.toLowerCase(); })));
             } catch (e) {
                 console.error('Booking Filter: Failed to save list', e);

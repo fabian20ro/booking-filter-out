@@ -12,7 +12,7 @@
     function getSavedList() {
         try {
             var list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-            return Array.isArray(list) ? list.filter(function(item) { return typeof item === 'string'; }) : [];
+            return Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
         } catch (e) {
             return [];
         }
