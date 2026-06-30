@@ -22,7 +22,7 @@
         function setSavedList(list) {
             try {
                 var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.map(function(s) { return s.toLowerCase(); })));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.map(function(s) { return s.trim().toLowerCase(); })));
             } catch (e) {
                 console.error('Booking Filter: Failed to save list', e);
             }
@@ -33,6 +33,7 @@
         }
 
         function getHotelNameFromCard(card) {
+            if (!card) return '';
             var t = card.querySelector(SELECTORS.title);
             return (t && typeof t.textContent === 'string') ? t.textContent.trim().toLowerCase() : '';
         }
@@ -158,7 +159,7 @@
             removeHotel: function(name) {
                 if (typeof name !== 'string') return;
                 var currentSaved = getSavedList();
-                var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.toLowerCase(); });
+                var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.trim().toLowerCase(); });
                 setSavedList(newSaved);
                 applyDimming();
                 updateStatus();

@@ -21,20 +21,20 @@
     function removeHotel(name) {
         if (typeof name !== 'string') return;
         var currentSaved = getSavedList();
-        var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.toLowerCase(); });
+        var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.trim().toLowerCase(); });
         setSavedList(newSaved);
         applyDimming();
         updateStatus();
     }
 
-    function setSavedList(list) {
-        try {
-            var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string'; }) : [];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.map(function(s) { return s.toLowerCase(); })));
-        } catch (e) {
-            console.error('Booking Filter: Failed to save list', e);
+        function setSavedList(list) {
+            try {
+                var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.map(function(s) { return s.trim().toLowerCase(); })));
+            } catch (e) {
+                console.error('Booking Filter: Failed to save list', e);
+            }
         }
-    }
 
     function getPropertyCards() {
         return Array.prototype.slice.call(document.querySelectorAll(SELECTORS.propertyCard));
@@ -168,26 +168,30 @@
         }, 3000);
     }
 
-    function updateStatus() {
-        var status = document.getElementById('hotel-list-status');
-        if (status) {
-            var count = getSavedList().length;
-            var dimmedNames = getDimmedHotelNames();
-            var dimmedCount = dimmedNames.length;
-            var dimmed = dimmedCount > 0;
-            status.textContent = (count === 0 ? 'No hotels saved' : count + ' hotels saved') + (dimmed ? ' (' + dimmedCount + ' dimmed)' : '');
-            if (dimmed) {
-                status.style.color = '#ff4d4f';
-                status.style.borderColor = '#ff4d4f';
-            } else if (count > 0) {
-                status.style.color = '#1f67ff';
-                status.style.borderColor = '#1f67ff';
-            } else {
-                status.style.color = '';
-                status.style.borderColor = '';
+        function updateStatus() {
+            var status = document.getElementById('hotel-list-status');
+            if (status) {
+                var count = getSavedList().length;
+                var dimmedNames = getDimmedHotelNames();
+                var dimmedCount = dimmedNames.length;
+                var dimmed = dimmedCount > 0;
+                var newHotels = getNonExcludedVisibleHotels().length;
+                var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
+                if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
+                if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
+                status.textContent = text;
+                if (dimmed) {
+                    status.style.color = '#ff4d4f';
+                    status.style.borderColor = '#ff4d4f';
+                } else if (count > 0) {
+                    status.style.color = '#1f67ff';
+                    status.style.borderColor = '#1f67ff';
+                } else {
+                    status.style.color = '';
+                    status.style.borderColor = '';
+                }
             }
         }
-    }
 
     function renderSavedList(listEl, filter) {
         var ul = listEl.querySelector('ul');

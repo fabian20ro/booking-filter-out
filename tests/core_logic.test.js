@@ -56,6 +56,7 @@ function getPropertyCards() {
 }
 
 function getHotelNameFromCard(card) {
+    if (!card) return '';
     var t = card.querySelector('[data-testid="title"]');
     return t ? t.textContent.trim().toLowerCase() : '';
 }
