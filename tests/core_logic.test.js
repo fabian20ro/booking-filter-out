@@ -261,3 +261,11 @@ localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 123, null]
 const validatedList = getSavedList();
 assert.deepStrictEqual(validatedList, ['Hotel A']);
 console.log('Test 9 passed!');
+
+// Test 10: removeHotel with whitespace in list
+console.log('Testing removeHotel with whitespace in list...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A ']));
+removeHotel('Hotel A');
+assert.deepStrictEqual(getSavedList(), []);
+console.log('Test 10 passed!');
