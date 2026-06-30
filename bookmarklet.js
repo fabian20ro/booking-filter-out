@@ -12,7 +12,7 @@
     function getSavedList() {
         try {
             var list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-            return Array.isArray(list) ? list.filter(function(item) { return typeof item === 'string'; }) : [];
+            return Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
         } catch (e) {
             return [];
         }
@@ -29,7 +29,8 @@
 
     function setSavedList(list) {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(function(s) { return s.toLowerCase(); })));
+            var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string'; }) : [];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.map(function(s) { return s.toLowerCase(); })));
         } catch (e) {
             console.error('Booking Filter: Failed to save list', e);
         }
@@ -41,7 +42,7 @@
 
     function getHotelNameFromCard(card) {
         var t = card.querySelector(SELECTORS.title);
-        return t ? t.textContent.trim().toLowerCase() : '';
+        return (t && typeof t.textContent === 'string') ? t.textContent.trim().toLowerCase() : '';
     }
 
     function getVisibleHotelNames() {
@@ -372,7 +373,7 @@
                 var visible = core.getVisibleHotelNames();
                 if (!visible.length) { showMessage('No visible hotels found.'); return; }
                 copyText(visible.join('\n'), function(c){showMessage('Copied '+c+' hotel names.');}, null);
-            }]
+            }],
     ];
 
     var buttons = [];
