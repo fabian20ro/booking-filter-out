@@ -43,7 +43,12 @@ function getSavedList() {
 }
 
 function setSavedList(list) {
-    localStorage.setItem('animalFriendlyList', JSON.stringify(list));
+    try {
+        var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string'; }) : [];
+        localStorage.setItem('animalFriendlyList', JSON.stringify(sanitized.map(function(s) { return s.toLowerCase(); })));
+    } catch (e) {
+        console.error('Booking Filter: Failed to save list', e);
+    }
 }
 
 function getPropertyCards() {
