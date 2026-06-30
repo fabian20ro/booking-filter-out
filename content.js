@@ -22,7 +22,7 @@
         function setSavedList(list) {
             try {
                 var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.map(function(s) { return s.toLowerCase(); })));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.map(function(s) { return s.trim().toLowerCase(); })));
             } catch (e) {
                 console.error('Booking Filter: Failed to save list', e);
             }
