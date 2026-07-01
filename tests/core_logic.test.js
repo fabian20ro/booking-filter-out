@@ -283,6 +283,25 @@ const validatedList = getSavedList();
 assert.deepStrictEqual(validatedList, ['Hotel A']);
 console.log('Test 9 passed!');
 
+// Test 12: getDimmedHotelNames returns only dimmed card names
+console.log('Testing getDimmedHotelNames...');
+localStorage.clear();
+var mockCardA = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: '  Alpha Hotel  ' }; return null; },
+    classList: { contains: function(cls) { return cls === 'bf-dimmed'; } }
+};
+var mockCardB = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: '  Beta Hotel  ' }; return null; },
+    classList: { contains: function(cls) { return false; } }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardA, mockCardB];
+    return [];
+};
+var dimmedNames = getDimmedHotelNames();
+assert.deepStrictEqual(dimmedNames, ['alpha hotel']);
+console.log('Test 12 passed!');
+
 // Test 10.1: removeHotel with whitespace on both sides (bidirectional trim)
 console.log('Testing removeHotel bidirectional trim...');
 localStorage.clear();

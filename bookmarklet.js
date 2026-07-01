@@ -379,7 +379,7 @@
         ['Copy all visible', '\uD83D\uDCCB', 'copy-all-visible-btn', function () {
                 var visible = core.getVisibleHotelNames();
                 if (!visible.length) { showMessage('No visible hotels found.'); return; }
-                copyText(visible.join('\n'), function(c){showMessage('Copied '+c+' hotel names.');}, null);
+                copyText(visible.join('\n'), function(c){showMessage('Copied '+c+' visible hotels.');}, null);
             }],
     ];
 
