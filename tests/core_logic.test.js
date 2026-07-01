@@ -359,3 +359,25 @@ document.getElementById('hotel-list-status').textContent = '';
 updateStatus();
 assert.strictEqual(document.getElementById('hotel-list-status').textContent, '1 hotels saved');
 console.log('Test 11 passed!');
+
+// Test 14: setSavedList always trims and lowercases entries (sanitization invariant)
+// This supports mergeSavedWithVisible correctness when it writes merged keys back.
+console.log('Testing setSavedList sanitization...');
+localStorage.clear();
+setSavedList(['  Alpha Hotel  ', 'Beta Hotel', null, undefined, 99]);
+const saved = getSavedList();
+assert.deepStrictEqual(saved, ['alpha hotel', 'beta hotel']);
+// Verify the raw localStorage value is also normalized.
+const raw = JSON.parse(localStorage.getItem('animalFriendlyList'));
+assert.deepStrictEqual(raw, ['alpha hotel', 'beta hotel']);
+console.log('Test 14 passed!');
+
+// Test 15: mergeSavedWithVisible saves with sanitized (trimmed+lowercased) keys.
+// Regression guard for the merge function's setSavedList call path.
+console.log('Testing mergeSavedWithVisible sanitization...');
+localStorage.clear();
+setSavedList(['  Old Hotel  ']);
+const res4 = mergeSavedWithVisible(['  New Hotel ', 'OLD HOTEL']);
+assert.strictEqual(res4.addedCount, 1); // 'new hotel' is new; 'old hotel' already exists (case-insensitive)
+assert.deepStrictEqual(getSavedList(), ['old hotel', 'new hotel']);
+console.log('Test 15 passed!');

@@ -71,6 +71,7 @@
         var merged = Object.keys(mergedMap);
         setSavedList(merged);
         applyDimming();
+        updateStatus();
         return { savedCount: merged.length, addedCount: addedCount };
     }
 
