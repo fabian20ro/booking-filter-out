@@ -315,6 +315,7 @@
     var hoverList = document.createElement('div');
     hoverList.id = 'hover-hotel-list';
     hoverList.setAttribute('aria-hidden', 'true');
+    hoverList.setAttribute('aria-expanded', 'false');
     hoverList.setAttribute('aria-controls', 'hover-hotel-list');
 
     var filterInput = document.createElement('input');
