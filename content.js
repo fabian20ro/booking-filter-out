@@ -139,7 +139,11 @@
                 var dimmedNames = getDimmedHotelNames();
                 var dimmedCount = dimmedNames.length;
                 var dimmed = dimmedCount > 0;
-                status.textContent = (count === 0 ? 'No hotels saved' : count + ' hotels saved') + (dimmed ? ' (' + dimmedCount + ' dimmed)' : '');
+                var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
+                if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
+                var newHotels = getNonExcludedVisibleHotels().length;
+                if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
+                status.textContent = text;
                 if (dimmed) {
                     status.style.color = '#ff4d4f';
                     status.style.borderColor = '#ff4d4f';
@@ -159,7 +163,7 @@
             removeHotel: function(name) {
                 if (typeof name !== 'string') return;
                 var currentSaved = getSavedList();
-                var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.trim().toLowerCase(); });
+                var newSaved = currentSaved.filter(function(n) { return n.toLowerCase().trim() !== name.toLowerCase().trim(); });
                 setSavedList(newSaved);
                 applyDimming();
                 updateStatus();

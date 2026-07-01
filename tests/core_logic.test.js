@@ -33,6 +33,21 @@ global.document = {
 };
 
 // Implementation of the core logic to test
+function updateStatus() {
+    var status = document.getElementById('hotel-list-status');
+    if (status) {
+        var count = getSavedList().length;
+        var dimmedNames = getDimmedHotelNames();
+        var dimmedCount = dimmedNames.length;
+        var dimmed = dimmedCount > 0;
+        var newHotels = getNonExcludedVisibleHotels().length;
+        var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
+        if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
+        if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
+        status.textContent = text;
+    }
+}
+
 function getSavedList() {
     try {
         var list = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
@@ -261,3 +276,21 @@ localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 123, null]
 const validatedList = getSavedList();
 assert.deepStrictEqual(validatedList, ['Hotel A']);
 console.log('Test 9 passed!');
+
+// Test 10: removeHotel with whitespace in list
+console.log('Testing removeHotel with whitespace in list...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A ']));
+removeHotel('Hotel A');
+assert.deepStrictEqual(getSavedList(), []);
+console.log('Test 10 passed!');
+
+// Test 11: updateStatus
+console.log('Testing updateStatus...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A']));
+document.getElementById('hotel-list-status').textContent = '';
+updateStatus();
+assert.strictEqual(document.getElementById('hotel-list-status').textContent, '1 hotels saved');
+console.log('Test 11 passed!');
+console.log('Test 10 passed!');
