@@ -174,27 +174,31 @@
     }
 
         function updateStatus() {
-            var status = document.getElementById('hotel-list-status');
-            if (status) {
-                var count = getSavedList().length;
-                var dimmedNames = getDimmedHotelNames();
-                var dimmedCount = dimmedNames.length;
-                var dimmed = dimmedCount > 0;
-                var newHotels = getNonExcludedVisibleHotels().length;
-                var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
-                if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
-                if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
-                status.textContent = text;
-                if (dimmed) {
-                    status.style.color = '#ff4d4f';
-                    status.style.borderColor = '#ff4d4f';
-                } else if (count > 0) {
-                    status.style.color = '#1f67ff';
-                    status.style.borderColor = '#1f67ff';
-                } else {
-                    status.style.color = '';
-                    status.style.borderColor = '';
+            try {
+                var status = document.getElementById('hotel-list-status');
+                if (status) {
+                    var count = getSavedList().length;
+                    var dimmedNames = getDimmedHotelNames();
+                    var dimmedCount = dimmedNames.length;
+                    var dimmed = dimmedCount > 0;
+                    var newHotels = getNonExcludedVisibleHotels().length;
+                    var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
+                    if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
+                    if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
+                    status.textContent = text;
+                    if (dimmed) {
+                        status.style.color = '#ff4d4f';
+                        status.style.borderColor = '#ff4d4f';
+                    } else if (count > 0) {
+                        status.style.color = '#1f67ff';
+                        status.style.borderColor = '#1f67ff';
+                    } else {
+                        status.style.color = '';
+                        status.style.borderColor = '';
+                    }
                 }
+            } catch (e) {
+                console.error('Booking Filter: Error updating status', e);
             }
         }
 

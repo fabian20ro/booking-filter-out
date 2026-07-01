@@ -310,7 +310,23 @@ assert.strictEqual(threw, false);
 assert.ok(spy.calls.length > 0, 'expected console.error call');
 console.log('Test 7 passed!');
 
-// Test 10.1: removeHotel with whitespace on both sides (bidirectional trim)
+// Test 13: updateStatus swallows DOM errors (parity with content.js)
+console.log('Testing updateStatus error resilience...');
+var spy2 = { calls: [] };
+global.console.error = function() { spy2.calls.push(Array.prototype.slice.call(arguments)); };
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [{ querySelector: function(){return null}, classList: { contains:function(){throw new Error('DOM err')} } }];
+    return [];
+};
+var threw2 = false;
+try { updateStatus(); } catch(e) { threw2 = true; }
+assert.strictEqual(threw2, false);
+assert.ok(spy2.calls.length > 0, 'expected console.error call');
+console.log('Test 13 passed!');
+
+// Test 13: updateStatus swallows DOM errors (parity with content.js) — added regression assertion for the new try/catch boundary in updateStatus.
 console.log('Testing removeHotel bidirectional trim...');
 localStorage.clear();
 localStorage.setItem('animalFriendlyList', JSON.stringify([' Hotel A ']));
