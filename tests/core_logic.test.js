@@ -236,6 +236,12 @@ const nameNonString = getHotelNameFromCard(mockCardNonString);
 assert.strictEqual(nameNonString, '');
 console.log('Test 6.2 passed!');
 
+// Test 6.3: getHotelNameFromCard with null card (defensive guard)
+console.log('Testing getHotelNameFromCard with null card...');
+const nameNullCard = getHotelNameFromCard(null);
+assert.strictEqual(nameNullCard, '');
+console.log('Test 6.3 passed!');
+
 // Test 9.1: getSavedList robustness
 console.log('Testing getSavedList robustness...');
 localStorage.clear();
@@ -277,6 +283,33 @@ const validatedList = getSavedList();
 assert.deepStrictEqual(validatedList, ['Hotel A']);
 console.log('Test 9 passed!');
 
+// Test 12: getDimmedHotelNames returns only dimmed card names
+console.log('Testing getDimmedHotelNames...');
+localStorage.clear();
+var mockCardA = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: '  Alpha Hotel  ' }; return null; },
+    classList: { contains: function(cls) { return cls === 'bf-dimmed'; } }
+};
+var mockCardB = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: '  Beta Hotel  ' }; return null; },
+    classList: { contains: function(cls) { return false; } }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardA, mockCardB];
+    return [];
+};
+var dimmedNames = getDimmedHotelNames();
+assert.deepStrictEqual(dimmedNames, ['alpha hotel']);
+console.log('Test 12 passed!');
+
+// Test 10.1: removeHotel with whitespace on both sides (bidirectional trim)
+console.log('Testing removeHotel bidirectional trim...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify([' Hotel A ']));
+removeHotel('Hotel A ');
+assert.deepStrictEqual(getSavedList(), []);
+console.log('Test 10.1 passed!');
+
 // Test 10: removeHotel with whitespace in list
 console.log('Testing removeHotel with whitespace in list...');
 localStorage.clear();
@@ -284,6 +317,15 @@ localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A ']));
 removeHotel('Hotel A');
 assert.deepStrictEqual(getSavedList(), []);
 console.log('Test 10 passed!');
+
+// Test 2.5: mergeSavedWithVisible with mixed-case titles (case-insensitive dedup)
+console.log('Testing merge with mixed-case visible hotels...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+const res3 = mergeSavedWithVisible(['Hotel A', 'Hotel B']);
+assert.strictEqual(res3.addedCount, 1);
+assert.strictEqual(res3.savedCount, 2);
+console.log('Test 2.5 passed!');
 
 // Test 11: updateStatus
 console.log('Testing updateStatus...');

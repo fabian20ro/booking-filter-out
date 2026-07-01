@@ -21,7 +21,7 @@
     function removeHotel(name) {
         if (typeof name !== 'string') return;
         var currentSaved = getSavedList();
-        var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.trim().toLowerCase(); });
+        var newSaved = currentSaved.filter(function(n) { return n.toLowerCase().trim() !== name.toLowerCase().trim(); });
         setSavedList(newSaved);
         applyDimming();
         updateStatus();
@@ -41,6 +41,7 @@
     }
 
     function getHotelNameFromCard(card) {
+        if (!card) return '';
         var t = card.querySelector(SELECTORS.title);
         return (t && typeof t.textContent === 'string') ? t.textContent.trim().toLowerCase() : '';
     }
@@ -253,10 +254,12 @@
         button.title = text;
         button.setAttribute('aria-label', text);
         button.addEventListener('click', onClick);
-        button.addEventListener('mouseenter', function() { button.style.opacity = '0.7'; });
-        button.addEventListener('mouseleave', function() { button.style.opacity = '1.0'; });
-        button.addEventListener('focus', function() { button.style.opacity = '0.7'; });
-        button.addEventListener('blur', function() { button.style.opacity = '1.0'; });
+        if (id === 'save-animals-btn') {
+            button.addEventListener('mouseenter', function() { button.style.opacity = '0.7'; });
+            button.addEventListener('mouseleave', function() { button.style.opacity = '1.0'; });
+            button.addEventListener('focus', function() { button.style.opacity = '0.7'; });
+            button.addEventListener('blur', function() { button.style.opacity = '1.0'; });
+        }
         return button;
     }
 
@@ -376,7 +379,7 @@
         ['Copy all visible', '\uD83D\uDCCB', 'copy-all-visible-btn', function () {
                 var visible = core.getVisibleHotelNames();
                 if (!visible.length) { showMessage('No visible hotels found.'); return; }
-                copyText(visible.join('\n'), function(c){showMessage('Copied '+c+' hotel names.');}, null);
+                copyText(visible.join('\n'), function(c){showMessage('Copied '+c+' visible hotels.');}, null);
             }],
     ];
 
