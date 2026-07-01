@@ -277,6 +277,14 @@ const validatedList = getSavedList();
 assert.deepStrictEqual(validatedList, ['Hotel A']);
 console.log('Test 9 passed!');
 
+// Test 10.1: removeHotel with whitespace on both sides (bidirectional trim)
+console.log('Testing removeHotel bidirectional trim...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify([' Hotel A ']));
+removeHotel('Hotel A ');
+assert.deepStrictEqual(getSavedList(), []);
+console.log('Test 10.1 passed!');
+
 // Test 10: removeHotel with whitespace in list
 console.log('Testing removeHotel with whitespace in list...');
 localStorage.clear();

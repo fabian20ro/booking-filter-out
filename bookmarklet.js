@@ -21,7 +21,7 @@
     function removeHotel(name) {
         if (typeof name !== 'string') return;
         var currentSaved = getSavedList();
-        var newSaved = currentSaved.filter(function(n) { return n.toLowerCase() !== name.trim().toLowerCase(); });
+        var newSaved = currentSaved.filter(function(n) { return n.toLowerCase().trim() !== name.toLowerCase().trim(); });
         setSavedList(newSaved);
         applyDimming();
         updateStatus();
