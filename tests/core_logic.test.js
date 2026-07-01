@@ -398,6 +398,24 @@ assert.strictEqual(res4.addedCount, 1); // 'new hotel' is new; 'old hotel' alrea
 assert.deepStrictEqual(getSavedList(), ['old hotel', 'new hotel']);
 console.log('Test 15 passed!');
 
+// Test 17: applyDimming matches bookmarklet — mixed-case visible names normalize correctly.
+// Regression guard for the bookmarklet.applyDimming fix (savedMap keys lowercased, lookup uses name.toLowerCase()).
+console.log('Testing applyDimming mixed-case visible normalization...');
+localStorage.clear();
+global.console.error = function() {};
+localStorage.setItem('animalFriendlyList', JSON.stringify(['alpha hotel']));
+var mockCardMixed = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _added: [], _removed: [], add: function(c){this._added.push(c)}, remove:function(c){this._removed.push(c)}, contains:function(c){return this._added.indexOf(c)!==-1} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardMixed];
+    return [];
+};
+applyDimming();
+assert.ok(mockCardMixed.classList._added.indexOf('bf-dimmed') !== -1, 'card with mixed-case visible name should be dimmed');
+console.log('Test 17 passed!');
+
 // Test 16: applyDimming matches content.js — savedMap keys are lowercased
 // Regression guard for the bookmarklet parity fix.
 console.log('Testing applyDimming key normalization...');
