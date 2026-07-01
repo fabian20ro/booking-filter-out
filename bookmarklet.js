@@ -71,24 +71,29 @@
         var merged = Object.keys(mergedMap);
         setSavedList(merged);
         applyDimming();
+        updateStatus();
         return { savedCount: merged.length, addedCount: addedCount };
     }
 
     function applyDimming() {
-        var savedMap = Object.create(null);
-        getSavedList().forEach(function (name) { savedMap[name] = true; });
-        getPropertyCards().forEach(function (card) {
-            var name = getHotelNameFromCard(card);
-            if (name && savedMap[name]) {
-                if (!card.classList.contains('bf-dimmed')) {
-                    card.classList.add('bf-dimmed');
+        try {
+            var savedMap = Object.create(null);
+            getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+            getPropertyCards().forEach(function (card) {
+                var name = getHotelNameFromCard(card);
+                if (name && savedMap[name.toLowerCase()]) {
+                    if (!card.classList.contains('bf-dimmed')) {
+                        card.classList.add('bf-dimmed');
+                    }
+                } else {
+                    if (card.classList.contains('bf-dimmed')) {
+                        card.classList.remove('bf-dimmed');
+                    }
                 }
-            } else {
-                if (card.classList.contains('bf-dimmed')) {
-                    card.classList.remove('bf-dimmed');
-                }
-            }
-        });
+            });
+        } catch (e) {
+            console.error('Booking Filter: Error applying dimming', e);
+        }
     }
 
     function toggleDimSavedHotels() {
@@ -170,27 +175,31 @@
     }
 
         function updateStatus() {
-            var status = document.getElementById('hotel-list-status');
-            if (status) {
-                var count = getSavedList().length;
-                var dimmedNames = getDimmedHotelNames();
-                var dimmedCount = dimmedNames.length;
-                var dimmed = dimmedCount > 0;
-                var newHotels = getNonExcludedVisibleHotels().length;
-                var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
-                if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
-                if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
-                status.textContent = text;
-                if (dimmed) {
-                    status.style.color = '#ff4d4f';
-                    status.style.borderColor = '#ff4d4f';
-                } else if (count > 0) {
-                    status.style.color = '#1f67ff';
-                    status.style.borderColor = '#1f67ff';
-                } else {
-                    status.style.color = '';
-                    status.style.borderColor = '';
+            try {
+                var status = document.getElementById('hotel-list-status');
+                if (status) {
+                    var count = getSavedList().length;
+                    var dimmedNames = getDimmedHotelNames();
+                    var dimmedCount = dimmedNames.length;
+                    var dimmed = dimmedCount > 0;
+                    var newHotels = getNonExcludedVisibleHotels().length;
+                    var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
+                    if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
+                    if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
+                    status.textContent = text;
+                    if (dimmed) {
+                        status.style.color = '#ff4d4f';
+                        status.style.borderColor = '#ff4d4f';
+                    } else if (count > 0) {
+                        status.style.color = '#1f67ff';
+                        status.style.borderColor = '#1f67ff';
+                    } else {
+                        status.style.color = '';
+                        status.style.borderColor = '';
+                    }
                 }
+            } catch (e) {
+                console.error('Booking Filter: Error updating status', e);
             }
         }
 
@@ -331,6 +340,9 @@
         hoverList.style.display = visible ? 'block' : 'none';
         hoverList.setAttribute('aria-hidden', visible ? 'false' : 'true');
         status.setAttribute('aria-expanded', visible ? 'true' : 'false');
+        if (visible && document.activeElement !== filterInput) {
+            try { filterInput.focus(); } catch (e) {}
+        }
     }
 
     var buttonsConfig = [
