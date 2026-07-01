@@ -78,7 +78,7 @@
     function applyDimming() {
         try {
             var savedMap = Object.create(null);
-            getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+            getSavedList().forEach(function (name) { savedMap[name] = true; });
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
                 if (name && savedMap[name.toLowerCase()]) {
@@ -174,7 +174,7 @@
         }, 3000);
     }
 
-        function updateStatus() {
+    function updateStatus() {
             try {
                 var status = document.getElementById('hotel-list-status');
                 if (status) {
