@@ -340,6 +340,9 @@
         hoverList.style.display = visible ? 'block' : 'none';
         hoverList.setAttribute('aria-hidden', visible ? 'false' : 'true');
         status.setAttribute('aria-expanded', visible ? 'true' : 'false');
+        if (visible && document.activeElement !== filterInput) {
+            try { filterInput.focus(); } catch (e) {}
+        }
     }
 
     var buttonsConfig = [
