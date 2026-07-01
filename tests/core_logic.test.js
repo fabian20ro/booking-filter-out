@@ -236,6 +236,12 @@ const nameNonString = getHotelNameFromCard(mockCardNonString);
 assert.strictEqual(nameNonString, '');
 console.log('Test 6.2 passed!');
 
+// Test 6.3: getHotelNameFromCard with null card (defensive guard)
+console.log('Testing getHotelNameFromCard with null card...');
+const nameNullCard = getHotelNameFromCard(null);
+assert.strictEqual(nameNullCard, '');
+console.log('Test 6.3 passed!');
+
 // Test 9.1: getSavedList robustness
 console.log('Testing getSavedList robustness...');
 localStorage.clear();

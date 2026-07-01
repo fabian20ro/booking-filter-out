@@ -41,6 +41,7 @@
     }
 
     function getHotelNameFromCard(card) {
+        if (!card) return '';
         var t = card.querySelector(SELECTORS.title);
         return (t && typeof t.textContent === 'string') ? t.textContent.trim().toLowerCase() : '';
     }
