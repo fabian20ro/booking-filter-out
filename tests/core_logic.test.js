@@ -302,6 +302,22 @@ var dimmedNames = getDimmedHotelNames();
 assert.deepStrictEqual(dimmedNames, ['alpha hotel']);
 console.log('Test 12 passed!');
 
+// Test 7: applyDimming swallows DOM errors (parity with content.js)
+console.log('Testing applyDimming error resilience...');
+var spy = { calls: [] };
+global.console.error = function() { spy.calls.push(Array.prototype.slice.call(arguments)); };
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid=\"property-card\"]') return [{ querySelector: function(){return null}, classList: { contains:function(){throw new Error('DOM err') } } }];
+    return [];
+};
+var threw = false;
+try { applyDimming(); } catch(e) { threw = true; }
+assert.strictEqual(threw, false);
+assert.ok(spy.calls.length > 0, 'expected console.error call');
+console.log('Test 7 passed!');
+
 // Test 10.1: removeHotel with whitespace on both sides (bidirectional trim)
 console.log('Testing removeHotel bidirectional trim...');
 localStorage.clear();
