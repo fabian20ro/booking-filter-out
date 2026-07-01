@@ -89,6 +89,7 @@ function mergeSavedWithVisible(visible) {
     });
     var merged = Object.keys(mergedMap);
     setSavedList(merged);
+    updateStatus();
     return { savedCount: merged.length, addedCount: addedCount };
 }
 
@@ -396,6 +397,14 @@ setSavedList(['  Old Hotel  ']);
 const res4 = mergeSavedWithVisible(['  New Hotel ', 'OLD HOTEL']);
 assert.strictEqual(res4.addedCount, 1); // 'new hotel' is new; 'old hotel' already exists (case-insensitive)
 assert.deepStrictEqual(getSavedList(), ['old hotel', 'new hotel']);
+// Verify that merge also refreshes the status UI text (parity with bookmarklet).
+var statusEl = document.getElementById('hotel-list-status');
+assert.ok(
+  typeof statusEl !== 'undefined' && statusEl !== null,
+  'status element should exist for Test 15 assertion'
+);
+// After updateStatus() the mocked element's textContent is set by the function above.
+assert.strictEqual(statusEl.textContent, '2 hotels saved');
 console.log('Test 15 passed!');
 
 // Test 17: applyDimming matches bookmarklet — mixed-case visible names normalize correctly.
