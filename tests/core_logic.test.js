@@ -299,6 +299,15 @@ removeHotel('Hotel A');
 assert.deepStrictEqual(getSavedList(), []);
 console.log('Test 10 passed!');
 
+// Test 2.5: mergeSavedWithVisible with mixed-case titles (case-insensitive dedup)
+console.log('Testing merge with mixed-case visible hotels...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+const res3 = mergeSavedWithVisible(['Hotel A', 'Hotel B']);
+assert.strictEqual(res3.addedCount, 1);
+assert.strictEqual(res3.savedCount, 2);
+console.log('Test 2.5 passed!');
+
 // Test 11: updateStatus
 console.log('Testing updateStatus...');
 localStorage.clear();
