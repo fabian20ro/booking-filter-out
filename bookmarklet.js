@@ -81,7 +81,7 @@
             getSavedList().forEach(function (name) { savedMap[name] = true; });
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
-                if (name && savedMap[name.toLowerCase()]) {
+                if (name && savedMap[name]) {
                     if (!card.classList.contains('bf-dimmed')) {
                         card.classList.add('bf-dimmed');
                     }

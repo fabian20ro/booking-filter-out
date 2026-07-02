@@ -488,6 +488,42 @@ applyDimming();
 assert.ok(mockCardC.classList._added.indexOf('bf-dimmed') !== -1, 'card should have been dimmed');
 console.log('Test 16 passed!');
 
+// Test 20: bookmarklet applyDimming uses raw savedMap key (no double lowercase on lookup) — parity with content.js.
+// The bookmarklet fix removed .toLowerCase() from the savedMap[name] lookup inside applyDimming so it
+// matches content.js where getHotelNameFromCard already lowercases before comparison.
+console.log('Testing bookmarklet applyDimming lookup key parity (Test 20)...');
+
+function applyDimmingBookmarkletParity() {
+    try {
+        var savedMap = Object.create(null);
+        getSavedList().forEach(function (name) { savedMap[name] = true; });   // keys raw (already lowercased by setSavedList)
+        getPropertyCards().forEach(function (card) {
+            var name = getHotelNameFromCard(card);  // already .toLowerCase()'d
+            if (name && savedMap[name]) {           // <-- no extra .toLowerCase() here — matches bookmarklet fix
+                card.classList.add('bf-dimmed');
+            } else {
+                card.classList.remove('bf-dimmed');
+            }
+        });
+    } catch (e) {}
+}
+
+localStorage.clear();
+global.console.error = function() {};
+// savedMap keys are already lowercase+trimmed via setSavedList, so store raw value:
+localStorage.setItem('animalFriendlyList', JSON.stringify(['alpha hotel']));
+var mockCardParity = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: '  Alpha Hotel  ' }; return null; },
+    classList: { _added: [], _removed: [], add: function(c){this._added.push(c)}, remove:function(c){this._removed.push(c)}, contains:function(c){return this._added.indexOf(c)!==-1} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardParity];
+    return [];
+};
+applyDimmingBookmarkletParity();
+assert.ok(mockCardParity.classList._added.indexOf('bf-dimmed') !== -1, 'card should be dimmed — parity with bookmarklet fix');
+console.log('Test 20 passed!');
+
 // Test 19: toggleDimSavedHotels normal case — returns true when card is toggled on.
 console.log('Testing toggleDimSavedHotels normal case...');
 localStorage.clear();
