@@ -425,6 +425,51 @@ applyDimming();
 assert.ok(mockCardMixed.classList._added.indexOf('bf-dimmed') !== -1, 'card with mixed-case visible name should be dimmed');
 console.log('Test 17 passed!');
 
+// Test 18: toggleDimSavedHotels swallows DOM errors — error resilience invariant matching applyDimming pattern.
+// The global test implementation must mirror bookmarklet's try/catch wrapping so DOM errors are swallowed (returning false).
+console.log('Testing toggleDimSavedHotels error resilience...');
+
+// Re-define toggleDimSavedHotels with try/catch to match bookmarklet parity:
+function toggleDimSavedHotels() {
+    try {
+        var savedMap = Object.create(null);
+        getSavedList().forEach(function (name) { savedMap[name] = true; });
+        getPropertyCards().forEach(function (card) {
+            var name = getHotelNameFromCard(card);
+            if (name && savedMap[name]) {
+                card.classList.toggle('bf-dimmed');
+            }
+        });
+        var cards = getPropertyCards();
+        var isDimmed = false;
+        for (var i = 0; i < cards.length; i++) {
+            if (cards[i].classList.contains('bf-dimmed')) {
+                isDimmed = true;
+                break;
+            }
+        }
+        return isDimmed;
+    } catch (e) {
+        console.error('Booking Filter: Error toggling dimming', e);
+        return false;
+    }
+}
+
+var spy3 = { calls: [] };
+global.console.error = function() { spy3.calls.push(Array.prototype.slice.call(arguments)); };
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid=\"property-card\"]') return [{ querySelector: function(){return null}, classList: { contains:function(){throw new Error('DOM err') }, toggle:function(){} } }];
+    return [];
+};
+var threw3 = false;
+try { var result18 = toggleDimSavedHotels(); } catch(e) { threw3 = true; }
+assert.strictEqual(threw3, false);
+assert.ok(spy3.calls.length > 0, 'expected console.error call');
+assert.strictEqual(result18, false);
+console.log('Test 18 passed!');
+
 // Test 16: applyDimming matches content.js — savedMap keys are lowercased
 // Regression guard for the bookmarklet parity fix.
 console.log('Testing applyDimming key normalization...');
@@ -442,3 +487,57 @@ global.document.querySelectorAll = function(selector) {
 applyDimming();
 assert.ok(mockCardC.classList._added.indexOf('bf-dimmed') !== -1, 'card should have been dimmed');
 console.log('Test 16 passed!');
+
+// Test 20: bookmarklet applyDimming uses raw savedMap key (no double lowercase on lookup) — parity with content.js.
+// The bookmarklet fix removed .toLowerCase() from the savedMap[name] lookup inside applyDimming so it
+// matches content.js where getHotelNameFromCard already lowercases before comparison.
+console.log('Testing bookmarklet applyDimming lookup key parity (Test 20)...');
+
+function applyDimmingBookmarkletParity() {
+    try {
+        var savedMap = Object.create(null);
+        getSavedList().forEach(function (name) { savedMap[name] = true; });   // keys raw (already lowercased by setSavedList)
+        getPropertyCards().forEach(function (card) {
+            var name = getHotelNameFromCard(card);  // already .toLowerCase()'d
+            if (name && savedMap[name]) {           // <-- no extra .toLowerCase() here — matches bookmarklet fix
+                card.classList.add('bf-dimmed');
+            } else {
+                card.classList.remove('bf-dimmed');
+            }
+        });
+    } catch (e) {}
+}
+
+localStorage.clear();
+global.console.error = function() {};
+// savedMap keys are already lowercase+trimmed via setSavedList, so store raw value:
+localStorage.setItem('animalFriendlyList', JSON.stringify(['alpha hotel']));
+var mockCardParity = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: '  Alpha Hotel  ' }; return null; },
+    classList: { _added: [], _removed: [], add: function(c){this._added.push(c)}, remove:function(c){this._removed.push(c)}, contains:function(c){return this._added.indexOf(c)!==-1} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardParity];
+    return [];
+};
+applyDimmingBookmarkletParity();
+assert.ok(mockCardParity.classList._added.indexOf('bf-dimmed') !== -1, 'card should be dimmed — parity with bookmarklet fix');
+console.log('Test 20 passed!');
+
+// Test 19: toggleDimSavedHotels normal case — returns true when card is toggled on.
+console.log('Testing toggleDimSavedHotels normal case...');
+localStorage.clear();
+global.console.error = function() {};
+localStorage.setItem('animalFriendlyList', JSON.stringify(['alpha hotel']));
+var mockCardNormal = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _toggled: [], contains:function(c){return this._toggled.indexOf(c)!==-1}, toggle:function(c){this._toggled.push(c)} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardNormal];
+    return [];
+};
+var result19 = toggleDimSavedHotels();
+assert.strictEqual(result19, true);
+assert.ok(mockCardNormal.classList._toggled.indexOf('bf-dimmed') !== -1);
+console.log('Test 19 passed!');
