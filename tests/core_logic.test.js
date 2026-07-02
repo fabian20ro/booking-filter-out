@@ -655,3 +655,23 @@ global.document.querySelectorAll = function(selector) {
 toggleDimSavedHotels();
 assert.ok(mockCardOrig.classList._toggled.indexOf('bf-dimmed') !== -1);
 console.log('Test 26 passed!');
+
+// Test 28: mergeSavedWithVisible dedupes mixed-case + whitespace-padded visible names against saved entries.
+// Regression guard — exercises both .trim() and .toLowerCase() in parallel through the same path.
+// If either normalization step is later weakened (e.g., getHotelNameFromCard drops .trim()), this test catches silent divergence.
+console.log('Testing mergeSavedWithVisible mixed-case+whitespace dedup...');
+localStorage.clear();
+setSavedList(['alpha hotel']);
+const resMixedWs = mergeSavedWithVisible(['Alpha Hotel ', 'Beta Hotel']);
+assert.strictEqual(resMixedWs.addedCount, 1); // 'Alpha Hotel ' should be deduplicated against 'alpha hotel'; only 'beta hotel' is new
+assert.deepStrictEqual(getSavedList(), ['alpha hotel', 'beta hotel']);
+console.log('Test 28 passed!');
+
+// Test 29: mergeSavedWithVisible with a visible name that has leading whitespace and mixed case must not be counted as new.
+console.log('Testing mergeSavedWithVisible leading-whitespace dedup...');
+localStorage.clear();
+setSavedList(['Hotel Beta']);
+const resLeadWs = mergeSavedWithVisible(['  hotel beta ', 'Gamma Hotel']);
+assert.strictEqual(resLeadWs.addedCount, 1); // only 'gamma hotel' is new; 'hotel beta' matches existing
+assert.deepStrictEqual(getSavedList(), ['hotel beta', 'gamma hotel']);
+console.log('Test 29 passed!');
