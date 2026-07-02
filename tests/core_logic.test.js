@@ -656,6 +656,27 @@ toggleDimSavedHotels();
 assert.ok(mockCardOrig.classList._toggled.indexOf('bf-dimmed') !== -1);
 console.log('Test 26 passed!');
 
+// Test 30: toggleDimSavedHotels handles mixed-case saved entries (defensive normalization).
+// Previously, if setSavedList were bypassed and mixed-case names entered localStorage,
+// the function would fail to match. The fix lowercases both savedMap keys and lookups.
+console.log('Testing toggleDimSavedHotels defensive normalization...');
+localStorage.clear();
+global.console.error = function() {};
+// Simulate a situation where raw localStorage has mixed-case entries (bypassing setSavedList).
+localStorage.setItem('animalFriendlyList', JSON.stringify(['ALPHA HOTEL']));
+var mockCardCase = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _toggled: [], contains:function(c){return this._toggled.indexOf(c)!==-1}, toggle:function(c){this._toggled.push(c)} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardCase];
+    return [];
+};
+var result30 = toggleDimSavedHotels();
+assert.ok(mockCardCase.classList._toggled.indexOf('bf-dimmed') !== -1, 'toggle should match despite mixed-case saved entries');
+assert.strictEqual(result30, true);
+console.log('Test 30 passed!');
+
 // Test 28: mergeSavedWithVisible dedupes mixed-case + whitespace-padded visible names against saved entries.
 // Regression guard — exercises both .trim() and .toLowerCase() in parallel through the same path.
 // If either normalization step is later weakened (e.g., getHotelNameFromCard drops .trim()), this test catches silent divergence.
