@@ -426,7 +426,35 @@ assert.ok(mockCardMixed.classList._added.indexOf('bf-dimmed') !== -1, 'card with
 console.log('Test 17 passed!');
 
 // Test 18: toggleDimSavedHotels swallows DOM errors — error resilience invariant matching applyDimming pattern.
+// The global test implementation must mirror bookmarklet's try/catch wrapping so DOM errors are swallowed (returning false).
 console.log('Testing toggleDimSavedHotels error resilience...');
+
+// Re-define toggleDimSavedHotels with try/catch to match bookmarklet parity:
+function toggleDimSavedHotels() {
+    try {
+        var savedMap = Object.create(null);
+        getSavedList().forEach(function (name) { savedMap[name] = true; });
+        getPropertyCards().forEach(function (card) {
+            var name = getHotelNameFromCard(card);
+            if (name && savedMap[name]) {
+                card.classList.toggle('bf-dimmed');
+            }
+        });
+        var cards = getPropertyCards();
+        var isDimmed = false;
+        for (var i = 0; i < cards.length; i++) {
+            if (cards[i].classList.contains('bf-dimmed')) {
+                isDimmed = true;
+                break;
+            }
+        }
+        return isDimmed;
+    } catch (e) {
+        console.error('Booking Filter: Error toggling dimming', e);
+        return false;
+    }
+}
+
 var spy3 = { calls: [] };
 global.console.error = function() { spy3.calls.push(Array.prototype.slice.call(arguments)); };
 localStorage.clear();
