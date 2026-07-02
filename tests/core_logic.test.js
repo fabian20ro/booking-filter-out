@@ -137,7 +137,7 @@ function applyDimming() {
         var savedMap = Object.create(null);
         getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
         getPropertyCards().forEach(function (card) {
-            var name = getHotelNameFromCard(card);
+            var name = getHotelNameFromCard(card).toLowerCase();
             if (name && savedMap[name]) {
                 card.classList.add('bf-dimmed');
             } else {
@@ -477,9 +477,9 @@ console.log('Testing toggleDimSavedHotels error resilience...');
 function toggleDimSavedHotels() {
     try {
         var savedMap = Object.create(null);
-        getSavedList().forEach(function (name) { savedMap[name] = true; });
+        getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
         getPropertyCards().forEach(function (card) {
-            var name = getHotelNameFromCard(card);
+            var name = getHotelNameFromCard(card).toLowerCase();
             if (name && savedMap[name]) {
                 card.classList.toggle('bf-dimmed');
             }
