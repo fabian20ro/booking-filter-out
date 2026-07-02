@@ -19,7 +19,7 @@
     }
 
     function removeHotel(name) {
-        if (typeof name !== 'string') return;
+        if (typeof name !== 'string' || !name.trim()) return;
         var currentSaved = getSavedList();
         var newSaved = currentSaved.filter(function(n) { return n.toLowerCase().trim() !== name.toLowerCase().trim(); });
         setSavedList(newSaved);
@@ -99,9 +99,9 @@
     function toggleDimSavedHotels() {
         try {
             var savedMap = Object.create(null);
-            getSavedList().forEach(function (name) { savedMap[name] = true; });
+            getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
             getPropertyCards().forEach(function (card) {
-                var name = getHotelNameFromCard(card);
+                var name = getHotelNameFromCard(card).toLowerCase();
                 if (name && savedMap[name]) {
                     card.classList.toggle('bf-dimmed');
                 }
@@ -131,15 +131,15 @@
 
     function getNonExcludedVisibleHotels() {
         var savedMap = Object.create(null);
-        getSavedList().forEach(function (name) { savedMap[name] = true; });
-        return getVisibleHotelNames().filter(function (name) { return !savedMap[name]; });
+        getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+        return getVisibleHotelNames().filter(function (name) { return !savedMap[name.toLowerCase()]; });
     }
 
     function getDimmedHotelNames() {
         var dimmedNames = [];
         getPropertyCards().forEach(function(card) {
             if (card.classList.contains('bf-dimmed')) {
-                var name = getHotelNameFromCard(card);
+                var name = getHotelNameFromCard(card).toLowerCase();
                 if (name && dimmedNames.indexOf(name) === -1) dimmedNames.push(name);
             }
         });
@@ -268,15 +268,12 @@
         button.title = text;
         button.setAttribute('aria-label', text);
         button.addEventListener('click', onClick);
-        if (id === 'save-animals-btn') {
-            button.addEventListener('mouseenter', function() { button.style.opacity = '0.7'; });
-            button.addEventListener('mouseleave', function() { button.style.opacity = '1.0'; });
-            button.addEventListener('focus', function() { button.style.opacity = '0.7'; });
-            button.addEventListener('blur', function() { button.style.opacity = '1.0'; });
-        }
+        button.addEventListener('mouseenter', function() { button.style.opacity = '0.7'; });
+        button.addEventListener('mouseleave', function() { button.style.opacity = '1.0'; });
+        button.addEventListener('focus', function() { button.style.opacity = '0.7'; });
+        button.addEventListener('blur', function() { button.style.opacity = '1.0'; });
         return button;
     }
-
     function copyText(text, onDone, onFail) {
         if (!text || text.length === 0) {
             showMessage('No hotels to copy.');

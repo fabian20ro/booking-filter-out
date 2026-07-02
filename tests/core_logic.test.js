@@ -95,18 +95,43 @@ function mergeSavedWithVisible(visible) {
 
 function getNonExcludedVisibleHotels(visible) {
     var savedMap = Object.create(null);
-    getSavedList().forEach(function (name) { savedMap[name] = true; });
-    return visible.filter(function (name) { return !savedMap[name]; });
+    getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+    return visible.filter(function (name) { return !savedMap[name.toLowerCase()]; });
 }
 
 function removeHotel(name) {
-    if (typeof name !== 'string') return;
+    if (typeof name !== 'string' || !name.trim()) return;
     var currentSaved = getSavedList();
     var newSaved = currentSaved.filter(function(n) { return n.toLowerCase().trim() !== name.toLowerCase().trim(); });
     setSavedList(newSaved);
 }
 
 // Tests 7 and 16: applyDimming parity with content.js — keys lowercased, DOM errors swallowed
+
+// Helper: addHotelToList mirrors bookmarklet.addHotelToList (sanitizes, persists, refreshes status).
+function addHotelToList(name) {
+    if (typeof name !== 'string') return;
+    var trimmed = name.trim();
+    if (!trimmed) return;
+    try {
+        var currentSaved = getSavedList();
+        currentSaved.push(trimmed.toLowerCase());
+        setSavedList(currentSaved);
+        updateStatus();
+    } catch (e) {
+        console.error('Booking Filter: Failed to add hotel', e);
+    }
+}
+
+// Helper: removeFromSavedList mirrors bookmarklet.removeFromSavedList.
+function removeFromSavedList(name, card) {
+    if (typeof name !== 'string') return;
+    removeHotel(name);
+    if (card && card.classList) {
+        try { card.classList.remove('bf-dimmed'); } catch (e) {}
+    }
+}
+
 function applyDimming() {
     try {
         var savedMap = Object.create(null);
@@ -174,6 +199,16 @@ localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 'Hotel B']
 const nonExcluded = getNonExcludedVisibleHotels(['Hotel A', 'Hotel C', 'Hotel D']);
 assert.deepStrictEqual(nonExcluded, ['Hotel C', 'Hotel D']);
 console.log('Test 3 passed!');
+
+// Test 27: getNonExcludedVisibleHotels is case-insensitive — regression for mixed-case bug.
+// When saved list entries are lowercase but visible names have initial caps (or vice versa),
+// excluded hotels must be detected regardless of case mismatch between the two lists.
+console.log('Testing getNonExcludedVisibleHotels case insensitivity...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['alpha hotel']));
+const nonExcludedMixed = getNonExcludedVisibleHotels(['Alpha Hotel', 'Hotel C']);
+assert.deepStrictEqual(nonExcludedMixed, ['Hotel C']);
+console.log('Test 27 passed!');
 
 // Test 5: toggleDimSavedHotels
 console.log('Testing toggleDimSavedHotels...');
@@ -275,6 +310,15 @@ const objectList = getSavedList();
 assert.deepStrictEqual(objectList, []);
 console.log('Test 9.3 passed!');
 
+
+// Test 19: removeHotel rejects empty/whitespace-only input (no state change)
+console.log('Testing removeHotel with whitespace-only input...');
+localStorage.clear();
+var savedBefore = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
+removeHotel('   ');
+removeHotel('');
+assert.deepStrictEqual(getSavedList(), savedBefore, 'whitespace/empty should not modify the list');
+console.log('Test 19 passed!');
 
 // Test 4.1: removeHotel with non-existing name
 console.log('Testing removeHotel with non-existing name...');
@@ -541,3 +585,114 @@ var result19 = toggleDimSavedHotels();
 assert.strictEqual(result19, true);
 assert.ok(mockCardNormal.classList._toggled.indexOf('bf-dimmed') !== -1);
 console.log('Test 19 passed!');
+
+// Test 21: addHotelToList sanitizes (trims+lowercases) and persists — mirrors setSavedList invariant.
+// Covers the bookmarklet.addHotelToList path that is otherwise untested.
+console.log('Testing addHotelToList sanitization...');
+localStorage.clear();
+global.console.error = function() {};
+addHotelToList('  Gamma Hotel  ');
+assert.deepStrictEqual(getSavedList(), ['gamma hotel']);
+var raw21 = JSON.parse(localStorage.getItem('animalFriendlyList'));
+assert.strictEqual(raw21[0], 'gamma hotel', 'raw localStorage entry should be sanitized');
+console.log('Test 21 passed!');
+
+// Test 22: addHotelToList with empty/whitespace name is a no-op (sanitized away).
+console.log('Testing addHotelToList with empty input...');
+localStorage.clear();
+addHotelToList('   ');
+assert.deepStrictEqual(getSavedList(), []);
+console.log('Test 22 passed!');
+
+// Test 23: addHotelToList updates status text to reflect new saved count.
+console.log('Testing addHotelToList refreshes status...');
+localStorage.clear();
+document.getElementById('hotel-list-status').textContent = '';
+addHotelToList('Delta Hotel');
+assert.strictEqual(document.getElementById('hotel-list-status').textContent, '1 hotels saved');
+console.log('Test 23 passed!');
+
+// Test 24: removeFromSavedList trims+lowercases the removed name (bidirectional trim).
+console.log('Testing removeFromSavedList bidirectional trim...');
+localStorage.clear();
+global.console.error = function() {};
+setSavedList(['Alpha Hotel', 'Beta Hotel']);
+removeFromSavedList(' alpha hotel ', null);
+assert.deepStrictEqual(getSavedList(), ['beta hotel']);
+console.log('Test 24 passed!');
+
+// Test 25: removeFromSavedList also removes the dimming class from the card.
+console.log('Testing removeFromSavedList clears dimming...');
+localStorage.clear();
+global.console.error = function() {};
+setSavedList(['alpha hotel']);
+var mockCardRem = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _added: [], add: function(c){this._added.push(c)}, remove:function(c){this._removed=c}, contains:function(c){return this._added.indexOf(c)!==-1} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardRem];
+    return [];
+};
+removeFromSavedList('Alpha Hotel', mockCardRem);
+assert.strictEqual(mockCardRem.classList._removed, 'bf-dimmed');
+console.log('Test 25 passed!');
+
+// Test 26: toggleDimSavedHotels original implementation uses savedMap[name] (no .toLowerCase on lookup).
+// This exercises the locally-defined function at line 132 (not the redefined version in Test 18/19).
+console.log('Testing toggleDimSavedHotels original implementation key handling...');
+localStorage.clear();
+global.console.error = function() {};
+setSavedList(['alpha hotel']);
+var mockCardOrig = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _toggled: [], contains:function(c){return this._toggled.indexOf(c)!==-1}, toggle:function(c){this._toggled.push(c)} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardOrig];
+    return [];
+};
+toggleDimSavedHotels();
+assert.ok(mockCardOrig.classList._toggled.indexOf('bf-dimmed') !== -1);
+console.log('Test 26 passed!');
+
+// Test 30: toggleDimSavedHotels handles mixed-case saved entries (defensive normalization).
+// Previously, if setSavedList were bypassed and mixed-case names entered localStorage,
+// the function would fail to match. The fix lowercases both savedMap keys and lookups.
+console.log('Testing toggleDimSavedHotels defensive normalization...');
+localStorage.clear();
+global.console.error = function() {};
+// Simulate a situation where raw localStorage has mixed-case entries (bypassing setSavedList).
+localStorage.setItem('animalFriendlyList', JSON.stringify(['ALPHA HOTEL']));
+var mockCardCase = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _toggled: [], contains:function(c){return this._toggled.indexOf(c)!==-1}, toggle:function(c){this._toggled.push(c)} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardCase];
+    return [];
+};
+var result30 = toggleDimSavedHotels();
+assert.ok(mockCardCase.classList._toggled.indexOf('bf-dimmed') !== -1, 'toggle should match despite mixed-case saved entries');
+assert.strictEqual(result30, true);
+console.log('Test 30 passed!');
+
+// Test 28: mergeSavedWithVisible dedupes mixed-case + whitespace-padded visible names against saved entries.
+// Regression guard — exercises both .trim() and .toLowerCase() in parallel through the same path.
+// If either normalization step is later weakened (e.g., getHotelNameFromCard drops .trim()), this test catches silent divergence.
+console.log('Testing mergeSavedWithVisible mixed-case+whitespace dedup...');
+localStorage.clear();
+setSavedList(['alpha hotel']);
+const resMixedWs = mergeSavedWithVisible(['Alpha Hotel ', 'Beta Hotel']);
+assert.strictEqual(resMixedWs.addedCount, 1); // 'Alpha Hotel ' should be deduplicated against 'alpha hotel'; only 'beta hotel' is new
+assert.deepStrictEqual(getSavedList(), ['alpha hotel', 'beta hotel']);
+console.log('Test 28 passed!');
+
+// Test 29: mergeSavedWithVisible with a visible name that has leading whitespace and mixed case must not be counted as new.
+console.log('Testing mergeSavedWithVisible leading-whitespace dedup...');
+localStorage.clear();
+setSavedList(['Hotel Beta']);
+const resLeadWs = mergeSavedWithVisible(['  hotel beta ', 'Gamma Hotel']);
+assert.strictEqual(resLeadWs.addedCount, 1); // only 'gamma hotel' is new; 'hotel beta' matches existing
+assert.deepStrictEqual(getSavedList(), ['hotel beta', 'gamma hotel']);
+console.log('Test 29 passed!');
