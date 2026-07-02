@@ -123,8 +123,8 @@
 
         function getNonExcludedVisibleHotels() {
             var savedMap = Object.create(null);
-            getSavedList().forEach(function (name) { savedMap[name] = true; });
-            return getVisibleHotelNames().filter(function (name) { return !savedMap[name]; });
+            getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+            return getVisibleHotelNames().filter(function (name) { return !savedMap[name.toLowerCase()]; });
         }
 
         function getDimmedHotelNames() {

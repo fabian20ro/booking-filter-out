@@ -95,8 +95,8 @@ function mergeSavedWithVisible(visible) {
 
 function getNonExcludedVisibleHotels(visible) {
     var savedMap = Object.create(null);
-    getSavedList().forEach(function (name) { savedMap[name] = true; });
-    return visible.filter(function (name) { return !savedMap[name]; });
+    getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+    return visible.filter(function (name) { return !savedMap[name.toLowerCase()]; });
 }
 
 function removeHotel(name) {
@@ -199,6 +199,16 @@ localStorage.setItem('animalFriendlyList', JSON.stringify(['Hotel A', 'Hotel B']
 const nonExcluded = getNonExcludedVisibleHotels(['Hotel A', 'Hotel C', 'Hotel D']);
 assert.deepStrictEqual(nonExcluded, ['Hotel C', 'Hotel D']);
 console.log('Test 3 passed!');
+
+// Test 27: getNonExcludedVisibleHotels is case-insensitive — regression for mixed-case bug.
+// When saved list entries are lowercase but visible names have initial caps (or vice versa),
+// excluded hotels must be detected regardless of case mismatch between the two lists.
+console.log('Testing getNonExcludedVisibleHotels case insensitivity...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['alpha hotel']));
+const nonExcludedMixed = getNonExcludedVisibleHotels(['Alpha Hotel', 'Hotel C']);
+assert.deepStrictEqual(nonExcludedMixed, ['Hotel C']);
+console.log('Test 27 passed!');
 
 // Test 5: toggleDimSavedHotels
 console.log('Testing toggleDimSavedHotels...');
