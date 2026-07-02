@@ -171,7 +171,7 @@
             getSavedList: getSavedList,
             mergeSavedWithVisible: mergeSavedWithVisible,
             removeHotel: function(name) {
-                if (typeof name !== 'string') return;
+                if (typeof name !== 'string' || !name.trim()) return;
                 var currentSaved = getSavedList();
                 var newSaved = currentSaved.filter(function(n) { return n.toLowerCase().trim() !== name.toLowerCase().trim(); });
                 setSavedList(newSaved);

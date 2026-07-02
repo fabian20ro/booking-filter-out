@@ -100,7 +100,7 @@ function getNonExcludedVisibleHotels(visible) {
 }
 
 function removeHotel(name) {
-    if (typeof name !== 'string') return;
+    if (typeof name !== 'string' || !name.trim()) return;
     var currentSaved = getSavedList();
     var newSaved = currentSaved.filter(function(n) { return n.toLowerCase().trim() !== name.toLowerCase().trim(); });
     setSavedList(newSaved);
@@ -300,6 +300,15 @@ const objectList = getSavedList();
 assert.deepStrictEqual(objectList, []);
 console.log('Test 9.3 passed!');
 
+
+// Test 19: removeHotel rejects empty/whitespace-only input (no state change)
+console.log('Testing removeHotel with whitespace-only input...');
+localStorage.clear();
+var savedBefore = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
+removeHotel('   ');
+removeHotel('');
+assert.deepStrictEqual(getSavedList(), savedBefore, 'whitespace/empty should not modify the list');
+console.log('Test 19 passed!');
 
 // Test 4.1: removeHotel with non-existing name
 console.log('Testing removeHotel with non-existing name...');
