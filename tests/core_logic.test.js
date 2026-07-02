@@ -425,6 +425,23 @@ applyDimming();
 assert.ok(mockCardMixed.classList._added.indexOf('bf-dimmed') !== -1, 'card with mixed-case visible name should be dimmed');
 console.log('Test 17 passed!');
 
+// Test 18: toggleDimSavedHotels swallows DOM errors — error resilience invariant matching applyDimming pattern.
+console.log('Testing toggleDimSavedHotels error resilience...');
+var spy3 = { calls: [] };
+global.console.error = function() { spy3.calls.push(Array.prototype.slice.call(arguments)); };
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid=\"property-card\"]') return [{ querySelector: function(){return null}, classList: { contains:function(){throw new Error('DOM err') }, toggle:function(){} } }];
+    return [];
+};
+var threw3 = false;
+try { var result18 = toggleDimSavedHotels(); } catch(e) { threw3 = true; }
+assert.strictEqual(threw3, false);
+assert.ok(spy3.calls.length > 0, 'expected console.error call');
+assert.strictEqual(result18, false);
+console.log('Test 18 passed!');
+
 // Test 16: applyDimming matches content.js — savedMap keys are lowercased
 // Regression guard for the bookmarklet parity fix.
 console.log('Testing applyDimming key normalization...');
@@ -442,3 +459,21 @@ global.document.querySelectorAll = function(selector) {
 applyDimming();
 assert.ok(mockCardC.classList._added.indexOf('bf-dimmed') !== -1, 'card should have been dimmed');
 console.log('Test 16 passed!');
+
+// Test 19: toggleDimSavedHotels normal case — returns true when card is toggled on.
+console.log('Testing toggleDimSavedHotels normal case...');
+localStorage.clear();
+global.console.error = function() {};
+localStorage.setItem('animalFriendlyList', JSON.stringify(['alpha hotel']));
+var mockCardNormal = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _toggled: [], contains:function(c){return this._toggled.indexOf(c)!==-1}, toggle:function(c){this._toggled.push(c)} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardNormal];
+    return [];
+};
+var result19 = toggleDimSavedHotels();
+assert.strictEqual(result19, true);
+assert.ok(mockCardNormal.classList._toggled.indexOf('bf-dimmed') !== -1);
+console.log('Test 19 passed!');

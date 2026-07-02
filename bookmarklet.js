@@ -97,23 +97,28 @@
     }
 
     function toggleDimSavedHotels() {
-        var savedMap = Object.create(null);
-        getSavedList().forEach(function (name) { savedMap[name] = true; });
-        getPropertyCards().forEach(function (card) {
-            var name = getHotelNameFromCard(card);
-            if (name && savedMap[name]) {
-                card.classList.toggle('bf-dimmed');
+        try {
+            var savedMap = Object.create(null);
+            getSavedList().forEach(function (name) { savedMap[name] = true; });
+            getPropertyCards().forEach(function (card) {
+                var name = getHotelNameFromCard(card);
+                if (name && savedMap[name]) {
+                    card.classList.toggle('bf-dimmed');
+                }
+            });
+            var cards = getPropertyCards();
+            var isDimmed = false;
+            for (var i = 0; i < cards.length; i++) {
+                if (cards[i].classList.contains('bf-dimmed')) {
+                    isDimmed = true;
+                    break;
+                }
             }
-        });
-        var cards = getPropertyCards();
-        var isDimmed = false;
-        for (var i = 0; i < cards.length; i++) {
-            if (cards[i].classList.contains('bf-dimmed')) {
-                isDimmed = true;
-                break;
-            }
+            return isDimmed;
+        } catch (e) {
+            console.error('Booking Filter: Error toggling dimming', e);
+            return false;
         }
-        return isDimmed;
     }
 
     function clearSavedList() {
