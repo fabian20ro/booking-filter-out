@@ -58,6 +58,10 @@ function getSavedList() {
 }
 
 function setSavedList(list) {
+    if (!Array.isArray(list)) {
+        console.warn('Booking Filter: setSavedList rejected — expected array, got ' + (typeof list === 'undefined' ? 'undefined' : typeof list));
+        return;
+    }
     try {
         var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
         localStorage.setItem('animalFriendlyList', JSON.stringify(sanitized.map(function(s) { return s.toLowerCase(); })));
@@ -757,3 +761,14 @@ global.document.querySelectorAll = function(selector) {
 applyDimming();
 assert.ok(mockCardNorm.classList._added.indexOf('bf-dimmed') !== -1, 'card should be dimmed despite mixed-case stored entry');
 console.log('Test 33 passed!');
+
+// Test setSavedList input guard — rejects non-array inputs without corrupting localStorage (content.js parity).
+console.log('Testing setSavedList input guard...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+setSavedList('not-an-array');
+assert.deepStrictEqual(getSavedList(), ['hotel a'], 'list should be unchanged after rejecting non-array string input');
+setSavedList(null);
+setSavedList(undefined);
+assert.deepStrictEqual(getSavedList(), ['hotel a'], 'list should be unchanged after rejecting null/undefined');
+console.log('Test setSavedList input guard passed!');

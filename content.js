@@ -20,6 +20,10 @@
         }
 
         function setSavedList(list) {
+            if (!Array.isArray(list)) {
+                console.warn('Booking Filter: setSavedList rejected — expected array, got ' + (typeof list === 'undefined' ? 'undefined' : typeof list));
+                return;
+            }
             try {
                 var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.map(function(s) { return s.trim().toLowerCase(); })));
