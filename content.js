@@ -41,8 +41,8 @@
         function getVisibleHotelNames() {
             const names = new Set();
             getPropertyCards().forEach(function (card) {
-                var name = getHotelNameFromCard(card);
-                if (name) names.add(name);
+                var name = getHotelNameFromCard(card).trim();
+                if (name) names.add(name.toLowerCase());
             });
             return Array.from(names);
         }
@@ -70,7 +70,7 @@
         function applyDimming() {
             try {
                 var savedMap = Object.create(null);
-                getSavedList().forEach(function (name) { savedMap[name] = true; });
+                getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
                 getPropertyCards().forEach(function (card) {
                     var name = getHotelNameFromCard(card);
                     if (name && savedMap[name]) {

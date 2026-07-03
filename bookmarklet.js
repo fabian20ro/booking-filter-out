@@ -49,8 +49,8 @@
     function getVisibleHotelNames() {
         var names = [];
         getPropertyCards().forEach(function (card) {
-            var name = getHotelNameFromCard(card);
-            if (name && names.indexOf(name) === -1) names.push(name);
+            var name = getHotelNameFromCard(card).trim();
+            if (name && names.indexOf(name.toLowerCase()) === -1) names.push(name);
         });
         return names;
     }
@@ -78,7 +78,7 @@
     function applyDimming() {
         try {
             var savedMap = Object.create(null);
-            getSavedList().forEach(function (name) { savedMap[name] = true; });
+            getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
             getPropertyCards().forEach(function (card) {
                 var name = getHotelNameFromCard(card);
                 if (name && savedMap[name]) {
@@ -350,7 +350,6 @@
     var buttonsConfig = [
         ['Add visible hotels', '\u2795', 'save-animals-btn', function () {
             var result = core.mergeSavedWithVisible();
-            core.updateStatus();
             if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
             showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
         }],
