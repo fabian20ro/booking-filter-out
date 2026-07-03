@@ -714,3 +714,23 @@ setSavedList(['alpha hotel', 'beta hotel']);
 const nonExclNorm = getNonExcludedVisibleHotels(['  Alpha Hotel  ', 'Beta Hotel', 'Hotel C']);
 assert.deepStrictEqual(nonExclNorm, ['hotel c']);
 console.log('Test 32 passed!');
+
+// Test 33: applyDimming normalizes savedMap keys with .toLowerCase() — regression for mixed-case localStorage entries.
+// Previously, if setSavedList were bypassed and mixed-case names entered localStorage directly,
+// the function would fail to match because savedMap keys weren't normalized. The fix lowercases both savedMap keys and lookups.
+console.log('Testing applyDimming defensive normalization of stored entries...');
+localStorage.clear();
+global.console.error = function() {};
+// Simulate bypassing setSavedList — raw mixed-case entries in localStorage
+localStorage.setItem('animalFriendlyList', JSON.stringify(['ZETA HOTEL']));
+var mockCardNorm = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Zeta Hotel' }; return null; },
+    classList: { _added: [], _removed: [], add: function(c){this._added.push(c)}, remove:function(c){this._removed.push(c)}, contains:function(c){return this._added.indexOf(c)!==-1} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardNorm];
+    return [];
+};
+applyDimming();
+assert.ok(mockCardNorm.classList._added.indexOf('bf-dimmed') !== -1, 'card should be dimmed despite mixed-case stored entry');
+console.log('Test 33 passed!');

@@ -70,7 +70,7 @@
         function applyDimming() {
             try {
                 var savedMap = Object.create(null);
-                getSavedList().forEach(function (name) { savedMap[name] = true; });
+                getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
                 getPropertyCards().forEach(function (card) {
                     var name = getHotelNameFromCard(card);
                     if (name && savedMap[name]) {
