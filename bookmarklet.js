@@ -49,8 +49,8 @@
     function getVisibleHotelNames() {
         var names = [];
         getPropertyCards().forEach(function (card) {
-            var name = getHotelNameFromCard(card);
-            if (name && names.indexOf(name) === -1) names.push(name);
+            var name = getHotelNameFromCard(card).trim();
+            if (name && names.indexOf(name.toLowerCase()) === -1) names.push(name);
         });
         return names;
     }

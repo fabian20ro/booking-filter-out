@@ -696,3 +696,21 @@ const resLeadWs = mergeSavedWithVisible(['  hotel beta ', 'Gamma Hotel']);
 assert.strictEqual(resLeadWs.addedCount, 1); // only 'gamma hotel' is new; 'hotel beta' matches existing
 assert.deepStrictEqual(getSavedList(), ['hotel beta', 'gamma hotel']);
 console.log('Test 29 passed!');
+
+// Test 31: merge dedupes DOM-sourced visible names (trim + lowercase) against saved entries — regression for getVisibleHotelNames normalization.
+// When content.js normalizes visible names, a DOM name like "Alpha Hotel" must not re-insert as duplicate of already-lowercased saved entry.
+console.log('Testing merge dedup with normalized DOM-visible names...');
+localStorage.clear();
+setSavedList(['alpha hotel']);
+const resVisibleNorm = mergeSavedWithVisible(['  Alpha Hotel  ']);
+assert.strictEqual(resVisibleNorm.addedCount, 0); // already present after normalization — no re-insertion
+assert.deepStrictEqual(getSavedList(), ['alpha hotel']);
+console.log('Test 31 passed!');
+
+// Test 32: getNonExcludedVisibleHotels filters by normalized DOM names against saved entries.
+console.log('Testing getNonExcludedVisibleHotels with normalized visible names...');
+localStorage.clear();
+setSavedList(['alpha hotel', 'beta hotel']);
+const nonExclNorm = getNonExcludedVisibleHotels(['  Alpha Hotel  ', 'Beta Hotel', 'Hotel C']);
+assert.deepStrictEqual(nonExclNorm, ['hotel c']);
+console.log('Test 32 passed!');
