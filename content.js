@@ -124,9 +124,16 @@
         }
 
         function clearSavedList() {
-            localStorage.removeItem(STORAGE_KEY);
+            if (!localStorage || typeof localStorage.removeItem !== 'function') return;
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {
+                console.error('Booking Filter: Failed to remove saved list from storage', e);
+            }
             getPropertyCards().forEach(function (card) {
-                card.classList.remove('bf-dimmed');
+                if (card && typeof card.classList !== 'undefined') {
+                    try { card.classList.remove('bf-dimmed'); } catch (_e) {}
+                }
             });
             updateStatus();
         }
