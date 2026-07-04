@@ -772,3 +772,24 @@ setSavedList(null);
 setSavedList(undefined);
 assert.deepStrictEqual(getSavedList(), ['hotel a'], 'list should be unchanged after rejecting null/undefined');
 console.log('Test setSavedList input guard passed!');
+
+// Test 34: toggleDimSavedHotels skips invalid/null DOM cards without crashing — defensive guard parity.
+// Regression assertion for the new card-null check added to toggleDimSavedHotels in content.js.
+console.log('Testing toggleDimSavedHotels invalid-card resilience...');
+localStorage.clear();
+global.console.error = function() {};
+localStorage.setItem('animalFriendlyList', JSON.stringify(['alpha hotel']));
+
+var mockValidCard = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _toggled: [], contains:function(c){return this._toggled.indexOf(c)!==-1}, toggle:function(c){this._toggled.push(c)} }
+};
+// Inject a null, undefined, and object-without-classList entry among valid cards.
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockValidCard, null, undefined, {}, mockValidCard];
+    return [];
+};
+var threw34 = false;
+try { toggleDimSavedHotels(); } catch(e) { threw34 = true; }
+assert.strictEqual(threw34, false, 'toggleDimSavedHotels must not throw on invalid DOM nodes');
+console.log('Test 34 passed!');
