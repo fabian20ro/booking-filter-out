@@ -159,23 +159,29 @@ removeHotel('Hotel A');
 assert.deepStrictEqual(getSavedList(), ['Hotel B']);
 console.log('Test 4 passed!');
 function toggleDimSavedHotels() {
-    var savedMap = Object.create(null);
-    getSavedList().forEach(function (name) { savedMap[name] = true; });
-    getPropertyCards().forEach(function (card) {
-        var name = getHotelNameFromCard(card);
-        if (name && savedMap[name]) {
-            card.classList.toggle('bf-dimmed');
+    try {
+        var savedMap = Object.create(null);
+        getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+        getPropertyCards().forEach(function (card) {
+            if (!card || typeof card.classList === 'undefined') return;
+            var name = getHotelNameFromCard(card).toLowerCase();
+            if (name && savedMap[name]) {
+                card.classList.toggle('bf-dimmed');
+            }
+        });
+        var cards = getPropertyCards();
+        var isDimmed = false;
+        for (var i = 0; i < cards.length; i++) {
+            if (cards[i].classList.contains('bf-dimmed')) {
+                isDimmed = true;
+                break;
+            }
         }
-    });
-    var cards = getPropertyCards();
-    var isDimmed = false;
-    for (var i = 0; i < cards.length; i++) {
-        if (cards[i].classList.contains('bf-dimmed')) {
-            isDimmed = true;
-            break;
-        }
+        return isDimmed;
+    } catch (e) {
+        console.error('Booking Filter: Error toggling dimming', e);
+        return false;
     }
-    return isDimmed;
 }
 
 // Test 1: merge adds new hotels
