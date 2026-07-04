@@ -979,3 +979,13 @@ var visible38 = getVisibleHotelNames();
 dimmed38.forEach(function(name) { assert.strictEqual(name, name.toLowerCase(), 'dimmed output must be lowercased'); });
 visible38.forEach(function(name) { assert.strictEqual(name, name.toLowerCase(), 'visible output must be lowercased'); });
 console.log('Test 38 passed!');
+
+// Test 42: mergeSavedWithVisible parity — adds trimmed+lowercased entries regardless of input casing.
+// Regression guard for the bookmarklet.js confirm() removal (it should still sanitize via setSavedList).
+console.log('Testing mergeSavedWithVisible sanitization parity...');
+localStorage.clear();
+setSavedList([]);
+const res42 = mergeSavedWithVisible(['  Gamma Hotel  ', 'delta hotel', 'GAMMA HOTEL']);
+assert.strictEqual(res42.addedCount, 1, 'only truly new lowercased entry should be added');
+assert.deepStrictEqual(getSavedList(), ['gamma hotel', 'delta hotel']);
+console.log('Test 42 passed!');
