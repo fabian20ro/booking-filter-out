@@ -793,3 +793,17 @@ var threw34 = false;
 try { toggleDimSavedHotels(); } catch(e) { threw34 = true; }
 assert.strictEqual(threw34, false, 'toggleDimSavedHotels must not throw on invalid DOM nodes');
 console.log('Test 34 passed!');
+
+// Test 35: mergeSavedWithVisible swallows errors when DOM is unavailable (parity with content.js try/catch guard).
+// When getVisibleHotelNames throws because document.querySelectorAll is undefined, mergeSavedWithVisible must return safe defaults.
+console.log('Testing mergeSavedWithVisible error resilience...');
+localStorage.clear();
+var spy35 = { calls: [] };
+global.console.error = function() { spy35.calls.push(Array.prototype.slice.call(arguments)); };
+delete global.document.querySelectorAll;
+var result35 = mergeSavedWithVisible(['Hotel A']);
+assert.ok(spy35.calls.length > 0, 'expected console.error call');
+assert.deepStrictEqual(result35, { savedCount: 0, addedCount: 0 }, 'merge must return safe defaults on error');
+// Restore for subsequent tests.
+global.document.querySelectorAll = function(selector) { if (selector === '[data-testid="property-card"]') return []; return []; };
+console.log('Test 35 passed!');

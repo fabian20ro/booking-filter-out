@@ -52,23 +52,28 @@
         }
 
         function mergeSavedWithVisible() {
-            var mergedMap = Object.create(null);
-            var visible = getVisibleHotelNames();
-            var saved = getSavedList();
-            var addedCount = 0;
-            saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
-            visible.forEach(function (name) {
-                var lowerName = name.toLowerCase();
-                if (!mergedMap[lowerName]) {
-                    mergedMap[lowerName] = true;
-                    addedCount++;
-                }
-            });
-            var merged = Object.keys(mergedMap);
-            setSavedList(merged);
-            applyDimming();
-            updateStatus();
-            return { savedCount: merged.length, addedCount: addedCount };
+            try {
+                var mergedMap = Object.create(null);
+                var visible = getVisibleHotelNames();
+                var saved = getSavedList();
+                var addedCount = 0;
+                saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
+                visible.forEach(function (name) {
+                    var lowerName = name.toLowerCase();
+                    if (!mergedMap[lowerName]) {
+                        mergedMap[lowerName] = true;
+                        addedCount++;
+                    }
+                });
+                var merged = Object.keys(mergedMap);
+                setSavedList(merged);
+                applyDimming();
+                updateStatus();
+                return { savedCount: merged.length, addedCount: addedCount };
+            } catch (e) {
+                console.error('Booking Filter: Error in mergeSavedWithVisible', e);
+                return { savedCount: 0, addedCount: 0 };
+            }
         }
 
         function applyDimming() {
