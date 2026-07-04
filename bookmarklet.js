@@ -106,6 +106,7 @@
             var savedMap = Object.create(null);
             getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
             getPropertyCards().forEach(function (card) {
+                if (!card || typeof card.classList === 'undefined') return;
                 var name = getHotelNameFromCard(card).toLowerCase();
                 if (name && savedMap[name]) {
                     card.classList.toggle('bf-dimmed');

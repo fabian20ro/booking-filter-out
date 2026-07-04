@@ -792,6 +792,8 @@ global.document.querySelectorAll = function(selector) {
 var threw34 = false;
 try { toggleDimSavedHotels(); } catch(e) { threw34 = true; }
 assert.strictEqual(threw34, false, 'toggleDimSavedHotels must not throw on invalid DOM nodes');
+// Strengthened: valid cards must still be toggled when mixed with null/undefined/non-Element entries.
+assert.ok(mockValidCard.classList._toggled.indexOf('bf-dimmed') !== -1, 'valid card should still be toggled despite invalid siblings');
 console.log('Test 34 passed!');
 
 // Test 35: mergeSavedWithVisible swallows errors when DOM is unavailable (parity with content.js try/catch guard).
