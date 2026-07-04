@@ -987,5 +987,32 @@ localStorage.clear();
 setSavedList([]);
 const res42 = mergeSavedWithVisible(['  Gamma Hotel  ', 'delta hotel', 'GAMMA HOTEL']);
 assert.strictEqual(res42.addedCount, 1, 'only truly new lowercased entry should be added');
+
+// Test 43: bookmarklet's clearSavedList handles mixed null/invalid DOM cards without throwing — exercises the actual function.
+console.log('Testing bookmarklet core.clearSavedList with invalid DOM nodes...');
+localStorage.clear();
+setSavedList(['alpha hotel']);
+var validCard = { querySelector:function(){}, classList:{_removed:[],remove:function(c){this._removed.push(c)},contains:function(){return false}} };
+global.document.querySelectorAll = function(selector) { if (selector === '[data-testid="property-card"]') return [null, undefined, {}, validCard]; return []; };
+var threw43 = false;
+try { core.clearSavedList(); } catch(e) { threw43 = true; }
+assert.strictEqual(threw43, false, 'core.clearSavedList must not throw on invalid DOM nodes');
+assert.ok(validCard.classList._removed.indexOf('bf-dimmed') !== -1, 'valid card should still have bf-dimmed removed');
+
+// Test 43.1: bookmarklet's clearSavedList early-returns when localStorage is unavailable (parity with content.js guard).
+console.log('Testing bookmarklet core.clearSavedList guards against missing localStorage...');
+localStorage.clear();
+setSavedList(['alpha hotel']);
+var savedBefore = getSavedList().slice();
+var origRemoveItem = global.localStorage.removeItem;
+delete global.localStorage.removeItem;
+threw43 = false;
+try { core.clearSavedList(); } catch(e) { threw43 = true; }
+assert.strictEqual(threw43, false);
+assert.deepStrictEqual(getSavedList(), savedBefore, 'list must remain untouched when localStorage.removeItem is unavailable');
+global.localStorage.removeItem = origRemoveItem;
+console.log('Test 43 passed! Test 43.1 passed!');
+
+// Test 42 continuation: verify final list state after merge with deduplication.
 assert.deepStrictEqual(getSavedList(), ['gamma hotel', 'delta hotel']);
 console.log('Test 42 passed!');
