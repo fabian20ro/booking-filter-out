@@ -193,24 +193,9 @@
             clearSavedList: clearSavedList,
             getNonExcludedVisibleHotels: getNonExcludedVisibleHotels,
             updateStatus: updateStatus,
-            getDimmedHotelNames: function() {
-                var dimmedNames = new Set();
-                getPropertyCards().forEach(function(card) {
-                    if (card.classList.contains('bf-dimmed')) {
-                        var name = getHotelNameFromCard(card);
-                        if (name) dimmedNames.add(name);
-                    }
-                });
-                return Array.from(dimmedNames);
-            },
-            getVisibleHotelNames: function() {
-                const names = new Set();
-                getPropertyCards().forEach(function (card) {
-                    var name = getHotelNameFromCard(card);
-                    if (name) names.add(name);
-                });
-                return Array.from(names);
-            }
+            // Delegate to module-level implementations for consistent output contract.
+            getDimmedHotelNames: function() { return getDimmedHotelNames(); },
+            getVisibleHotelNames: function() { return getVisibleHotelNames(); }
         };
     }
 

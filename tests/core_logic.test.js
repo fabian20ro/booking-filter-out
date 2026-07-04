@@ -809,3 +809,68 @@ assert.deepStrictEqual(result35, { savedCount: 0, addedCount: 0 }, 'merge must r
 // Restore for subsequent tests.
 global.document.querySelectorAll = function(selector) { if (selector === '[data-testid="property-card"]') return []; return []; };
 console.log('Test 35 passed!');
+
+// Test 36: getDimmedHotelNames output contract — returns lowercased names consistently with savedMap keys.
+// Regression assertion for content.js fix that delegates core.getDimmedHotelNames to module-level implementation.
+// The observable output boundary: function must return strings in the same case as saved map keys (lowercase).
+console.log('Testing getDimmedHotelNames lowercase output contract...');
+localStorage.clear();
+global.console.error = function() {};
+setSavedList(['alpha hotel']);
+var mockCardTest36 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _added: [], add: function(c){this._added.push(c)}, contains:function(c){return this._added.indexOf(c)!==-1} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardTest36];
+    return [];
+};
+applyDimming();
+var dimmedNames36 = getDimmedHotelNames();
+assert.ok(dimmedNames36.length >= 1, 'at least one hotel should be dimmed');
+// The critical contract assertion: output must be lowercased to match savedMap keys.
+dimmedNames36.forEach(function(name) {
+    assert.strictEqual(name, name.toLowerCase(), 'getDimmedHotelNames output must be consistently lowercased for cross-reference integrity');
+});
+console.log('Test 36 passed!');
+
+// Test 37: getVisibleHotelNames output contract — returns lowercased names (mirrors content.js core delegation fix).
+// When visible hotel names are extracted from DOM, they must normalize to lowercase before being returned.
+// This matches the established contract used throughout mergeSavedWithVisible and other comparison paths.
+console.log('Testing getVisibleHotelNames lowercase output contract...');
+localStorage.clear();
+global.console.error = function() {};
+var mockCardTest37 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: '  ZETA HOTEL  ' }; return null; },
+    classList: {}
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardTest37];
+    return [];
+};
+var visibleNames = getVisibleHotelNames();
+assert.ok(visibleNames.length >= 1, 'at least one hotel should be detected');
+visibleNames.forEach(function(name) {
+    assert.strictEqual(name, name.toLowerCase(), 'getVisibleHotelNames output must be consistently lowercased for cross-reference integrity');
+});
+console.log('Test 37 passed!');
+
+// Test 38: bidirectional consistency — getDimmedHotelNames and getVisibleHotelNames return same case format.
+// Regression guard for content.js contract-surface fix ensuring both module-level implementations agree on output case.
+console.log('Testing dimmed vs visible output case consistency...');
+localStorage.clear();
+global.console.error = function() {};
+setSavedList(['beta hotel']);
+var mockCardTest38 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Beta Hotel' }; return null; },
+    classList: { add: function(){}, contains:function(c){return c==='bf-dimmed'} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardTest38];
+    return [];
+};
+var dimmed38 = getDimmedHotelNames();
+var visible38 = getVisibleHotelNames();
+dimmed38.forEach(function(name) { assert.strictEqual(name, name.toLowerCase(), 'dimmed output must be lowercased'); });
+visible38.forEach(function(name) { assert.strictEqual(name, name.toLowerCase(), 'visible output must be lowercased'); });
+console.log('Test 38 passed!');
