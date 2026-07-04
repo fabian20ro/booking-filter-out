@@ -355,6 +355,8 @@
 
     var buttonsConfig = [
         ['Add visible hotels', '\u2795', 'save-animals-btn', function () {
+            var nonExcluded = core.getNonExcludedVisibleHotels();
+            if (nonExcluded.length > 0 && !confirm('Save ' + nonExcluded.length + ' new hotel names?')) return;
             var result = core.mergeSavedWithVisible();
             if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
             showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
