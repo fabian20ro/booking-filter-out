@@ -50,7 +50,7 @@
         var names = [];
         getPropertyCards().forEach(function (card) {
             var name = getHotelNameFromCard(card).trim();
-            if (name && names.indexOf(name.toLowerCase()) === -1) names.push(name);
+            if (name) names.push(name.toLowerCase());
         });
         return names;
     }

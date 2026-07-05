@@ -431,6 +431,31 @@ updateStatus();
 assert.strictEqual(document.getElementById('hotel-list-status').textContent, '1 hotels saved');
 console.log('Test 11 passed!');
 
+// Test 31: getVisibleHotelNames normalizes mixed-case names (regression guard for parity fix).
+// When visible hotels have inconsistent casing, the function must return consistently lowercased strings.
+console.log('Testing getVisibleHotelNames normalization...');
+var mockCardMixed = {
+    querySelector: function(sel) { if (sel === '[data-testid=\"title\"]') return { textContent: '  Alpha Hotel  ' }; return null; },
+    classList: {}
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardMixed, mockCardMixed];
+    return [];
+};
+var visibleNames = getVisibleHotelNames();
+assert.strictEqual(visibleNames.length, 1); // dedup works
+assert.strictEqual(visibleNames[0], 'alpha hotel'); // normalized
+console.log('Test 31 passed!');
+
+// Test 32: getNonExcludedVisibleHotels handles mixed-case correctly after normalization fix.
+console.log('Testing getNonExcludedVisibleHotels with mixed-case...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+var mixedVisible = ['Hotel A', 'HOTEL B'];
+var excluded = getNonExcludedVisibleHotels(mixedVisible);
+assert.deepStrictEqual(excluded, ['hotel b']); // only HOTEL B is new
+console.log('Test 32 passed!');
+
 // Test 14: setSavedList always trims and lowercases entries (sanitization invariant)
 // This supports mergeSavedWithVisible correctness when it writes merged keys back.
 console.log('Testing setSavedList sanitization...');
