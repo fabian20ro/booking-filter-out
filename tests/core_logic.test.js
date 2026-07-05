@@ -793,6 +793,17 @@ applyDimming();
 assert.ok(mockCardNorm.classList._added.indexOf('bf-dimmed') !== -1, 'card should be dimmed despite mixed-case stored entry');
 console.log('Test 33 passed!');
 
+// Test 34 (regression): getNonExcludedVisibleHotels trims+lowercases visible names before filtering.
+// When visible hotel names have leading/trailing whitespace (common from DOM textContent),
+// they must still match against already-trimmed saved entries — otherwise the status shows wrong counts.
+console.log('Testing getNonExcludedVisibleHotels trim normalization regression...');
+localStorage.clear();
+setSavedList(['alpha hotel', 'beta hotel']);
+var trimmedVisible = ['  Alpha Hotel  ', 'Beta Hotel', 'Hotel C'];
+const nonExclTrim = getNonExcludedVisibleHotels(trimmedVisible);
+assert.deepStrictEqual(nonExclTrim, ['hotel c'], 'trimmed visible names should match saved entries case-insensitively');
+console.log('Test 34 passed!');
+
 // Test setSavedList input guard — rejects non-array inputs without corrupting localStorage (content.js parity).
 console.log('Testing setSavedList input guard...');
 localStorage.clear();

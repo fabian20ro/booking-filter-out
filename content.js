@@ -58,10 +58,10 @@
                 var saved = getSavedList();
                 var addedCount = 0;
                 saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
-                visible.forEach(function (name) {
-                    var lowerName = name.toLowerCase();
-                    if (!mergedMap[lowerName]) {
-                        mergedMap[lowerName] = true;
+                var trimmedVisible = visible.map(function (n) { return n.trim().toLowerCase(); }).filter(Boolean);
+                trimmedVisible.forEach(function (name) {
+                    if (!mergedMap[name]) {
+                        mergedMap[name] = true;
                         addedCount++;
                     }
                 });
@@ -138,10 +138,10 @@
             updateStatus();
         }
 
-        function getNonExcludedVisibleHotels() {
+        function getNonExcludedVisibleHotels(visible) {
             var savedMap = Object.create(null);
             getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
-            return getVisibleHotelNames().filter(function (name) { return !savedMap[name.toLowerCase()]; });
+            return visible.map(function (n) { return n.trim().toLowerCase(); }).filter(Boolean).filter(function (name) { return !savedMap[name]; });
         }
 
         function getDimmedHotelNames() {
@@ -165,7 +165,7 @@
                     var dimmed = dimmedCount > 0;
                     var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
                     if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
-                    var newHotels = getNonExcludedVisibleHotels().length;
+                    var newHotels = getNonExcludedVisibleHotels(getVisibleHotelNames()).length;
                     if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
                     status.textContent = text;
                     if (dimmed) {
