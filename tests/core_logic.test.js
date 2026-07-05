@@ -1016,3 +1016,105 @@ console.log('Test 43 passed! Test 43.1 passed!');
 // Test 42 continuation: verify final list state after merge with deduplication.
 assert.deepStrictEqual(getSavedList(), ['gamma hotel', 'delta hotel']);
 console.log('Test 42 passed!');
+
+// Test 44: bookmarklet updateStatus sets dimmed-color styling on status element when hotels are dimmed.
+// Regression guard — the bookmarklet's updateStatus() applies red color/border when dimCount > 0 (lines 208-211).
+// The test version of updateStatus does not mirror this, so we exercise core.updateStatus directly from bookmarklet.js.
+console.log('Testing bookmarklet updateStatus dimmed-color styling...');
+localStorage.clear();
+global.console.error = function() {};
+
+// Set up a saved list + mock card that will be dimmed.
+setSavedList(['alpha hotel']);
+var statusEl44 = { textContent: '', setAttribute:function(){}, addEventListener:function(){}, style:{} };
+global.document.getElementById = function(id) {
+    if (id === 'hotel-list-status') return statusEl44;
+    return { textContent:'', setAttribute:function(){}, addEventListener:function(){}, removeChild:function(){} };
+};
+var mockCardDimmed = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _added:[], add:function(c){this._added.push(c)}, remove:function(c){}, contains:function(c){return this._added.indexOf(c)!==-1} }
+};
+global.document.querySelectorAll = function(sel) { if (sel === '[data-testid="property-card"]') return [mockCardDimmed]; return []; };
+
+// Run core.updateStatus from bookmarklet.js — it sets status.style.color/borderColor to red when dimmed.
+core.updateStatus();
+
+assert.strictEqual(statusEl44.textContent, '1 hotels saved (1 dimmed)', 'status text should reflect 1 saved + 1 dimmed');
+assert.strictEqual(statusEl44.style.color, '#ff4d4f', 'color must be set to red when dimmed');
+assert.strictEqual(statusEl44.style.borderColor, '#ff4d4f', 'border color must be set to red when dimmed');
+console.log('Test 44 passed!');
+
+// Test 45: bookmarklet updateStatus sets blue styling on status element when hotels are saved but not yet dimmed.
+// Regression guard — verifies the non-dimmed saved state path (status.style.color = '#1f67ff').
+console.log('Testing bookmarklet updateStatus non-dimmed-color styling...');
+localStorage.clear();
+global.console.error = function() {};
+
+setSavedList(['alpha hotel']);
+var statusEl45 = { textContent: '', setAttribute:function(){}, addEventListener:function(){}, style:{} };
+global.document.getElementById = function(id) {
+    if (id === 'hotel-list-status') return statusEl45;
+    return { textContent:'', setAttribute:function(){}, addEventListener:function(){}, removeChild:function(){} };
+};
+var mockCardNotDimmed = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _added:[], add:function(c){this._added.push(c)}, remove:function(c){}, contains:function(){return false} }
+};
+global.document.querySelectorAll = function(sel) { if (sel === '[data-testid="property-card"]') return [mockCardNotDimmed]; return []; };
+
+core.updateStatus();
+assert.strictEqual(statusEl45.textContent, '1 hotels saved', 'status text should reflect 1 saved');
+assert.strictEqual(statusEl45.style.color, '#1f67ff', 'color must be set to blue when not dimmed but has saved hotels');
+assert.strictEqual(statusEl45.style.borderColor, '#1f67ff', 'border color must match text color');
+console.log('Test 45 passed!');
+
+// Test 46: bookmarklet updateStatus clears styling when no hotels are saved.
+// Regression guard — verifies the empty-state path (status.style.color = '', style.borderColor = '').
+console.log('Testing bookmarklet updateStatus empty-list styling...');
+localStorage.clear();
+global.console.error = function() {};
+
+setSavedList([]);
+var statusEl46 = { textContent: 'something', setAttribute:function(){}, addEventListener:function(){}, style:{color:'red',borderColor:'#ff4d4f'} };
+global.document.getElementById = function(id) {
+    if (id === 'hotel-list-status') return statusEl46;
+    return { textContent:'', setAttribute:function(){}, addEventListener:function(){}, removeChild:function(){} };
+};
+global.document.querySelectorAll = function(sel) { if (sel === '[data-testid="property-card"]') return []; return []; };
+
+core.updateStatus();
+assert.strictEqual(statusEl46.textContent, 'No hotels saved', 'status text should show empty state');
+assert.strictEqual(statusEl46.style.color, '', 'color must be cleared when no hotels saved');
+assert.strictEqual(statusEl46.style.borderColor, '', 'border color must be cleared when no hotels saved');
+console.log('Test 46 passed!');
+
+// Test 47: bookmarklet updateStatus preserves styling reset on re-render after clear.
+// When list goes from non-empty to empty (e.g., via clearSavedList), the red/blue colors should revert to ''.
+console.log('Testing bookmarklet updateStatus color reset on empty transition...');
+localStorage.clear();
+global.console.error = function() {};
+
+setSavedList(['alpha hotel']);
+var statusEl47 = { textContent: '1 hotels saved', setAttribute:function(){}, addEventListener:function(){}, style:{color:'#ff4d4f',borderColor:'#ff4d4f'} };
+global.document.getElementById = function(id) {
+    if (id === 'hotel-list-status') return statusEl47;
+    return { textContent:'', setAttribute:function(){}, addEventListener:function(){}, removeChild:function(){} };
+};
+// No dimmed cards, no saved hotels after clear.
+var mockCardEmpty = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return null; return null; },
+    classList: {}
+};
+global.document.querySelectorAll = function(sel) { if (sel === '[data-testid="property-card"]') return [mockCardEmpty]; return []; };
+
+// Simulate clearSavedList path — removeItem + updateStatus.
+if (!localStorage || typeof localStorage.removeItem !== 'function') { /* guard */ }
+else {
+    try { localStorage.removeItem('animalFriendlyList'); } catch(_e) {}
+}
+core.updateStatus();
+
+assert.strictEqual(statusEl47.textContent, 'No hotels saved', 'status text should show empty state after clear');
+assert.strictEqual(statusEl47.style.color, '', 'color must revert to empty after clearing list');
+console.log('Test 47 passed!');
