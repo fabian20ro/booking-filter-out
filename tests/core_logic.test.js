@@ -468,6 +468,16 @@ const raw = JSON.parse(localStorage.getItem('animalFriendlyList'));
 assert.deepStrictEqual(raw, ['alpha hotel', 'beta hotel']);
 console.log('Test 14 passed!');
 
+// Test 14a: setSavedList rejects non-array input (parity guard added to bookmarklet).
+console.log('Testing setSavedList rejection of non-array input...');
+localStorage.clear();
+var savedBefore = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
+setSavedList('not-an-array');
+assert.deepStrictEqual(getSavedList(), savedBefore, 'state should not change on rejected input');
+// Verify nothing was written to localStorage.
+assert.strictEqual(JSON.stringify(localStorage.store['animalFriendlyList']), 'undefined', 'nothing should be stored for rejected input');
+console.log('Test 14a passed!');
+
 // Test 15: mergeSavedWithVisible saves with sanitized (trimmed+lowercased) keys.
 // Regression guard for the merge function's setSavedList call path.
 console.log('Testing mergeSavedWithVisible sanitization...');
