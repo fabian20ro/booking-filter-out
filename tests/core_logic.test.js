@@ -1143,3 +1143,25 @@ core.updateStatus();
 assert.strictEqual(statusEl47.textContent, 'No hotels saved', 'status text should show empty state after clear');
 assert.strictEqual(statusEl47.style.color, '', 'color must revert to empty after clearing list');
 console.log('Test 47 passed!');
+
+// Test 48: getVisibleHotelNames deduplicates identical DOM titles (parity with content.js).
+// When multiple property cards share the same hotel name in the DOM, output must contain only one entry.
+console.log('Testing getVisibleHotelNames multi-card dedup...');
+localStorage.clear();
+global.console.error = function() {};
+var mockCardDup1 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: '  Alpha Hotel  ' }; return null; },
+    classList: {}
+};
+var mockCardDup2 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: {}
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardDup1, mockCardDup2];
+    return [];
+};
+var dupNames = getVisibleHotelNames();
+assert.strictEqual(dupNames.length, 1, 'two cards with same name must produce one entry');
+assert.strictEqual(dupNames[0], 'alpha hotel', 'output must be lowercased');
+console.log('Test 48 passed!');
