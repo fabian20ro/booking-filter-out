@@ -486,6 +486,18 @@ assert.ok(
 assert.strictEqual(statusEl.textContent, '2 hotels saved');
 console.log('Test 15 passed!');
 
+// Test 15b: mergeSavedWithVisible trims leading/trailing whitespace from visible names (parity with content.js).
+// If a visible name has surrounding whitespace it must be trimmed before storage — otherwise the sanitized key
+// diverges from content.js and dedup on page reload breaks.
+console.log('Testing mergeSavedWithVisible visible-name trimming...');
+localStorage.clear();
+setSavedList([]);
+const res5 = mergeSavedWithVisible(['  Whitespace Hotel  ', 'clean hotel']);
+assert.strictEqual(res5.addedCount, 2);
+// The saved list must contain trimmed entries (no leading/trailing space).
+getSavedList().forEach(function(entry) { assert.strictEqual(entry.trim(), entry, 'saved entry should be pre-trimmed: "' + entry + '"'); });
+console.log('Test 15b passed!');
+
 // Test 17: applyDimming matches bookmarklet — mixed-case visible names normalize correctly.
 // Regression guard for the bookmarklet.applyDimming fix (savedMap keys lowercased, lookup uses name.toLowerCase()).
 console.log('Testing applyDimming mixed-case visible normalization...');

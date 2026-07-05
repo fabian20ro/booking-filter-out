@@ -62,10 +62,10 @@
             var saved = getSavedList();
             var addedCount = 0;
             saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
-            visible.forEach(function (name) {
-                var lowerName = name.toLowerCase();
-                if (!mergedMap[lowerName]) {
-                    mergedMap[lowerName] = true;
+            var trimmedVisible = visible.map(function (n) { return n.trim().toLowerCase(); }).filter(Boolean);
+            trimmedVisible.forEach(function (name) {
+                if (!mergedMap[name]) {
+                    mergedMap[name] = true;
                     addedCount++;
                 }
             });
