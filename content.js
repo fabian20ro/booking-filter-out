@@ -295,6 +295,8 @@
                 var isDimmed = core.toggleDimSavedHotels();
                 updateStatus();
                 document.getElementById('toggle-dim-btn').textContent = isDimmed ? '\uD83D\uDED1' : '\uD83D\uDD0D';
+                document.getElementById('toggle-dim-btn').title = isDimmed ? 'Show all hotels' : 'Dim saved hotels';
+                document.getElementById('toggle-dim-btn').setAttribute('aria-label', isDimmed ? 'Show all hotels' : 'Dim saved hotels');
                 showMessage('Toggled dimming.');
             }],
             ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function () {
