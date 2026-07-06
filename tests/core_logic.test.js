@@ -461,6 +461,20 @@ var excluded = getNonExcludedVisibleHotels(mixedVisible);
 assert.deepStrictEqual(excluded, ['hotel b']); // only HOTEL B is new
 console.log('Test 32 passed!');
 
+// Test 33: getNonExcludedVisibleHotels honors the visible parameter instead of re-querying DOM (parity with content.js).
+// When called with an explicit array, it must filter using that array — not call getVisibleHotelNames().
+console.log('Testing getNonExcludedVisibleHotels accepts visible argument...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['already saved']));
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [{ querySelector: function(){return null}, classList: {} }];
+    return [];
+};
+var explicitVisible = ['already saved', 'fresh one'];
+var result = getNonExcludedVisibleHotels(explicitVisible);
+assert.deepStrictEqual(result, ['fresh one'], 'should filter using the provided array, not re-query DOM');
+console.log('Test 33 passed!');
+
 // Test 14: setSavedList always trims and lowercases entries (sanitization invariant)
 // This supports mergeSavedWithVisible correctness when it writes merged keys back.
 console.log('Testing setSavedList sanitization...');

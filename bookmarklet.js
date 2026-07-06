@@ -146,10 +146,16 @@
         updateStatus();
     }
 
-    function getNonExcludedVisibleHotels() {
-        var savedMap = Object.create(null);
-        getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
-        return getVisibleHotelNames().filter(function (name) { return !savedMap[name.toLowerCase()]; });
+    function getNonExcludedVisibleHotels(visible) {
+        try {
+            var savedMap = Object.create(null);
+            getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+            visible = Array.isArray(visible) ? visible : getVisibleHotelNames();
+            return visible.map(function (n) { return n.trim().toLowerCase(); }).filter(Boolean).filter(function (name) { return !savedMap[name]; });
+        } catch (e) {
+            console.error('Booking Filter: Error in getNonExcludedVisibleHotels', e);
+            return [];
+        }
     }
 
     function getDimmedHotelNames() {
