@@ -496,6 +496,17 @@ assert.ok(
 assert.strictEqual(statusEl.textContent, '2 hotels saved');
 console.log('Test 15 passed!');
 
+// Test 15c: merge must refresh status text after list mutation — parity guard for bookmarklet.
+// Catches regression where mergeSavedWithVisible() is called but updateStatus() is skipped (e.g., in bookmarklet's "Add visible hotels" button).
+console.log('Testing merge updates status even when no new/dimmed hotels exist...');
+localStorage.clear();
+setSavedList(['existing hotel']);
+document.getElementById('hotel-list-status').textContent = 'stale text';
+const res6 = mergeSavedWithVisible([]); // no visible hotels to add
+assert.strictEqual(res6.addedCount, 0);
+assert.strictEqual(document.getElementById('hotel-list-status').textContent, '1 hotels saved', 'status must reflect saved count after merge');
+console.log('Test 15c passed!');
+
 // Test 15b: mergeSavedWithVisible trims leading/trailing whitespace from visible names (parity with content.js).
 // If a visible name has surrounding whitespace it must be trimmed before storage — otherwise the sanitized key
 // diverges from content.js and dedup on page reload breaks.
