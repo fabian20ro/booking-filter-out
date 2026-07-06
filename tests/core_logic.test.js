@@ -51,7 +51,7 @@ function updateStatus() {
 function getSavedList() {
     try {
         var list = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
-        return Array.isArray(list) ? list.filter(function(item) { return typeof item === 'string' && item.trim() !== ''; }) : [];
+        return Array.isArray(list) ? list.filter(function(item) { return typeof item === 'string' && item.trim() !== ''; }).map(function(s) { return s.trim().toLowerCase(); }) : [];
     } catch (e) {
         return [];
     }
@@ -1209,3 +1209,18 @@ var dupNames = getVisibleHotelNames();
 assert.strictEqual(dupNames.length, 1, 'two cards with same name must produce one entry');
 assert.strictEqual(dupNames[0], 'alpha hotel', 'output must be lowercased');
 console.log('Test 48 passed!');
+
+// Test 49: getSavedList normalizes entries on read — bypassed mixed-case storage produces lowercase output.
+// Regression guard for the input-boundary fix in content.js. When setSavedList is bypassed and raw
+// mixed-case entries land directly in localStorage, every downstream comparison (merge/dim/toggle) relies
+// on getSavedList() to return normalized strings; otherwise dedup silently fails.
+console.log('Testing getSavedList normalization from bypassed storage...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['  Zeta Hotel  ', 'ALPHA HOTEL', 'BeTa Hotel ']));
+const normalized = getSavedList();
+assert.deepStrictEqual(normalized, ['zeta hotel', 'alpha hotel', 'beta hotel'], 'entries must be trimmed and lowercased');
+// Confirm downstream merge treats these as existing (no duplicates added).
+setSavedList(['gamma hotel']);
+const mergedResult = mergeSavedWithVisible(['ZETA HOTEL', 'ALPHA HOTEL', 'BETA HOTEL']); // all already in normalized list
+assert.strictEqual(mergedResult.addedCount, 0, 'all mixed-case entries should be deduped against normalized saved list');
+console.log('Test 49 passed!');
