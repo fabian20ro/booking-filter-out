@@ -1242,8 +1242,26 @@ localStorage.clear();
 localStorage.setItem('animalFriendlyList', JSON.stringify(['  Zeta Hotel  ', 'ALPHA HOTEL', 'BeTa Hotel ']));
 const normalized = getSavedList();
 assert.deepStrictEqual(normalized, ['zeta hotel', 'alpha hotel', 'beta hotel'], 'entries must be trimmed and lowercased');
+
+// Strengthened: exercise bookmarklet's live core.getSavedList() — the parity fix propagates to window.__bookingFilter.
+if (typeof core !== 'undefined' && typeof core.getSavedList === 'function') {
+    var normalizedCore = core.getSavedList();
+    assert.deepStrictEqual(normalizedCore, ['zeta hotel', 'alpha hotel', 'beta hotel'],
+        'bookmarklet.core.getSavedList() must normalize bypassed mixed-case entries');
+}
+
 // Confirm downstream merge treats these as existing (no duplicates added).
 setSavedList(['gamma hotel']);
 const mergedResult = mergeSavedWithVisible(['ZETA HOTEL', 'ALPHA HOTEL', 'BETA HOTEL']); // all already in normalized list
 assert.strictEqual(mergedResult.addedCount, 0, 'all mixed-case entries should be deduped against normalized saved list');
+
+// Strengthened: verify bookmarklet's live core.mergeSavedWithVisible also produces correct addedCount with bypassed data.
+if (typeof core !== 'undefined' && typeof core.mergeSavedWithVisible === 'function') {
+    localStorage.clear();
+    localStorage.setItem('animalFriendlyList', JSON.stringify(['  Alpha Hotel  ']));
+    var mergedCoreResult = core.mergeSavedWithVisible(['Alpha Hotel', 'Beta Hotel']);
+    assert.strictEqual(mergedCoreResult.addedCount, 1,
+        'bookmarklet.core.mergeSavedWithVisible must dedup mixed-case entries correctly');
+}
+
 console.log('Test 49 passed!');
