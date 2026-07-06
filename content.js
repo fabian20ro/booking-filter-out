@@ -20,6 +20,10 @@
         }
 
         function setSavedList(list) {
+            if (!Array.isArray(list)) {
+                console.warn('Booking Filter: setSavedList rejected — expected array, got ' + (typeof list === 'undefined' ? 'undefined' : typeof list));
+                return;
+            }
             try {
                 var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized.map(function(s) { return s.trim().toLowerCase(); })));
@@ -48,23 +52,28 @@
         }
 
         function mergeSavedWithVisible() {
-            var mergedMap = Object.create(null);
-            var visible = getVisibleHotelNames();
-            var saved = getSavedList();
-            var addedCount = 0;
-            saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
-            visible.forEach(function (name) {
-                var lowerName = name.toLowerCase();
-                if (!mergedMap[lowerName]) {
-                    mergedMap[lowerName] = true;
-                    addedCount++;
-                }
-            });
-            var merged = Object.keys(mergedMap);
-            setSavedList(merged);
-            applyDimming();
-            updateStatus();
-            return { savedCount: merged.length, addedCount: addedCount };
+            try {
+                var mergedMap = Object.create(null);
+                var visible = getVisibleHotelNames();
+                var saved = getSavedList();
+                var addedCount = 0;
+                saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
+                var trimmedVisible = visible.map(function (n) { return n.trim().toLowerCase(); }).filter(Boolean);
+                trimmedVisible.forEach(function (name) {
+                    if (!mergedMap[name]) {
+                        mergedMap[name] = true;
+                        addedCount++;
+                    }
+                });
+                var merged = Object.keys(mergedMap);
+                setSavedList(merged);
+                applyDimming();
+                updateStatus();
+                return { savedCount: merged.length, addedCount: addedCount };
+            } catch (e) {
+                console.error('Booking Filter: Error in mergeSavedWithVisible', e);
+                return { savedCount: 0, addedCount: 0 };
+            }
         }
 
         function applyDimming() {
@@ -93,6 +102,7 @@
                 var savedMap = Object.create(null);
                 getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
                 getPropertyCards().forEach(function (card) {
+                    if (!card || typeof card.classList === 'undefined') return;
                     var name = getHotelNameFromCard(card).toLowerCase();
                     if (name && savedMap[name]) {
                         card.classList.toggle('bf-dimmed');
@@ -114,17 +124,30 @@
         }
 
         function clearSavedList() {
-            localStorage.removeItem(STORAGE_KEY);
+            if (!localStorage || typeof localStorage.removeItem !== 'function') return;
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {
+                console.error('Booking Filter: Failed to remove saved list from storage', e);
+            }
             getPropertyCards().forEach(function (card) {
-                card.classList.remove('bf-dimmed');
+                if (card && typeof card.classList !== 'undefined') {
+                    try { card.classList.remove('bf-dimmed'); } catch (_e) {}
+                }
             });
             updateStatus();
         }
 
-        function getNonExcludedVisibleHotels() {
-            var savedMap = Object.create(null);
-            getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
-            return getVisibleHotelNames().filter(function (name) { return !savedMap[name.toLowerCase()]; });
+        function getNonExcludedVisibleHotels(visible) {
+            try {
+                var savedMap = Object.create(null);
+                getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+                visible = Array.isArray(visible) ? visible : getVisibleHotelNames();
+                return visible.map(function (n) { return n.trim().toLowerCase(); }).filter(Boolean).filter(function (name) { return !savedMap[name]; });
+            } catch (e) {
+                console.error('Booking Filter: Error in getNonExcludedVisibleHotels', e);
+                return [];
+            }
         }
 
         function getDimmedHotelNames() {
@@ -148,7 +171,7 @@
                     var dimmed = dimmedCount > 0;
                     var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
                     if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
-                    var newHotels = getNonExcludedVisibleHotels().length;
+                    var newHotels = getNonExcludedVisibleHotels(getVisibleHotelNames()).length;
                     if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
                     status.textContent = text;
                     if (dimmed) {
@@ -183,24 +206,9 @@
             clearSavedList: clearSavedList,
             getNonExcludedVisibleHotels: getNonExcludedVisibleHotels,
             updateStatus: updateStatus,
-            getDimmedHotelNames: function() {
-                var dimmedNames = new Set();
-                getPropertyCards().forEach(function(card) {
-                    if (card.classList.contains('bf-dimmed')) {
-                        var name = getHotelNameFromCard(card);
-                        if (name) dimmedNames.add(name);
-                    }
-                });
-                return Array.from(dimmedNames);
-            },
-            getVisibleHotelNames: function() {
-                const names = new Set();
-                getPropertyCards().forEach(function (card) {
-                    var name = getHotelNameFromCard(card);
-                    if (name) names.add(name);
-                });
-                return Array.from(names);
-            }
+            // Delegate to module-level implementations for consistent output contract.
+            getDimmedHotelNames: function() { return getDimmedHotelNames(); },
+            getVisibleHotelNames: function() { return getVisibleHotelNames(); }
         };
     }
 
@@ -293,6 +301,8 @@
                 var isDimmed = core.toggleDimSavedHotels();
                 updateStatus();
                 document.getElementById('toggle-dim-btn').textContent = isDimmed ? '\uD83D\uDED1' : '\uD83D\uDD0D';
+                document.getElementById('toggle-dim-btn').title = isDimmed ? 'Show all hotels' : 'Dim saved hotels';
+                document.getElementById('toggle-dim-btn').setAttribute('aria-label', isDimmed ? 'Show all hotels' : 'Dim saved hotels');
                 showMessage('Toggled dimming.');
             }],
             ['Copy all saved', '\uD83D\uDCCB', 'copy-all-saved-btn', function () {

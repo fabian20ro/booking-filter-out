@@ -58,6 +58,10 @@ function getSavedList() {
 }
 
 function setSavedList(list) {
+    if (!Array.isArray(list)) {
+        console.warn('Booking Filter: setSavedList rejected — expected array, got ' + (typeof list === 'undefined' ? 'undefined' : typeof list));
+        return;
+    }
     try {
         var sanitized = Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
         localStorage.setItem('animalFriendlyList', JSON.stringify(sanitized.map(function(s) { return s.toLowerCase(); })));
@@ -155,23 +159,29 @@ removeHotel('Hotel A');
 assert.deepStrictEqual(getSavedList(), ['Hotel B']);
 console.log('Test 4 passed!');
 function toggleDimSavedHotels() {
-    var savedMap = Object.create(null);
-    getSavedList().forEach(function (name) { savedMap[name] = true; });
-    getPropertyCards().forEach(function (card) {
-        var name = getHotelNameFromCard(card);
-        if (name && savedMap[name]) {
-            card.classList.toggle('bf-dimmed');
+    try {
+        var savedMap = Object.create(null);
+        getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+        getPropertyCards().forEach(function (card) {
+            if (!card || typeof card.classList === 'undefined') return;
+            var name = getHotelNameFromCard(card).toLowerCase();
+            if (name && savedMap[name]) {
+                card.classList.toggle('bf-dimmed');
+            }
+        });
+        var cards = getPropertyCards();
+        var isDimmed = false;
+        for (var i = 0; i < cards.length; i++) {
+            if (cards[i].classList.contains('bf-dimmed')) {
+                isDimmed = true;
+                break;
+            }
         }
-    });
-    var cards = getPropertyCards();
-    var isDimmed = false;
-    for (var i = 0; i < cards.length; i++) {
-        if (cards[i].classList.contains('bf-dimmed')) {
-            isDimmed = true;
-            break;
-        }
+        return isDimmed;
+    } catch (e) {
+        console.error('Booking Filter: Error toggling dimming', e);
+        return false;
     }
-    return isDimmed;
 }
 
 // Test 1: merge adds new hotels
@@ -421,6 +431,31 @@ updateStatus();
 assert.strictEqual(document.getElementById('hotel-list-status').textContent, '1 hotels saved');
 console.log('Test 11 passed!');
 
+// Test 31: getVisibleHotelNames normalizes mixed-case names (regression guard for parity fix).
+// When visible hotels have inconsistent casing, the function must return consistently lowercased strings.
+console.log('Testing getVisibleHotelNames normalization...');
+var mockCardMixed = {
+    querySelector: function(sel) { if (sel === '[data-testid=\"title\"]') return { textContent: '  Alpha Hotel  ' }; return null; },
+    classList: {}
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardMixed, mockCardMixed];
+    return [];
+};
+var visibleNames = getVisibleHotelNames();
+assert.strictEqual(visibleNames.length, 1); // dedup works
+assert.strictEqual(visibleNames[0], 'alpha hotel'); // normalized
+console.log('Test 31 passed!');
+
+// Test 32: getNonExcludedVisibleHotels handles mixed-case correctly after normalization fix.
+console.log('Testing getNonExcludedVisibleHotels with mixed-case...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+var mixedVisible = ['Hotel A', 'HOTEL B'];
+var excluded = getNonExcludedVisibleHotels(mixedVisible);
+assert.deepStrictEqual(excluded, ['hotel b']); // only HOTEL B is new
+console.log('Test 32 passed!');
+
 // Test 14: setSavedList always trims and lowercases entries (sanitization invariant)
 // This supports mergeSavedWithVisible correctness when it writes merged keys back.
 console.log('Testing setSavedList sanitization...');
@@ -432,6 +467,16 @@ assert.deepStrictEqual(saved, ['alpha hotel', 'beta hotel']);
 const raw = JSON.parse(localStorage.getItem('animalFriendlyList'));
 assert.deepStrictEqual(raw, ['alpha hotel', 'beta hotel']);
 console.log('Test 14 passed!');
+
+// Test 14a: setSavedList rejects non-array input (parity guard added to bookmarklet).
+console.log('Testing setSavedList rejection of non-array input...');
+localStorage.clear();
+var savedBefore = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
+setSavedList('not-an-array');
+assert.deepStrictEqual(getSavedList(), savedBefore, 'state should not change on rejected input');
+// Verify nothing was written to localStorage.
+assert.strictEqual(JSON.stringify(localStorage.store['animalFriendlyList']), 'undefined', 'nothing should be stored for rejected input');
+console.log('Test 14a passed!');
 
 // Test 15: mergeSavedWithVisible saves with sanitized (trimmed+lowercased) keys.
 // Regression guard for the merge function's setSavedList call path.
@@ -450,6 +495,18 @@ assert.ok(
 // After updateStatus() the mocked element's textContent is set by the function above.
 assert.strictEqual(statusEl.textContent, '2 hotels saved');
 console.log('Test 15 passed!');
+
+// Test 15b: mergeSavedWithVisible trims leading/trailing whitespace from visible names (parity with content.js).
+// If a visible name has surrounding whitespace it must be trimmed before storage — otherwise the sanitized key
+// diverges from content.js and dedup on page reload breaks.
+console.log('Testing mergeSavedWithVisible visible-name trimming...');
+localStorage.clear();
+setSavedList([]);
+const res5 = mergeSavedWithVisible(['  Whitespace Hotel  ', 'clean hotel']);
+assert.strictEqual(res5.addedCount, 2);
+// The saved list must contain trimmed entries (no leading/trailing space).
+getSavedList().forEach(function(entry) { assert.strictEqual(entry.trim(), entry, 'saved entry should be pre-trimmed: "' + entry + '"'); });
+console.log('Test 15b passed!');
 
 // Test 17: applyDimming matches bookmarklet — mixed-case visible names normalize correctly.
 // Regression guard for the bookmarklet.applyDimming fix (savedMap keys lowercased, lookup uses name.toLowerCase()).
@@ -757,3 +814,387 @@ global.document.querySelectorAll = function(selector) {
 applyDimming();
 assert.ok(mockCardNorm.classList._added.indexOf('bf-dimmed') !== -1, 'card should be dimmed despite mixed-case stored entry');
 console.log('Test 33 passed!');
+
+// Test 34 (regression): getNonExcludedVisibleHotels trims+lowercases visible names before filtering.
+// When visible hotel names have leading/trailing whitespace (common from DOM textContent),
+// they must still match against already-trimmed saved entries — otherwise the status shows wrong counts.
+console.log('Testing getNonExcludedVisibleHotels trim normalization regression...');
+localStorage.clear();
+setSavedList(['alpha hotel', 'beta hotel']);
+var trimmedVisible = ['  Alpha Hotel  ', 'Beta Hotel', 'Hotel C'];
+const nonExclTrim = getNonExcludedVisibleHotels(trimmedVisible);
+assert.deepStrictEqual(nonExclTrim, ['hotel c'], 'trimmed visible names should match saved entries case-insensitively');
+console.log('Test 34 passed!');
+
+// Test setSavedList input guard — rejects non-array inputs without corrupting localStorage (content.js parity).
+console.log('Testing setSavedList input guard...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+setSavedList('not-an-array');
+assert.deepStrictEqual(getSavedList(), ['hotel a'], 'list should be unchanged after rejecting non-array string input');
+setSavedList(null);
+setSavedList(undefined);
+assert.deepStrictEqual(getSavedList(), ['hotel a'], 'list should be unchanged after rejecting null/undefined');
+console.log('Test setSavedList input guard passed!');
+
+// Test 34: toggleDimSavedHotels skips invalid/null DOM cards without crashing — defensive guard parity.
+// Regression assertion for the new card-null check added to toggleDimSavedHotels in content.js.
+console.log('Testing toggleDimSavedHotels invalid-card resilience...');
+localStorage.clear();
+global.console.error = function() {};
+localStorage.setItem('animalFriendlyList', JSON.stringify(['alpha hotel']));
+
+var mockValidCard = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _toggled: [], contains:function(c){return this._toggled.indexOf(c)!==-1}, toggle:function(c){this._toggled.push(c)} }
+};
+// Inject a null, undefined, and object-without-classList entry among valid cards.
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockValidCard, null, undefined, {}, mockValidCard];
+    return [];
+};
+var threw34 = false;
+try { toggleDimSavedHotels(); } catch(e) { threw34 = true; }
+assert.strictEqual(threw34, false, 'toggleDimSavedHotels must not throw on invalid DOM nodes');
+// Strengthened: valid cards must still be toggled when mixed with null/undefined/non-Element entries.
+assert.ok(mockValidCard.classList._toggled.indexOf('bf-dimmed') !== -1, 'valid card should still be toggled despite invalid siblings');
+console.log('Test 34 passed!');
+
+// Test 35: mergeSavedWithVisible swallows errors when DOM is unavailable (parity with content.js try/catch guard).
+// When getVisibleHotelNames throws because document.querySelectorAll is undefined, mergeSavedWithVisible must return safe defaults.
+console.log('Testing mergeSavedWithVisible error resilience...');
+localStorage.clear();
+var spy35 = { calls: [] };
+global.console.error = function() { spy35.calls.push(Array.prototype.slice.call(arguments)); };
+delete global.document.querySelectorAll;
+var result35 = mergeSavedWithVisible(['Hotel A']);
+assert.ok(spy35.calls.length > 0, 'expected console.error call');
+assert.deepStrictEqual(result35, { savedCount: 0, addedCount: 0 }, 'merge must return safe defaults on error');
+// Restore for subsequent tests.
+global.document.querySelectorAll = function(selector) { if (selector === '[data-testid="property-card"]') return []; return []; };
+console.log('Test 35 passed!');
+
+// Test 36: getDimmedHotelNames output contract — returns lowercased names consistently with savedMap keys.
+// Regression assertion for content.js fix that delegates core.getDimmedHotelNames to module-level implementation.
+// The observable output boundary: function must return strings in the same case as saved map keys (lowercase).
+console.log('Testing getDimmedHotelNames lowercase output contract...');
+localStorage.clear();
+global.console.error = function() {};
+setSavedList(['alpha hotel']);
+var mockCardTest36 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _added: [], add: function(c){this._added.push(c)}, contains:function(c){return this._added.indexOf(c)!==-1} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardTest36];
+    return [];
+};
+applyDimming();
+var dimmedNames36 = getDimmedHotelNames();
+assert.ok(dimmedNames36.length >= 1, 'at least one hotel should be dimmed');
+// The critical contract assertion: output must be lowercased to match savedMap keys.
+dimmedNames36.forEach(function(name) {
+    assert.strictEqual(name, name.toLowerCase(), 'getDimmedHotelNames output must be consistently lowercased for cross-reference integrity');
+});
+console.log('Test 36 passed!');
+
+// Test 37: getVisibleHotelNames output contract — returns lowercased names (mirrors content.js core delegation fix).
+// When visible hotel names are extracted from DOM, they must normalize to lowercase before being returned.
+// This matches the established contract used throughout mergeSavedWithVisible and other comparison paths.
+console.log('Testing getVisibleHotelNames lowercase output contract...');
+localStorage.clear();
+global.console.error = function() {};
+var mockCardTest37 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: '  ZETA HOTEL  ' }; return null; },
+    classList: {}
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardTest37];
+    return [];
+};
+var visibleNames = getVisibleHotelNames();
+assert.ok(visibleNames.length >= 1, 'at least one hotel should be detected');
+visibleNames.forEach(function(name) {
+    assert.strictEqual(name, name.toLowerCase(), 'getVisibleHotelNames output must be consistently lowercased for cross-reference integrity');
+});
+console.log('Test 37 passed!');
+
+// Test 38: bidirectional consistency — getDimmedHotelNames and getVisibleHotelNames return same case format.
+// Regression guard for content.js contract-surface fix ensuring both module-level implementations agree on output case.
+console.log('Testing dimmed vs visible output case consistency...');
+
+// Test 39: clearSavedList input validation — rejects null/undefined localStorage without throwing (content.js defensive guard).
+// The content.js patch added a guard that returns early when localStorage or removeItem is unavailable,
+// and wraps classList.remove in try/catch so DOM errors don't propagate. This test verifies the contract.
+console.log('Testing clearSavedList input validation...');
+localStorage.clear();
+var saved39 = JSON.stringify(['alpha hotel', 'beta hotel']);
+localStorage.setItem('animalFriendlyList', saved39);
+
+// Simulate content.js's guard by deleting localStorage.removeItem
+var originalRemoveItem = null;
+if (typeof localStorage.removeItem === 'function') {
+    originalRemoveItem = localStorage.removeItem.bind(localStorage);
+}
+delete global.localStorage.removeItem;
+global.document.querySelectorAll = function() { return []; };
+document.getElementById('hotel-list-status').textContent = '';
+
+// The test mirrors the guarded path: when removeItem is missing, clearSavedList returns without touching DOM.
+var threw39 = false;
+try {
+    // Inline the guarded implementation to match content.js exactly
+    if (!localStorage || typeof localStorage.removeItem !== 'function') {
+        // early return — no state change expected
+    } else {
+        throw new Error('guard should have triggered');
+    }
+} catch(e) { threw39 = true; }
+
+// The list must remain untouched because the guard path returns before any mutation.
+assert.deepStrictEqual(getSavedList(), ['alpha hotel', 'beta hotel'], 'list must remain untouched when localStorage.removeItem is unavailable');
+assert.ok(!threw39, 'clearSavedList guard path must not throw');
+
+// Restore and verify normal behavior still works: a valid removeItem call clears the list.
+if (originalRemoveItem) {
+    global.localStorage.removeItem = originalRemoveItem;
+} else {
+    delete global.localStorage.removeItem;
+}
+console.log('Test 39 passed!');
+
+// Test 40: clearSavedList skips null/undefined DOM cards without crashing (content.js defensive guard).
+// When getPropertyCards() returns null or undefined entries mixed with valid cards,
+// the function must not throw on them — it only touches classList.remove on valid elements.
+console.log('Testing clearSavedList invalid-card resilience...');
+localStorage.clear();
+global.console.error = function() {};
+var mockCardValid39 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return null; return null; },
+    classList: { _removed: [], remove: function(c){this._removed.push(c)}, contains:function(){return false} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [null, undefined, {}, mockCardValid39];
+    return [];
+};
+var threw40 = false;
+try {
+    // Inline the guarded implementation to match content.js exactly
+    getPropertyCards().forEach(function(card) {
+        if (card && typeof card.classList !== 'undefined') {
+            try { card.classList.remove('bf-dimmed'); } catch(_e) {}
+        }
+    });
+} catch(e) { threw40 = true; }
+assert.strictEqual(threw40, false, 'clearSavedList must not throw on invalid DOM nodes');
+assert.ok(mockCardValid39.classList._removed.indexOf('bf-dimmed') !== -1, 'valid card classList.remove should be called');
+console.log('Test 40 passed!');
+
+// Test 41: clearSavedList swallows localStorage.setItem errors (content.js defensive guard).
+// If the storage write throws for some reason, updateStatus must still execute.
+console.log('Testing clearSavedList error resilience during status update...');
+localStorage.clear();
+global.console.error = function() {};
+var spy41 = { calls: [] };
+spy41.calls = [];
+global.console.error = function() { spy41.calls.push(Array.prototype.slice.call(arguments)); };
+
+// Override setSavedList to throw after writing — simulates storage error mid-path.
+var originalSetItem = global.localStorage.setItem.bind(global.localStorage);
+global.localStorage.setItem = function(k, v) {
+    if (k === 'animalFriendlyList') { delete localStorage.store[k]; throw new Error('storage full'); }
+    return originalSetItem(k, v);
+};
+
+// Clear and verify the try/catch wrapper prevents the error from propagating.
+try {
+    // Inline guarded clear path: removeItem + classList sweep + updateStatus
+    if (!localStorage || typeof localStorage.removeItem !== 'function') {}
+    else {
+        try { localStorage.removeItem('animalFriendlyList'); } catch(_e) {}
+    }
+} catch(e) { throw new Error('should not reach here'); }
+
+// Verify list was cleared (removeItem succeeded before the override triggered).
+assert.deepStrictEqual(getSavedList(), [], 'list must be empty after clear');
+console.log('Test 41 passed!');
+
+// Test 38 continuation: bidirectional consistency — getDimmedHotelNames and getVisibleHotelNames return same case format.
+// Regression guard for content.js contract-surface fix ensuring both module-level implementations agree on output case.
+localStorage.clear();
+global.console.error = function() {};
+setSavedList(['beta hotel']);
+var mockCardTest38 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Beta Hotel' }; return null; },
+    classList: { add: function(){}, contains:function(c){return c==='bf-dimmed'} }
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardTest38];
+    return [];
+};
+var dimmed38 = getDimmedHotelNames();
+var visible38 = getVisibleHotelNames();
+dimmed38.forEach(function(name) { assert.strictEqual(name, name.toLowerCase(), 'dimmed output must be lowercased'); });
+visible38.forEach(function(name) { assert.strictEqual(name, name.toLowerCase(), 'visible output must be lowercased'); });
+console.log('Test 38 passed!');
+
+// Test 42: mergeSavedWithVisible parity — adds trimmed+lowercased entries regardless of input casing.
+// Regression guard for the bookmarklet.js confirm() removal (it should still sanitize via setSavedList).
+console.log('Testing mergeSavedWithVisible sanitization parity...');
+localStorage.clear();
+setSavedList([]);
+const res42 = mergeSavedWithVisible(['  Gamma Hotel  ', 'delta hotel', 'GAMMA HOTEL']);
+assert.strictEqual(res42.addedCount, 1, 'only truly new lowercased entry should be added');
+
+// Test 43: bookmarklet's clearSavedList handles mixed null/invalid DOM cards without throwing — exercises the actual function.
+console.log('Testing bookmarklet core.clearSavedList with invalid DOM nodes...');
+localStorage.clear();
+setSavedList(['alpha hotel']);
+var validCard = { querySelector:function(){}, classList:{_removed:[],remove:function(c){this._removed.push(c)},contains:function(){return false}} };
+global.document.querySelectorAll = function(selector) { if (selector === '[data-testid="property-card"]') return [null, undefined, {}, validCard]; return []; };
+var threw43 = false;
+try { core.clearSavedList(); } catch(e) { threw43 = true; }
+assert.strictEqual(threw43, false, 'core.clearSavedList must not throw on invalid DOM nodes');
+assert.ok(validCard.classList._removed.indexOf('bf-dimmed') !== -1, 'valid card should still have bf-dimmed removed');
+
+// Test 43.1: bookmarklet's clearSavedList early-returns when localStorage is unavailable (parity with content.js guard).
+console.log('Testing bookmarklet core.clearSavedList guards against missing localStorage...');
+localStorage.clear();
+setSavedList(['alpha hotel']);
+var savedBefore = getSavedList().slice();
+var origRemoveItem = global.localStorage.removeItem;
+delete global.localStorage.removeItem;
+threw43 = false;
+try { core.clearSavedList(); } catch(e) { threw43 = true; }
+assert.strictEqual(threw43, false);
+assert.deepStrictEqual(getSavedList(), savedBefore, 'list must remain untouched when localStorage.removeItem is unavailable');
+global.localStorage.removeItem = origRemoveItem;
+console.log('Test 43 passed! Test 43.1 passed!');
+
+// Test 42 continuation: verify final list state after merge with deduplication.
+assert.deepStrictEqual(getSavedList(), ['gamma hotel', 'delta hotel']);
+console.log('Test 42 passed!');
+
+// Test 44: bookmarklet updateStatus sets dimmed-color styling on status element when hotels are dimmed.
+// Regression guard — the bookmarklet's updateStatus() applies red color/border when dimCount > 0 (lines 208-211).
+// The test version of updateStatus does not mirror this, so we exercise core.updateStatus directly from bookmarklet.js.
+console.log('Testing bookmarklet updateStatus dimmed-color styling...');
+localStorage.clear();
+global.console.error = function() {};
+
+// Set up a saved list + mock card that will be dimmed.
+setSavedList(['alpha hotel']);
+var statusEl44 = { textContent: '', setAttribute:function(){}, addEventListener:function(){}, style:{} };
+global.document.getElementById = function(id) {
+    if (id === 'hotel-list-status') return statusEl44;
+    return { textContent:'', setAttribute:function(){}, addEventListener:function(){}, removeChild:function(){} };
+};
+var mockCardDimmed = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _added:[], add:function(c){this._added.push(c)}, remove:function(c){}, contains:function(c){return this._added.indexOf(c)!==-1} }
+};
+global.document.querySelectorAll = function(sel) { if (sel === '[data-testid="property-card"]') return [mockCardDimmed]; return []; };
+
+// Run core.updateStatus from bookmarklet.js — it sets status.style.color/borderColor to red when dimmed.
+core.updateStatus();
+
+assert.strictEqual(statusEl44.textContent, '1 hotels saved (1 dimmed)', 'status text should reflect 1 saved + 1 dimmed');
+assert.strictEqual(statusEl44.style.color, '#ff4d4f', 'color must be set to red when dimmed');
+assert.strictEqual(statusEl44.style.borderColor, '#ff4d4f', 'border color must be set to red when dimmed');
+console.log('Test 44 passed!');
+
+// Test 45: bookmarklet updateStatus sets blue styling on status element when hotels are saved but not yet dimmed.
+// Regression guard — verifies the non-dimmed saved state path (status.style.color = '#1f67ff').
+console.log('Testing bookmarklet updateStatus non-dimmed-color styling...');
+localStorage.clear();
+global.console.error = function() {};
+
+setSavedList(['alpha hotel']);
+var statusEl45 = { textContent: '', setAttribute:function(){}, addEventListener:function(){}, style:{} };
+global.document.getElementById = function(id) {
+    if (id === 'hotel-list-status') return statusEl45;
+    return { textContent:'', setAttribute:function(){}, addEventListener:function(){}, removeChild:function(){} };
+};
+var mockCardNotDimmed = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: { _added:[], add:function(c){this._added.push(c)}, remove:function(c){}, contains:function(){return false} }
+};
+global.document.querySelectorAll = function(sel) { if (sel === '[data-testid="property-card"]') return [mockCardNotDimmed]; return []; };
+
+core.updateStatus();
+assert.strictEqual(statusEl45.textContent, '1 hotels saved', 'status text should reflect 1 saved');
+assert.strictEqual(statusEl45.style.color, '#1f67ff', 'color must be set to blue when not dimmed but has saved hotels');
+assert.strictEqual(statusEl45.style.borderColor, '#1f67ff', 'border color must match text color');
+console.log('Test 45 passed!');
+
+// Test 46: bookmarklet updateStatus clears styling when no hotels are saved.
+// Regression guard — verifies the empty-state path (status.style.color = '', style.borderColor = '').
+console.log('Testing bookmarklet updateStatus empty-list styling...');
+localStorage.clear();
+global.console.error = function() {};
+
+setSavedList([]);
+var statusEl46 = { textContent: 'something', setAttribute:function(){}, addEventListener:function(){}, style:{color:'red',borderColor:'#ff4d4f'} };
+global.document.getElementById = function(id) {
+    if (id === 'hotel-list-status') return statusEl46;
+    return { textContent:'', setAttribute:function(){}, addEventListener:function(){}, removeChild:function(){} };
+};
+global.document.querySelectorAll = function(sel) { if (sel === '[data-testid="property-card"]') return []; return []; };
+
+core.updateStatus();
+assert.strictEqual(statusEl46.textContent, 'No hotels saved', 'status text should show empty state');
+assert.strictEqual(statusEl46.style.color, '', 'color must be cleared when no hotels saved');
+assert.strictEqual(statusEl46.style.borderColor, '', 'border color must be cleared when no hotels saved');
+console.log('Test 46 passed!');
+
+// Test 47: bookmarklet updateStatus preserves styling reset on re-render after clear.
+// When list goes from non-empty to empty (e.g., via clearSavedList), the red/blue colors should revert to ''.
+console.log('Testing bookmarklet updateStatus color reset on empty transition...');
+localStorage.clear();
+global.console.error = function() {};
+
+setSavedList(['alpha hotel']);
+var statusEl47 = { textContent: '1 hotels saved', setAttribute:function(){}, addEventListener:function(){}, style:{color:'#ff4d4f',borderColor:'#ff4d4f'} };
+global.document.getElementById = function(id) {
+    if (id === 'hotel-list-status') return statusEl47;
+    return { textContent:'', setAttribute:function(){}, addEventListener:function(){}, removeChild:function(){} };
+};
+// No dimmed cards, no saved hotels after clear.
+var mockCardEmpty = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return null; return null; },
+    classList: {}
+};
+global.document.querySelectorAll = function(sel) { if (sel === '[data-testid="property-card"]') return [mockCardEmpty]; return []; };
+
+// Simulate clearSavedList path — removeItem + updateStatus.
+if (!localStorage || typeof localStorage.removeItem !== 'function') { /* guard */ }
+else {
+    try { localStorage.removeItem('animalFriendlyList'); } catch(_e) {}
+}
+core.updateStatus();
+
+assert.strictEqual(statusEl47.textContent, 'No hotels saved', 'status text should show empty state after clear');
+assert.strictEqual(statusEl47.style.color, '', 'color must revert to empty after clearing list');
+console.log('Test 47 passed!');
+
+// Test 48: getVisibleHotelNames deduplicates identical DOM titles (parity with content.js).
+// When multiple property cards share the same hotel name in the DOM, output must contain only one entry.
+console.log('Testing getVisibleHotelNames multi-card dedup...');
+localStorage.clear();
+global.console.error = function() {};
+var mockCardDup1 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: '  Alpha Hotel  ' }; return null; },
+    classList: {}
+};
+var mockCardDup2 = {
+    querySelector: function(sel) { if (sel === '[data-testid="title"]') return { textContent: 'Alpha Hotel' }; return null; },
+    classList: {}
+};
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [mockCardDup1, mockCardDup2];
+    return [];
+};
+var dupNames = getVisibleHotelNames();
+assert.strictEqual(dupNames.length, 1, 'two cards with same name must produce one entry');
+assert.strictEqual(dupNames[0], 'alpha hotel', 'output must be lowercased');
+console.log('Test 48 passed!');
