@@ -457,4 +457,6 @@
     document.body.appendChild(panel);
     core.updateStatus();
 
+    window.__bookingFilter = core;
+
     })();
