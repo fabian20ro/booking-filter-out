@@ -51,7 +51,7 @@ function updateStatus() {
 function getSavedList() {
     try {
         var list = JSON.parse(localStorage.getItem('animalFriendlyList') || '[]');
-        return Array.isArray(list) ? list.filter(function(item) { return typeof item === 'string' && item.trim() !== ''; }) : [];
+        return Array.isArray(list) ? list.filter(function(item) { return typeof item === 'string' && item.trim() !== ''; }).map(function(s) { return s.trim().toLowerCase(); }) : [];
     } catch (e) {
         return [];
     }
@@ -80,21 +80,26 @@ function getHotelNameFromCard(card) {
     return t ? t.textContent.trim().toLowerCase() : '';
 }
 function mergeSavedWithVisible(visible) {
-    var mergedMap = Object.create(null);
-    var saved = getSavedList();
-    var addedCount = 0;
-    saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
-    visible.forEach(function (name) {
-        var lowerName = name.toLowerCase();
-        if (!mergedMap[lowerName]) {
-            mergedMap[lowerName] = true;
-            addedCount++;
-        }
-    });
-    var merged = Object.keys(mergedMap);
-    setSavedList(merged);
-    updateStatus();
-    return { savedCount: merged.length, addedCount: addedCount };
+    try {
+        var mergedMap = Object.create(null);
+        var saved = getSavedList();
+        var addedCount = 0;
+        saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
+        visible.forEach(function (name) {
+            var lowerName = name.toLowerCase();
+            if (!mergedMap[lowerName]) {
+                mergedMap[lowerName] = true;
+                addedCount++;
+            }
+        });
+        var merged = Object.keys(mergedMap);
+        setSavedList(merged);
+        updateStatus();
+        return { savedCount: merged.length, addedCount: addedCount };
+    } catch (e) {
+        console.error('Booking Filter: Error in mergeSavedWithVisible', e);
+        return { savedCount: 0, addedCount: 0 };
+    }
 }
 
 function getNonExcludedVisibleHotels(visible) {
@@ -495,6 +500,35 @@ assert.ok(
 // After updateStatus() the mocked element's textContent is set by the function above.
 assert.strictEqual(statusEl.textContent, '2 hotels saved');
 console.log('Test 15 passed!');
+
+// Test 16: mergeSavedWithVisible swallows internal errors (parity with content.js/bookmarklet.js).
+// When setSavedList throws inside the function, it must return {savedCount: 0, addedCount: 0}
+// instead of propagating the error — matching production behavior in both code paths.
+console.log('Testing mergeSavedWithVisible error resilience...');
+localStorage.clear();
+var savedSpy = { calls: [] };
+global.console.error = function() { savedSpy.calls.push(Array.prototype.slice.call(arguments)); };
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+// Inject setSavedList failure by making localStorage.setItem throw.
+var origSetItem = localStorage.setItem;
+localStorage.setItem = function(k, v) { throw new Error('Storage full'); };
+const resErr = mergeSavedWithVisible(['Hotel B']);
+assert.deepStrictEqual(resErr, { savedCount: 0, addedCount: 0 }, 'merge must return zeroed result on internal error');
+assert.ok(savedSpy.calls.length > 0, 'expected console.error call');
+localStorage.setItem = origSetItem;
+global.console.error = function() {};
+console.log('Test 16 passed!');
+
+// Test 15c: merge must refresh status text after list mutation — parity guard for bookmarklet.
+// Catches regression where mergeSavedWithVisible() is called but updateStatus() is skipped (e.g., in bookmarklet's "Add visible hotels" button).
+console.log('Testing merge updates status even when no new/dimmed hotels exist...');
+localStorage.clear();
+setSavedList(['existing hotel']);
+document.getElementById('hotel-list-status').textContent = 'stale text';
+const res6 = mergeSavedWithVisible([]); // no visible hotels to add
+assert.strictEqual(res6.addedCount, 0);
+assert.strictEqual(document.getElementById('hotel-list-status').textContent, '1 hotels saved', 'status must reflect saved count after merge');
+console.log('Test 15c passed!');
 
 // Test 15b: mergeSavedWithVisible trims leading/trailing whitespace from visible names (parity with content.js).
 // If a visible name has surrounding whitespace it must be trimmed before storage — otherwise the sanitized key
@@ -1198,3 +1232,36 @@ var dupNames = getVisibleHotelNames();
 assert.strictEqual(dupNames.length, 1, 'two cards with same name must produce one entry');
 assert.strictEqual(dupNames[0], 'alpha hotel', 'output must be lowercased');
 console.log('Test 48 passed!');
+
+// Test 49: getSavedList normalizes entries on read — bypassed mixed-case storage produces lowercase output.
+// Regression guard for the input-boundary fix in content.js. When setSavedList is bypassed and raw
+// mixed-case entries land directly in localStorage, every downstream comparison (merge/dim/toggle) relies
+// on getSavedList() to return normalized strings; otherwise dedup silently fails.
+console.log('Testing getSavedList normalization from bypassed storage...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['  Zeta Hotel  ', 'ALPHA HOTEL', 'BeTa Hotel ']));
+const normalized = getSavedList();
+assert.deepStrictEqual(normalized, ['zeta hotel', 'alpha hotel', 'beta hotel'], 'entries must be trimmed and lowercased');
+
+// Strengthened: exercise bookmarklet's live core.getSavedList() — the parity fix propagates to window.__bookingFilter.
+if (typeof core !== 'undefined' && typeof core.getSavedList === 'function') {
+    var normalizedCore = core.getSavedList();
+    assert.deepStrictEqual(normalizedCore, ['zeta hotel', 'alpha hotel', 'beta hotel'],
+        'bookmarklet.core.getSavedList() must normalize bypassed mixed-case entries');
+}
+
+// Confirm downstream merge treats these as existing (no duplicates added).
+setSavedList(['gamma hotel']);
+const mergedResult = mergeSavedWithVisible(['ZETA HOTEL', 'ALPHA HOTEL', 'BETA HOTEL']); // all already in normalized list
+assert.strictEqual(mergedResult.addedCount, 0, 'all mixed-case entries should be deduped against normalized saved list');
+
+// Strengthened: verify bookmarklet's live core.mergeSavedWithVisible also produces correct addedCount with bypassed data.
+if (typeof core !== 'undefined' && typeof core.mergeSavedWithVisible === 'function') {
+    localStorage.clear();
+    localStorage.setItem('animalFriendlyList', JSON.stringify(['  Alpha Hotel  ']));
+    var mergedCoreResult = core.mergeSavedWithVisible(['Alpha Hotel', 'Beta Hotel']);
+    assert.strictEqual(mergedCoreResult.addedCount, 1,
+        'bookmarklet.core.mergeSavedWithVisible must dedup mixed-case entries correctly');
+}
+
+console.log('Test 49 passed!');

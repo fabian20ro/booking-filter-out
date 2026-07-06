@@ -12,7 +12,7 @@
     function getSavedList() {
         try {
             var list = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-            return Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }) : [];
+            return Array.isArray(list) ? list.filter(function(s) { return typeof s === 'string' && s.trim() !== ''; }).map(function(s) { return s.trim().toLowerCase(); }) : [];
         } catch (e) {
             return [];
         }
@@ -367,6 +367,7 @@
     var buttonsConfig = [
         ['Add visible hotels', '\u2795', 'save-animals-btn', function () {
             var result = core.mergeSavedWithVisible();
+            core.updateStatus();
             if (hoverList.style.display === 'block') renderSavedList(hoverList, filterInput.value);
             showMessage(result.addedCount ? ('Saved ' + result.addedCount + ' hotel names.') : 'No new hotel names found.');
         }],
