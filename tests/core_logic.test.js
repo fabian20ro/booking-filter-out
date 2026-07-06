@@ -932,6 +932,26 @@ dimmedNames36.forEach(function(name) {
 });
 console.log('Test 36 passed!');
 
+// Test 36b: getDimmedHotelNames tolerates null/undefined cards (regression guard).
+// When DOM reflow produces partial card references, the function must not throw.
+console.log('Testing getDimmedHotelNames with null-card tolerance...');
+localStorage.clear();
+var spy = { calls: [] };
+global.console.error = function() { spy.calls.push(Array.prototype.slice.call(arguments)); };
+setSavedList(['hotel a']);
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [null, undefined, mockCardTest36];
+    return [];
+};
+var threw = false;
+try { var dimmedNamesB = getDimmedHotelNames(); } catch(e) { threw = true; }
+assert.strictEqual(threw, false);
+// Verify the non-null card was still processed correctly.
+assert.deepStrictEqual(dimmedNamesB, ['alpha hotel']);
+// Null cards silently skipped — no error logged (guard prevents .classList access).
+assert.ok(spy.calls.length === 0, 'null/undefined cards should be silently skipped');
+console.log('Test 36b passed!');
+
 // Test 37: getVisibleHotelNames output contract — returns lowercased names (mirrors content.js core delegation fix).
 // When visible hotel names are extracted from DOM, they must normalize to lowercase before being returned.
 // This matches the established contract used throughout mergeSavedWithVisible and other comparison paths.
