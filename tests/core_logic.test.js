@@ -461,6 +461,20 @@ var excluded = getNonExcludedVisibleHotels(mixedVisible);
 assert.deepStrictEqual(excluded, ['hotel b']); // only HOTEL B is new
 console.log('Test 32 passed!');
 
+// Test 33: getNonExcludedVisibleHotels honors the visible parameter instead of re-querying DOM (parity with content.js).
+// When called with an explicit array, it must filter using that array — not call getVisibleHotelNames().
+console.log('Testing getNonExcludedVisibleHotels accepts visible argument...');
+localStorage.clear();
+localStorage.setItem('animalFriendlyList', JSON.stringify(['already saved']));
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [{ querySelector: function(){return null}, classList: {} }];
+    return [];
+};
+var explicitVisible = ['already saved', 'fresh one'];
+var result = getNonExcludedVisibleHotels(explicitVisible);
+assert.deepStrictEqual(result, ['fresh one'], 'should filter using the provided array, not re-query DOM');
+console.log('Test 33 passed!');
+
 // Test 14: setSavedList always trims and lowercases entries (sanitization invariant)
 // This supports mergeSavedWithVisible correctness when it writes merged keys back.
 console.log('Testing setSavedList sanitization...');
@@ -931,6 +945,26 @@ dimmedNames36.forEach(function(name) {
     assert.strictEqual(name, name.toLowerCase(), 'getDimmedHotelNames output must be consistently lowercased for cross-reference integrity');
 });
 console.log('Test 36 passed!');
+
+// Test 36b: getDimmedHotelNames tolerates null/undefined cards (regression guard).
+// When DOM reflow produces partial card references, the function must not throw.
+console.log('Testing getDimmedHotelNames with null-card tolerance...');
+localStorage.clear();
+var spy = { calls: [] };
+global.console.error = function() { spy.calls.push(Array.prototype.slice.call(arguments)); };
+setSavedList(['hotel a']);
+global.document.querySelectorAll = function(selector) {
+    if (selector === '[data-testid="property-card"]') return [null, undefined, mockCardTest36];
+    return [];
+};
+var threw = false;
+try { var dimmedNamesB = getDimmedHotelNames(); } catch(e) { threw = true; }
+assert.strictEqual(threw, false);
+// Verify the non-null card was still processed correctly.
+assert.deepStrictEqual(dimmedNamesB, ['alpha hotel']);
+// Null cards silently skipped — no error logged (guard prevents .classList access).
+assert.ok(spy.calls.length === 0, 'null/undefined cards should be silently skipped');
+console.log('Test 36b passed!');
 
 // Test 37: getVisibleHotelNames output contract — returns lowercased names (mirrors content.js core delegation fix).
 // When visible hotel names are extracted from DOM, they must normalize to lowercase before being returned.

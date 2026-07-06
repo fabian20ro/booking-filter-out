@@ -146,21 +146,33 @@
         updateStatus();
     }
 
-    function getNonExcludedVisibleHotels() {
-        var savedMap = Object.create(null);
-        getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
-        return getVisibleHotelNames().filter(function (name) { return !savedMap[name.toLowerCase()]; });
+    function getNonExcludedVisibleHotels(visible) {
+        try {
+            var savedMap = Object.create(null);
+            getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+            visible = Array.isArray(visible) ? visible : getVisibleHotelNames();
+            return visible.map(function (n) { return n.trim().toLowerCase(); }).filter(Boolean).filter(function (name) { return !savedMap[name]; });
+        } catch (e) {
+            console.error('Booking Filter: Error in getNonExcludedVisibleHotels', e);
+            return [];
+        }
     }
 
     function getDimmedHotelNames() {
-        var dimmedNames = [];
-        getPropertyCards().forEach(function(card) {
-            if (card.classList.contains('bf-dimmed')) {
-                var name = getHotelNameFromCard(card).toLowerCase();
-                if (name && dimmedNames.indexOf(name) === -1) dimmedNames.push(name);
-            }
-        });
-        return dimmedNames;
+        try {
+            var dimmedNames = [];
+            getPropertyCards().forEach(function(card) {
+                if (!card || typeof card.classList === 'undefined') return;
+                if (card.classList.contains('bf-dimmed')) {
+                    var name = getHotelNameFromCard(card).toLowerCase();
+                    if (name && dimmedNames.indexOf(name) === -1) dimmedNames.push(name);
+                }
+            });
+            return dimmedNames;
+        } catch (e) {
+            console.error('Booking Filter: Error in getDimmedHotelNames', e);
+            return [];
+        }
     }
 
     var core = {

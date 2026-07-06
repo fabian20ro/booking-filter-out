@@ -151,14 +151,20 @@
         }
 
         function getDimmedHotelNames() {
-            var dimmedNames = new Set();
-            getPropertyCards().forEach(function(card) {
-                if (card.classList.contains('bf-dimmed')) {
-                    var name = getHotelNameFromCard(card);
-                    if (name) dimmedNames.add(name);
-                }
-            });
-            return Array.from(dimmedNames);
+            try {
+                var dimmedNames = new Set();
+                getPropertyCards().forEach(function(card) {
+                    if (!card || typeof card.classList === 'undefined') return;
+                    if (card.classList.contains('bf-dimmed')) {
+                        var name = getHotelNameFromCard(card);
+                        if (name) dimmedNames.add(name);
+                    }
+                });
+                return Array.from(dimmedNames);
+            } catch (e) {
+                console.error('Booking Filter: Error in getDimmedHotelNames', e);
+                return [];
+            }
         }
 
         function updateStatus() {
