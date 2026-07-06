@@ -80,21 +80,26 @@ function getHotelNameFromCard(card) {
     return t ? t.textContent.trim().toLowerCase() : '';
 }
 function mergeSavedWithVisible(visible) {
-    var mergedMap = Object.create(null);
-    var saved = getSavedList();
-    var addedCount = 0;
-    saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
-    visible.forEach(function (name) {
-        var lowerName = name.toLowerCase();
-        if (!mergedMap[lowerName]) {
-            mergedMap[lowerName] = true;
-            addedCount++;
-        }
-    });
-    var merged = Object.keys(mergedMap);
-    setSavedList(merged);
-    updateStatus();
-    return { savedCount: merged.length, addedCount: addedCount };
+    try {
+        var mergedMap = Object.create(null);
+        var saved = getSavedList();
+        var addedCount = 0;
+        saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
+        visible.forEach(function (name) {
+            var lowerName = name.toLowerCase();
+            if (!mergedMap[lowerName]) {
+                mergedMap[lowerName] = true;
+                addedCount++;
+            }
+        });
+        var merged = Object.keys(mergedMap);
+        setSavedList(merged);
+        updateStatus();
+        return { savedCount: merged.length, addedCount: addedCount };
+    } catch (e) {
+        console.error('Booking Filter: Error in mergeSavedWithVisible', e);
+        return { savedCount: 0, addedCount: 0 };
+    }
 }
 
 function getNonExcludedVisibleHotels(visible) {
@@ -495,6 +500,24 @@ assert.ok(
 // After updateStatus() the mocked element's textContent is set by the function above.
 assert.strictEqual(statusEl.textContent, '2 hotels saved');
 console.log('Test 15 passed!');
+
+// Test 16: mergeSavedWithVisible swallows internal errors (parity with content.js/bookmarklet.js).
+// When setSavedList throws inside the function, it must return {savedCount: 0, addedCount: 0}
+// instead of propagating the error — matching production behavior in both code paths.
+console.log('Testing mergeSavedWithVisible error resilience...');
+localStorage.clear();
+var savedSpy = { calls: [] };
+global.console.error = function() { savedSpy.calls.push(Array.prototype.slice.call(arguments)); };
+localStorage.setItem('animalFriendlyList', JSON.stringify(['hotel a']));
+// Inject setSavedList failure by making localStorage.setItem throw.
+var origSetItem = localStorage.setItem;
+localStorage.setItem = function(k, v) { throw new Error('Storage full'); };
+const resErr = mergeSavedWithVisible(['Hotel B']);
+assert.deepStrictEqual(resErr, { savedCount: 0, addedCount: 0 }, 'merge must return zeroed result on internal error');
+assert.ok(savedSpy.calls.length > 0, 'expected console.error call');
+localStorage.setItem = origSetItem;
+global.console.error = function() {};
+console.log('Test 16 passed!');
 
 // Test 15c: merge must refresh status text after list mutation — parity guard for bookmarklet.
 // Catches regression where mergeSavedWithVisible() is called but updateStatus() is skipped (e.g., in bookmarklet's "Add visible hotels" button).
