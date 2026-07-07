@@ -59,13 +59,13 @@
         return Array.from(namesSet);
     }
 
-    function mergeSavedWithVisible() {
+    function mergeSavedWithVisible(visible) {
         try {
             var mergedMap = Object.create(null);
-            var visible = getVisibleHotelNames();
+            if (!visible) visible = getVisibleHotelNames();
             var saved = getSavedList();
             var addedCount = 0;
-            saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
+            saved.forEach(function (name) { mergedMap[(name || '').trim().toLowerCase()] = true; });
             var trimmedVisible = visible.map(function (n) { return n.trim().toLowerCase(); }).filter(Boolean);
             trimmedVisible.forEach(function (name) {
                 if (!mergedMap[name]) {
@@ -216,7 +216,7 @@
                     var dimmedNames = getDimmedHotelNames();
                     var dimmedCount = dimmedNames.length;
                     var dimmed = dimmedCount > 0;
-                    var newHotels = getNonExcludedVisibleHotels().length;
+                    var newHotels = getNonExcludedVisibleHotels(getVisibleHotelNames()).length;
                     var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
                     if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
                     if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
