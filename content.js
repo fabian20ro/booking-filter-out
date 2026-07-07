@@ -78,10 +78,12 @@
 
         function applyDimming() {
             try {
+                // savedMap keys must match the already-normalized names from getSavedList().
+                // Do NOT call .toLowerCase() on saved entries — they are already lowercased.
                 var savedMap = Object.create(null);
-                getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+                getSavedList().forEach(function (name) { savedMap[name] = true; });
                 getPropertyCards().forEach(function (card) {
-                    var name = getHotelNameFromCard(card);
+                    var name = getHotelNameFromCard(card).toLowerCase();
                     if (name && savedMap[name]) {
                         if (!card.classList.contains('bf-dimmed')) {
                             card.classList.add('bf-dimmed');
