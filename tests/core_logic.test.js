@@ -103,9 +103,15 @@ function mergeSavedWithVisible(visible) {
 }
 
 function getNonExcludedVisibleHotels(visible) {
-    var savedMap = Object.create(null);
-    getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
-    return visible.filter(function (name) { return !savedMap[name.toLowerCase()]; });
+    try {
+        var savedMap = Object.create(null);
+        getSavedList().forEach(function (name) { savedMap[name.toLowerCase()] = true; });
+        visible = Array.isArray(visible) ? visible : getVisibleHotelNames();
+        return visible.map(function (n) { return n.trim().toLowerCase(); }).filter(Boolean).filter(function (name) { return !savedMap[name]; });
+    } catch (e) {
+        console.error('Booking Filter: Error in getNonExcludedVisibleHotels', e);
+        return [];
+    }
 }
 
 function removeHotel(name) {
@@ -1323,3 +1329,13 @@ assert.deepStrictEqual(spyCalls[0].visible, [], 'visible snapshot is empty (no D
 
 getNonExcludedVisibleHotels = origGetNonExcluded;
 console.log('Test 50 passed!');
+
+// Test 51: getNonExcludedVisibleHotels trims+lowercases visible names before filtering (parity with content.js).
+// The test's local implementation must match content.js line 148 which applies .trim().toLowerCase() to each visible name.
+console.log('Testing getNonExcludedVisibleHotels whitespace normalization...');
+localStorage.clear();
+setSavedList(['alpha hotel', 'beta hotel']);
+const wsVisible = ['  Alpha Hotel  ', 'Beta Hotel', '  Gamma Hotel  ', 'delta hotel'];
+const excluded51 = getNonExcludedVisibleHotels(wsVisible);
+assert.deepStrictEqual(excluded51, ['gamma hotel', 'delta hotel'], 'whitespace-padded visible names must match saved entries case-insensitively; output normalized');
+console.log('Test 51 passed!');
