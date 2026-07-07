@@ -59,13 +59,13 @@
         return Array.from(namesSet);
     }
 
-    function mergeSavedWithVisible() {
+    function mergeSavedWithVisible(visible) {
         try {
             var mergedMap = Object.create(null);
-            var visible = getVisibleHotelNames();
+            if (!visible) visible = getVisibleHotelNames();
             var saved = getSavedList();
             var addedCount = 0;
-            saved.forEach(function (name) { mergedMap[name.toLowerCase()] = true; });
+            saved.forEach(function (name) { mergedMap[(name || '').trim().toLowerCase()] = true; });
             var trimmedVisible = visible.map(function (n) { return n.trim().toLowerCase(); }).filter(Boolean);
             trimmedVisible.forEach(function (name) {
                 if (!mergedMap[name]) {
