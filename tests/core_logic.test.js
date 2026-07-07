@@ -1299,3 +1299,27 @@ if (typeof core !== 'undefined' && typeof core.mergeSavedWithVisible === 'functi
 }
 
 console.log('Test 49 passed!');
+
+// Test 50: updateStatus passes explicit visible names to getNonExcludedVisibleHotels — bookmarklet parity.
+// Regression guard for the fix where updateStatus() now calls getNonExcludedVisibleHotels(getVisibleHotelNames())
+// instead of relying on DOM re-query. The contract invariant: updateStatus must pass its own visible snapshot.
+console.log('Testing updateStatus explicit-visible-names contract...');
+
+var spyCalls = [];
+var origGetNonExcluded = getNonExcludedVisibleHotels;
+getNonExcludedVisibleHotels = function(visible) {
+    spyCalls.push({ visible: visible, hasArgs: arguments.length > 0 });
+    return origGetNonExcluded(visible);
+};
+
+localStorage.clear();
+setSavedList(['hotel a']);
+document.getElementById('hotel-list-status').textContent = '';
+updateStatus();
+
+assert.ok(spyCalls.length === 1, 'getNonExcludedVisibleHotels should be called exactly once');
+assert.strictEqual(spyCalls[0].hasArgs, true, 'must pass explicit visible names argument');
+assert.deepStrictEqual(spyCalls[0].visible, [], 'visible snapshot is empty (no DOM cards in mock)');
+
+getNonExcludedVisibleHotels = origGetNonExcluded;
+console.log('Test 50 passed!');

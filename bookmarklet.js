@@ -216,7 +216,7 @@
                     var dimmedNames = getDimmedHotelNames();
                     var dimmedCount = dimmedNames.length;
                     var dimmed = dimmedCount > 0;
-                    var newHotels = getNonExcludedVisibleHotels().length;
+                    var newHotels = getNonExcludedVisibleHotels(getVisibleHotelNames()).length;
                     var text = (count === 0 ? 'No hotels saved' : count + ' hotels saved');
                     if (dimmed) text += ' (' + dimmedCount + ' dimmed)';
                     if (newHotels > 0) text += ' (+ ' + newHotels + ' new)';
