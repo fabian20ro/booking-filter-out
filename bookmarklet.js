@@ -459,10 +459,14 @@
 
     var debounceTimeout;
     var observer = new MutationObserver(function() {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(function() {
-            core.applyDimming();
-        }, 500);
+        try {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(function() {
+                core.applyDimming();
+            }, 500);
+        } catch (e) {
+            console.error('Booking Filter: Error in observer callback', e);
+        }
     });
     observer.observe(document.body, {
         childList: true,
