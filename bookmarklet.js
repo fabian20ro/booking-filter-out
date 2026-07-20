@@ -41,7 +41,9 @@
         }
 
     function getPropertyCards() {
-        return Array.prototype.slice.call(document.querySelectorAll(SELECTORS.propertyCard));
+        if (typeof document === 'undefined' || !document.body) return [];
+        var cards = document.querySelectorAll(SELECTORS.propertyCard);
+        return cards ? Array.prototype.slice.call(cards) : [];
     }
 
     function getHotelNameFromCard(card) {
