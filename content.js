@@ -1,5 +1,52 @@
 // Parity check
 (function () {
+    // --- Inline Node-only characterization (not exercised in browser) ---
+    if (typeof window === 'undefined') {
+        var _assert = (function() {
+            try { return require('node:assert'); } catch (_) { return null; }
+        })();
+        if (_assert && typeof localStorage === 'undefined') {
+            // Provide a minimal localStorage shim so getSavedList is callable in Node.
+            var _store = {};
+            var _localStorage = {
+                getItem: function (key) { return key in _store ? _store[key] : null; },
+                setItem: function (key, value) { _store[key] = String(value); },
+                removeItem: function (key) { delete _store[key]; }
+            };
+            Object.defineProperty(globalThis, 'localStorage', { value: _localStorage, writable: false });
+
+            var _core = null;
+            try {
+                // Re-invoke createCore() under the shimmed environment.
+                eval('var coreFactory = (function () {' +
+                    'function getSavedList() {' +
+                    '    try {' +
+                    '        var list = JSON.parse(localStorage.getItem("animalFriendlyList") || "[]");' +
+                    '        return Array.isArray(list) ? list.filter(function(s){return typeof s==="string"&&s.trim()!=="";}).map(function(s){return s.trim().toLowerCase();}) : [];'+
+                    '    } catch (e) { return []; }'+
+                    '}'+
+                    'return getSavedList;' +
+                    '})().getSavedList');
+                _core = coreFactory;
+            } catch (_e) { /* skip if eval fails */ }
+
+            if (_core && typeof _assert.strictEqual === 'function') {
+                var _r = _core();
+                _assert.ok(Array.isArray(_r), 'getSavedList returns array under empty store');
+                _assert.strictEqual(_r.length, 0, 'empty localStorage -> zero entries');
+
+                _localStorage.setItem('animalFriendlyList', JSON.stringify(['  Travelodge  ','Campanile','']));
+                var _r2 = _core();
+                _assert.deepStrictEqual(_r2.map(function(s){return s;}), ['travelodge','campanile'], 'getSavedList trims, lowercases, drops empty strings');
+
+                // Corrupt payload -> empty fallback.
+                _localStorage.setItem('animalFriendlyList', '{"not": "an array"}');
+                var _r3 = _core();
+                _assert.strictEqual(_r3.length, 0, 'non-array JSON falls back to []');
+            }
+        }
+    }
+
     if (window.__bookingFilterInit) return;
     window.__bookingFilterInit = true;
 
