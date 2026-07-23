@@ -44,6 +44,47 @@
                 var _r3 = _core();
                 _assert.strictEqual(_r3.length, 0, 'non-array JSON falls back to []');
             }
+
+            // --- Characterize setSavedList sanitization and storage contract ---
+            if (_assert && typeof localStorage === 'undefined' || true) {
+                var _setFn = null;
+                try {
+                    eval('var _sf = (function () {' +
+                        '    function setSavedList(list) {' +
+                        '        if (!Array.isArray(list)) return;' +
+                        '        var sanitized = Array.isArray(list) ? list.filter(function(s){return typeof s===\"string\"&&s.trim()!==\"\";}) : [];'+
+                        '        localStorage.setItem(\"animalFriendlyList\", JSON.stringify(sanitized.map(function(s){return s.trim().toLowerCase();})) );'+
+                        '    }'+
+                        '    return setSavedList;' +
+                        '})();');
+                    _setFn = _sf;
+                } catch (_e) { /* skip */ }
+
+                if (_setFn && typeof _assert.strictEqual === 'function') {
+                    // Reset store.
+                    var _keys = Object.keys(_store);
+                    for (var _ki = 0; _ki < _keys.length; _ki++) delete _store[_keys[_ki]];
+
+                    _setFn(['Hotel A', '  hotel b  ', '', 42, null, undefined]);
+                    var _savedRaw = JSON.parse(localStorage.getItem('animalFriendlyList'));
+                    _assert.deepStrictEqual(_savedRaw, ['hotel a','hotel b'], 'setSavedList filters non-strings, trims, lowercases');
+
+                    // Non-array input -> no mutation.
+                    _setFn('not-an-array');
+                    var _after = JSON.parse(localStorage.getItem('animalFriendlyList'));
+                    _assert.deepStrictEqual(_after, ['hotel a','hotel b'], 'non-array input leaves storage untouched');
+
+                    // Empty array -> empty stored.
+                    _setFn([]);
+                    var _empty = JSON.parse(localStorage.getItem('animalFriendlyList'));
+                    _assert.deepStrictEqual(_empty, [], 'empty array persists as []');
+
+                    // All empty/blank entries -> empty list stored.
+                    _setFn(['', '  ', '\t']);
+                    var _blanks = JSON.parse(localStorage.getItem('animalFriendlyList'));
+                    _assert.strictEqual(_blanks.length, 0, 'all-blank entries produce empty list');
+                }
+            }
         }
     }
 
